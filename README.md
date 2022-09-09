@@ -27,6 +27,7 @@ Words Away is a web based game combining the mechanics of Battleship and Scrabbl
  - Player ELO will be calculated after game conclusion.
  - Difficulty options.
  - Emote communication 😀😠😅😭💀🤷💅
+ - Profile Viewing
 ### API Functionality
  - API will reference external API to check player move validity.
 ### Tech Stack
