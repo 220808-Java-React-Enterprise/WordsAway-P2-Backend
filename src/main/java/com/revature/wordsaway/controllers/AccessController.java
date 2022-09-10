@@ -22,13 +22,6 @@ public class AccessController {
         return UserService.register(request).toString();
     }
 
-//    @ExceptionHandler(value = {AuthenticationException.class})
-//    @PostMapping(value = "/login", consumes = "application/json")
-//    public void login(@RequestBody LoginRequest request, HttpServletResponse resp) {
-//        String token = UserService.login(request);
-//        resp.setHeader("Authorization", token);
-//    }
-
     @PostMapping(value = "/login", consumes = "application/json")
     public void login(@RequestBody LoginRequest request, HttpServletResponse resp) {
         String token = UserService.login(request);
