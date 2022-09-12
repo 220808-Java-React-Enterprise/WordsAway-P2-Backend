@@ -12,16 +12,14 @@ public class Board {
     private User user;
     @Column(name = "tray", nullable = false, length = 7)
     private char[] tray;
-    @Column(name = "bombs", nullable = false)
-    private int bombs;
-    @Column(name = "ships", nullable = false, length = 215)
-    private char[] ships;
-    @Column(name = "letters", nullable = false, length = 215)
+    @Column(name = "fireballs", nullable = false)
+    private int fireballs;
+    @Column(name = "worms", nullable = false, length = 15*15)
+    private char[] worms;
+    @Column(name = "letters", nullable = false, length = 15*15)
     private char[] letters;
+    @Column(name = "game_id", nullable = false)
+    private UUID gameID;
     @Column(name = "is_active", nullable = false)
-    private boolean isActive = false;
-
-    @OneToOne
-    @JoinColumn(name = "opponent_board", nullable = false)
-    private Board opponentBoard;
+    private boolean isActive;
 }
