@@ -1,4 +1,13 @@
 # WordsAway-P2-Backend
+
+<a href="https://github.com/220808-Java-React-Enterprise/WordsAway-P2-Frontend">Frontend</a>
+
+## Team Members
+- Chris Waters (Lead)
+- Nathan Gilbert (Frontend)
+- Nicholas Fielder (Frontend)
+- Robert James (Backend)
+
 ## Proposal
 Words Away is a web based game combining the mechanics of Battleship and Scrabble. This game will use a anagram API for checking words and determining possible words for computer players. Players will set up a game by laying out their ships on a grid. On their turn a player can place either a word or a bomb. All instances of 2 or more letters in a grid must be valid words. A player receives a bomb for each new cross word that they make. The first player to place letters in every ship cell of their oppenent's grid wins.
 ## Overview

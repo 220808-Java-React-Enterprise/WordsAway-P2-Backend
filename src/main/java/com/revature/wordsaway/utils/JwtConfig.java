@@ -1,15 +1,17 @@
 package com.revature.wordsaway.utils;
 
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 
+@Component
 public class JwtConfig {
-    private final String salt = "euihflakbfvorefahnncvltaoifahicuoaneruiphadbhyuovic";
+    private final String salt = "Loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididuntutlaboreet";
 
-    private int expiration = 60 * 60 * 1000;
+    private final int expiration = 60 * 60 * 1000;
 
     private final SignatureAlgorithm sigAlg = SignatureAlgorithm.HS256;
 
