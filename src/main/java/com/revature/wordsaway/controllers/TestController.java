@@ -42,11 +42,8 @@ public class TestController {
         BoardService.deleteAll();
     }
 
-
     @GetMapping(value = "/test", consumes = "application/json")
     public void moveTest(@RequestBody MoveRequest request) {
-        System.out.println(request);
-        System.out.println(BoardService.getByID(UUID.fromString(request.getBoardID())));
         BoardService.validateMove(UUID.fromString(request.getBoardID()), request.getMove().toCharArray());
     }
 }
