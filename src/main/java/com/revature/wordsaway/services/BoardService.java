@@ -139,9 +139,13 @@ public class BoardService {
             int index = (int) oneDiffs.toArray()[0];
             char c = newBoard.getRow(index / BOARD_SIZE)[index % BOARD_SIZE];
             if(c == '*') return;
-            for(char[] change : oneDiffsChanges){
-                if(!isWord(change)) throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
-            }
+            if(oneDiffsChanges.size() > 0) {
+                for (char[] change : oneDiffsChanges) {
+                    if (!isWord(change))
+                        throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
+                }
+            }else if (!isWord(new char[] {c}))
+                throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
         } else throw new InvalidRequestException("Invalid Move. Must be some change in boards.");
     }
 
