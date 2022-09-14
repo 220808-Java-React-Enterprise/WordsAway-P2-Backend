@@ -18,7 +18,7 @@ public class AnagramController {
 
     // TODO remove from final to prevent cheating or make only accessible by CUPs
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody List<String> testAll(@RequestBody AnagramRequest request){
+    public @ResponseBody String testAll(@RequestBody AnagramRequest request){
         return AnagramService.getAll(request.getLetters());
     }
 

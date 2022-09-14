@@ -7,7 +7,7 @@ import java.util.*;
 @Service
 public class AIService {
 
-    private final char[] letters, tray;
+    private final char[] letters, tray; // TODO change to full board
 
     public AIService(char[] letters, char[] tray){
         this.letters = letters;
@@ -46,11 +46,11 @@ public class AIService {
         for (Map<Integer, String> map : possibleTrays.values()){
             for (int i = 0; i < 16; i++){
                 if (!map.containsKey(i))
-                    allPossibleWords = null;//AnagramService.getAll(String.valueOf(tray));
+                    allPossibleWords = null;// TODO AnagramService.getAllList(String.valueOf(tray));
                 else
-                    allPossibleWords = null;//AnagramService.getAll(map.get(i));
+                    allPossibleWords = null;// TODO AnagramService.getAllList(map.get(i));
 
-                //bestWords.add(getBestWord(allPossibleWords, col, i));
+                bestWords.add(getBestWord(allPossibleWords, col, i));
             }
             col = false;
         }
@@ -71,9 +71,8 @@ public class AIService {
                         int index = 0;
                         char[] c = word.toCharArray();
                         for (int j = i; j < word.length(); j += 16){
+                            // Check if letter fits in current location
                             if (letters[j] != '.' && letters[j] != c[index]) break;
-
-
                         }
                     }
                 }

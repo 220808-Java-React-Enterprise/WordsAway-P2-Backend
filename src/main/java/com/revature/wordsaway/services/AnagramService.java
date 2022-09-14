@@ -19,9 +19,9 @@ public class AnagramService {
         return new RestTemplate().getForObject("http://www.anagramica.com/best/" + letters, String.class);
     }
 
-//    public static String getAll(String letters){
-//        return new RestTemplate().getForObject("http://www.anagramica.com/all/" + letters, String.class);
-//    }
+    public static String getAll(String letters){
+        return new RestTemplate().getForObject("http://www.anagramica.com/all/" + letters, String.class);
+    }
 
     public static boolean isWord(String letters) {
         try {
@@ -32,7 +32,7 @@ public class AnagramService {
     }
 
     @ExceptionHandler(value = IOException.class)
-    public static List<String> getAll(String letters){
+    public static List<String> getAllList(String letters){
         List<String> words = new ArrayList<>();
         // Instantiate a client
         WebClient client = new WebClient();
