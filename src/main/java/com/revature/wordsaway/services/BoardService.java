@@ -56,6 +56,7 @@ public class BoardService {
     }
 
     public static void validateMove(UUID boardID, char[] move) throws InvalidRequestException {
+        //TODO try to simplify this method.
         Board oldBoard = getByID(boardID);
         Board newBoard = new Board(oldBoard, move);
         Set<Integer> oneDiffs = new HashSet<>();
@@ -71,17 +72,17 @@ public class BoardService {
                     if(oldBoard.getRow(i)[j] != '.') throw new InvalidRequestException("Invalid Move. Can not place tile on non-empty spot.");
                     if(startChange == -1) startChange = j;
                     differences++;
-                }else if(startChange != -1) endChange = j;
+                }else if(startChange != -1 && newBoard.getRow(i)[j] == '.') endChange = j;
             }
             if(differences == 1) oneDiffs.add(i * BOARD_SIZE + startChange);
             for(int j = startChange; j >= 0; j--){
-                if(newBoard.getColumn(i)[j] != '.') startChange = j;
+                if(newBoard.getRow(i)[j] != '.') startChange = j;
                 else break;
             }
             if(startChange != -1){
                 if(endChange == -1) endChange = BOARD_SIZE;
                 for(int j = endChange; j < BOARD_SIZE; j++){
-                    if(newBoard.getColumn(i)[j] != '.') endChange = j;
+                    if(newBoard.getRow(i)[j] != '.') endChange = j;
                     else break;
                 }
             }
@@ -105,7 +106,7 @@ public class BoardService {
                     if(oldBoard.getColumn(i)[j] != '.') throw new InvalidRequestException("Invalid Move. Can not place tile on non-empty spot.");
                     if(startChange == -1) startChange = j;
                     differences++;
-                }else if(startChange != -1) endChange = j;
+                }else if(startChange != -1 && newBoard.getColumn(i)[j] == '.') endChange = j;
             }
             if(differences == 1) oneDiffs.add(i + startChange * BOARD_SIZE);
             for(int j = startChange; j >= 0; j--){
