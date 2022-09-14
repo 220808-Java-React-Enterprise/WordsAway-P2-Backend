@@ -22,4 +22,36 @@ public class Board {
     private UUID gameID;
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
+
+    public UUID getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public char[] getTray() {
+        return tray;
+    }
+
+    public int getFireballs() {
+        return fireballs;
+    }
+
+    public char[] getWorms() {
+        return worms;
+    }
+
+    public char[] getLetters() {
+        return letters;
+    }
+
+    public UUID getGameID() {
+        return gameID;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
 }
