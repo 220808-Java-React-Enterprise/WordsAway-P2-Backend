@@ -13,6 +13,32 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
+					"raw": "{\n    \"username\":\"koukaakiva\",\n    \"password\":\"fnord\",\n    \"email\":\"koukaakiva@gmail.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/signup",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New User 2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
 					"raw": "{\n    \"username\":\"christhewizard\",\n    \"password\":\"fnord\",\n    \"email\":\"christhewizard@gmail.com\"\n}",
 					"options": {
 						"raw": {
@@ -68,7 +94,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\":\"koukaakiva\",\n    \"password\":\"fnord\"\n}",
+					"raw": "{\n    \"username\":\"christhewizard\",\n    \"password\":\"fnord\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -82,6 +108,310 @@
 					],
 					"path": [
 						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Best",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"letters\":\"mteaay\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/best",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"best"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"letters\":\"mteaay\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/all",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "IsWord",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"letters\":\"cat\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/lookup",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"lookup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Make Game Test",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/makegame",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"makegame"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete All Boards",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"letters\":\"mteaay\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/deleteAllGames",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"deleteAllGames"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Game By ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"letters\":\"e48b98f7-7add-4bf8-831c-0b140c55556d\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/getgame",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"getgame"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Move",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"boardID\":\"00000000-0000-0000-0000-000000000002\",\n    \"move\":\"...A...............S...............S............................................................................................................................................................................................................................\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/test",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"test"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Move 2",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"boardID\":\"00000000-0000-0000-0000-000000000002\",\n    \"move\":\"...................SAY..........................................................................................................................................................................................................................................\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/test",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"test"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Move 3",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"boardID\":\"00000000-0000-0000-0000-000000000002\",\n    \"move\":\"...................SAY..........................................................................................................................................................................................................................................\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/test",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"test"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Move 4",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"boardID\":\"00000000-0000-0000-0000-000000000002\",\n    \"move\":\"...................SAY..........................................................................................................................................................................................................................................\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/test",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"test"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Move 5",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"boardID\":\"00000000-0000-0000-0000-000000000002\",\n    \"move\":\"...................SAY..........................................................................................................................................................................................................................................\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/test",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"test"
 					]
 				}
 			},
