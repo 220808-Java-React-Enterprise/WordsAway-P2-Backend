@@ -3,7 +3,7 @@ package com.revature.wordsaway.services;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.revature.wordsaway.dtos.responses.AnagramResponse;
-import com.revature.wordsaway.utils.CustomExceptions.NotFoundException;
+import com.revature.wordsaway.utils.customExceptions.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.RestTemplate;

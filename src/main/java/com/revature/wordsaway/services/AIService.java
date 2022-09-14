@@ -58,7 +58,36 @@ public class AIService {
     }
 
     private String getBestWord(List<String> words, boolean col, int rowOrColNumber){
+        Map<Integer, String> validWords = new HashMap<>();
+        String best = "";
 
+        exit:{
+            if (col){
+                for(int i = rowOrColNumber; i < letters.length; i += 16){
+                    for (String word : words){
+                        // If the word no longer fits exit
+                        if (word.length() - i / 16 < 0) break exit;
+
+                        int index = 0;
+                        char[] c = word.toCharArray();
+                        for (int j = i; j < word.length(); j += 16){
+                            if (letters[j] != '.' && letters[j] != c[index]) break;
+
+
+                        }
+                    }
+                }
+            }
+            else {
+                int start = rowOrColNumber * 16;
+                for (int i = start; i < start + 16; i++){
+                    for (String word : words) {
+                        // If the word no longer fits exit
+                        if (word.length() - i % 16 < 0) break exit;
+                    }
+                }
+            }
+        }
 
         return null;
     }

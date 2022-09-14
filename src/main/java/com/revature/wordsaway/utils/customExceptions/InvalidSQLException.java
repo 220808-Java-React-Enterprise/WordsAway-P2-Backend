@@ -1,4 +1,4 @@
-package com.revature.wordsaway.utils.CustomExceptions;
+package com.revature.wordsaway.utils.customExceptions;
 
 public class InvalidSQLException extends RuntimeException {
     public InvalidSQLException() {}
