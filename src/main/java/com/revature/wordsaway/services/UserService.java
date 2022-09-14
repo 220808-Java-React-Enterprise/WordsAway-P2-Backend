@@ -58,7 +58,9 @@ public class UserService {
     }
 
     public static User getByUsername(String username){
-        return userRepository.findUserByUsername(username);
+        User user = userRepository.findUserByUsername(username);
+        if(user == null) throw new InvalidRequestException("No user with username " + username + " found.");
+        return user;
     }
 
     public static List<User> getAll() {
