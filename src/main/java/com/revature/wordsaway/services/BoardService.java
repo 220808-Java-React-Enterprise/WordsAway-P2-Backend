@@ -39,8 +39,8 @@ public class BoardService {
         return board;
     }
 
-    public static void update(MoveRequest request){
-        boardRepository.updateBoardLettersByID(request.getBoardID(), request.getMove());
+    public static void update(Board board){
+        boardRepository.updateBoard(board.getId(), board.getFireballs(), board.isActive(), board.getLetters(), board.getTray(), board.getWorms());
     }
 
     public static Board getByID(UUID boardID) {
@@ -55,15 +55,21 @@ public class BoardService {
         return boards;
     }
 
+    public static Board getOpposingBoard(Board board) {
+        Board opposingBoard =  boardRepository.findOpposingBoardByIDAndGameID(board.getId(), board.getGameID());
+        if(opposingBoard == null) throw new InvalidRequestException("No boards opposing " + board.getGameID() + " found.");
+        return opposingBoard;
+    }
+
     //TODO probably delete this at the end
     public static void deleteAll(){
         boardRepository.deleteAll();
     }
 
-    public static void validateMove(UUID boardID, char[] move) throws InvalidRequestException {
+    public static void validateMove(MoveRequest request) throws InvalidRequestException {
         //TODO try to simplify this method.
-        Board oldBoard = getByID(boardID);
-        Board newBoard = new Board(oldBoard, move);
+        Board oldBoard = getByID(request.getBoardID());
+        Board newBoard = new Board(oldBoard, request.getMove());
         Set<Integer> oneDiffs = new HashSet<>();
         List<char[]> oneDiffsChanges = new ArrayList<>();
         char[] multipleLetterDifference = null;

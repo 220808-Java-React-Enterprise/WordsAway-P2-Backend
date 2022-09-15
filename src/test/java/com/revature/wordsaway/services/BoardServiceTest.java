@@ -43,7 +43,7 @@ public class BoardServiceTest {
             move[2] = 'T';
             when(request.getMove()).thenReturn(move);
             when(request.getBoardID()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000000"));
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -67,7 +67,7 @@ public class BoardServiceTest {
             move[16] = 'A';
             move[32] = 'T';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -89,7 +89,7 @@ public class BoardServiceTest {
             Arrays.fill(move, '.');
             move[0] = 'I';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -111,7 +111,7 @@ public class BoardServiceTest {
             char[] move = new char[BOARD_SIZE*BOARD_SIZE];
             Arrays.fill(move, '.');
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -142,7 +142,7 @@ public class BoardServiceTest {
             move[2] = 'T';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -172,7 +172,7 @@ public class BoardServiceTest {
             move[32] = 'T';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -200,7 +200,7 @@ public class BoardServiceTest {
             move[0] = 'I';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -229,7 +229,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 6] = 'A';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -257,7 +257,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 6] = 'P';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -286,7 +286,7 @@ public class BoardServiceTest {
             move[6 * BOARD_SIZE + 7] = 'A';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -314,7 +314,7 @@ public class BoardServiceTest {
             move[6 * BOARD_SIZE + 7] = 'P';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -343,7 +343,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 8] = 'C';
             move[7 * BOARD_SIZE + 9] = 'T';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -371,7 +371,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 7] = 'A';
             move[7 * BOARD_SIZE + 8] = 'T';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -400,7 +400,7 @@ public class BoardServiceTest {
             move[8 * BOARD_SIZE + 7] = 'C';
             move[9 * BOARD_SIZE + 7] = 'T';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -428,7 +428,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 7] = 'A';
             move[8 * BOARD_SIZE + 7] = 'T';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -457,7 +457,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 7] = 'A';
             move[7 * BOARD_SIZE + 8] = 'T';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -486,7 +486,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 7] = 'A';
             move[8 * BOARD_SIZE + 7] = 'T';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -524,7 +524,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 11] = 'C';
             move[11 * BOARD_SIZE + 7] = 'C';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -562,7 +562,7 @@ public class BoardServiceTest {
             move[11 * BOARD_SIZE + 7] = 'C';
             move[7 * BOARD_SIZE + 11] = 'C';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
             anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
         }
@@ -590,7 +590,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 6] = '*';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -617,7 +617,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 7] = 'A';
             move[7 * BOARD_SIZE + 8] = '*';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -644,7 +644,7 @@ public class BoardServiceTest {
             move[6 * BOARD_SIZE + 7] = '*';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -671,7 +671,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 7] = 'A';
             move[8 * BOARD_SIZE + 7] = '*';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -699,7 +699,7 @@ public class BoardServiceTest {
             move[6 * BOARD_SIZE + 1] = '*';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -727,7 +727,7 @@ public class BoardServiceTest {
             move[6 * BOARD_SIZE + 0] = '*';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -755,7 +755,7 @@ public class BoardServiceTest {
             move[6 * BOARD_SIZE + 1] = '*';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -783,7 +783,7 @@ public class BoardServiceTest {
             move[6 * BOARD_SIZE + 1] = 'A';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -811,7 +811,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 6] = '*';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -839,7 +839,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 8] = '*';
             move[7 * BOARD_SIZE + 9] = '*';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -867,7 +867,7 @@ public class BoardServiceTest {
             move[6 * BOARD_SIZE + 7] = '*';
             move[7 * BOARD_SIZE + 7] = 'A';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -895,7 +895,7 @@ public class BoardServiceTest {
             move[8 * BOARD_SIZE + 7] = '*';
             move[9 * BOARD_SIZE + 7] = '*';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -923,7 +923,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 7] = 'A';
             move[7 * BOARD_SIZE + 8] = '*';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
@@ -951,7 +951,7 @@ public class BoardServiceTest {
             move[7 * BOARD_SIZE + 7] = 'A';
             move[8 * BOARD_SIZE + 7] = '*';
             when(request.getMove()).thenReturn(move);
-            boardService.validateMove(request.getBoardID(), request.getMove());
+            boardService.validateMove(request);
             verify(mockRepo, times(1)).findBoardByID(any());
         }
     }
