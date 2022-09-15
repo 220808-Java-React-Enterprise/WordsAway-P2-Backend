@@ -44,7 +44,6 @@ public class TestController {
         BoardService.deleteAll();
     }
 
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)
     public @ResponseBody NetworkException handleException(NetworkException e) {

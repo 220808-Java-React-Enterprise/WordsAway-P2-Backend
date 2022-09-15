@@ -2,6 +2,8 @@ package com.revature.wordsaway.controllers;
 
 import com.revature.wordsaway.dtos.requests.LoginRequest;
 import com.revature.wordsaway.dtos.requests.NewUserRequest;
+import com.revature.wordsaway.dtos.requests.UsernameRequest;
+import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.services.UserService;
 import com.revature.wordsaway.utils.customExceptions.AuthenticationException;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
 
 @RestController
 @RequestMapping
@@ -28,5 +31,17 @@ public class AccessController {
     public void login(@RequestBody LoginRequest request, HttpServletResponse resp) {
         String token = UserService.login(request);
         resp.setHeader("Authorization", token);
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/salt", consumes = "application/json")
+    public String salt(@RequestBody UsernameRequest request) {
+        User user;
+        try{
+            user = UserService.getByUsername(request.getUsername());
+        }catch (InvalidRequestException e){
+            return UUID.randomUUID().toString().replace("-","");
+        }
+        return user.getSalt();
     }
 }
