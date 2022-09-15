@@ -18,11 +18,11 @@ public interface BoardRepository extends CrudRepository<Board, UUID> {
     @Query(value = "SELECT * FROM boards WHERE game_id = ?1", nativeQuery = true)
     List<Board> findBoardByGameID(UUID gameID);
 
+    @Query(value = "SELECT * FROM boards WHERE game_id = ?2 AND id != ?1", nativeQuery = true)
+    Board findOpposingBoardByIDAndGameID(UUID id, UUID gameID);
+
     @Transactional
     @Modifying
     @Query(value = "UPDATE boards SET fireballs = ?2 , is_active = ?3, letters = ?4, tray = ?5, worms = ?6 WHERE id = ?1", nativeQuery = true)
     void updateBoard(UUID gameID, int fireballs, boolean isActive, char[] letters, char[] tray, char[] worms);
-
-    @Query(value = "SELECT * FROM boards WHERE game_id = ?2 AND id != ?1", nativeQuery = true)
-    Board findOpposingBoardByIDAndGameID(UUID id, UUID gameID);
 }

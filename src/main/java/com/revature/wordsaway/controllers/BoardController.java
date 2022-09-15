@@ -5,15 +5,11 @@ import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.services.BoardService;
 import com.revature.wordsaway.services.TokenService;
-import com.revature.wordsaway.services.UserService;
-import com.revature.wordsaway.utils.customExceptions.AuthenticationException;
 import com.revature.wordsaway.utils.customExceptions.ForbiddenException;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import com.revature.wordsaway.utils.customExceptions.NetworkException;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping
@@ -45,6 +41,7 @@ public class BoardController {
             opposingBoard.toggleActive();
             BoardService.update(board);
             BoardService.update(opposingBoard);
+            //TODO maybe post to opponent that it's their turn if not checking continuously
         }catch (NetworkException e){
             return e.getMessage();
         }
