@@ -44,11 +44,6 @@ public class TestController {
         BoardService.deleteAll();
     }
 
-    @CrossOrigin
-    @GetMapping(value = "/test", consumes = "application/json")
-    public void moveTest(@RequestBody MoveRequest request) {
-        BoardService.validateMove(request.getBoardID(), request.getMove());
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)
