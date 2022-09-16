@@ -35,7 +35,7 @@ public class AIService {
 
     public Board startEasyBot(long startTime){
         // If bot has taken longer than 25 seconds leave
-        //if (System.currentTimeMillis() - startTime > 25000) return null;
+        if (System.currentTimeMillis() - startTime > 25000) return null;
         // Get random number from 0-31
         Random rand = new Random();
         // Set seed to system time
