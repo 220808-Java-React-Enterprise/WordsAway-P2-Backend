@@ -23,10 +23,11 @@ public class AccessController {
     @CrossOrigin
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(value = "/signup", consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String signup(@RequestBody NewUserRequest request) {
+    public @ResponseBody String signup(@RequestBody NewUserRequest request, HttpServletResponse resp) {
         try {
             return UserService.register(request).toString();
         }catch (NetworkException e){
+            resp.setStatus(e.getStatusCode());
             return e.getMessage();
         }
 
@@ -40,17 +41,19 @@ public class AccessController {
             resp.setHeader("Authorization", token);
             return "Logged In";
         }catch (NetworkException e){
+            resp.setStatus(e.getStatusCode());
             return e.getMessage();
         }
     }
 
     @CrossOrigin
     @GetMapping(value = "/salt")
-    public String salt(@Param("username") String username) {
+    public String salt(@Param("username") String username, HttpServletResponse resp) {
         User user;
         try{
             user = UserService.getByUsername(username);
-        }catch (InvalidRequestException e){
+        }catch (NetworkException e){
+            resp.setStatus(e.getStatusCode());
             return UUID.randomUUID().toString().replace("-","");
         }
         return user.getSalt();

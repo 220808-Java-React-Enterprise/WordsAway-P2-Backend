@@ -10,6 +10,7 @@ import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import com.revature.wordsaway.utils.customExceptions.NetworkException;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping
@@ -17,10 +18,11 @@ public class BoardController {
 
     @CrossOrigin
     @GetMapping(value = "/checkMove", consumes = "application/json")
-    public boolean checkMove(@RequestBody MoveRequest request) {
+    public boolean checkMove(@RequestBody MoveRequest request, HttpServletResponse resp) {
         try {
             BoardService.validateMove(request);
         }catch (InvalidRequestException e){
+            resp.setStatus(e.getStatusCode());
             return false;
         }
         return true;
@@ -28,7 +30,7 @@ public class BoardController {
 
     @CrossOrigin
     @PostMapping(value = "/makeMove", consumes = "application/json")
-    public String makeMove(@RequestBody MoveRequest request, HttpServletRequest httpServletRequest) {
+    public String makeMove(@RequestBody MoveRequest request, HttpServletRequest httpServletRequest, HttpServletResponse resp) {
         try {
             User user = TokenService.extractRequesterDetails(httpServletRequest);
             Board board = BoardService.getByID(request.getBoardID());
@@ -43,6 +45,7 @@ public class BoardController {
             BoardService.update(opposingBoard);
             //TODO maybe post to opponent that it's their turn if not checking continuously
         }catch (NetworkException e){
+            resp.setStatus(e.getStatusCode());
             return e.getMessage();
         }
         return "Move made.";
