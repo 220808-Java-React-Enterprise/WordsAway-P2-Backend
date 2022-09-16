@@ -7,11 +7,10 @@ import java.util.*;
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 
 @Service
-public class AIService {
-
+public class AIService { // TODO improve bot/make harder bot
     private final Board board;
     private final char[] letters;
-    private char[] tray; // TODO change to and instance of a board
+    private char[] tray;
 
     private final static Map<Integer, boolean[]> existingList = new HashMap<>();
 
@@ -77,8 +76,8 @@ public class AIService {
             board.setTray(tray);
             return board;
         }
+        // Get random answer and play it
         WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
-
         return finalizeMove(board, wl, rand, increment);
     }
 
@@ -187,6 +186,7 @@ public class AIService {
         for (int i = wl.location; counter < c.length; i += increment) {
             if (letters[i] == '.' || letters[i] == '*'){
                 letters[i] = c[counter];
+                // TODO get better random tray
                 tray = String.valueOf(tray).replace(c[counter], (char) (rand.nextInt(26) + 65)).toCharArray();
             }
             else board.setFireballs(board.getFireballs() + 1);

@@ -1,5 +1,6 @@
 package com.revature.wordsaway.services;
 
+import com.revature.wordsaway.dtos.requests.MoveRequest;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.repositories.BoardRepository;
