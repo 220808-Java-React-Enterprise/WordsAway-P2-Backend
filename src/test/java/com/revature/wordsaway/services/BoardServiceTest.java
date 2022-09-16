@@ -6,11 +6,12 @@ import com.revature.wordsaway.repositories.BoardRepository;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
+
 import java.util.Arrays;
 import java.util.UUID;
+
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.intThat;
 import static org.mockito.Mockito.*;
 
 public class BoardServiceTest {
@@ -20,8 +21,6 @@ public class BoardServiceTest {
     private Board mockBoard;
     private MoveRequest request;
     private char[] move = new char[BOARD_SIZE*BOARD_SIZE];
-
-    private static final char[] BLANK_LINE = {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'};
 
     @BeforeEach
     public void setupTest(){
@@ -48,31 +47,66 @@ public class BoardServiceTest {
     }
 
     private void setupBlankBoard(){
-        when(mockBoard.getRow(intThat(i -> i >= 0 && i < BOARD_SIZE))).thenReturn(BLANK_LINE);
-        when(mockBoard.getColumn(intThat(i -> i >= 0 && i < BOARD_SIZE))).thenReturn(BLANK_LINE);
+        when(mockBoard.getLetters()).thenReturn(new char[]{
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
+        });
     }
 
     private void setupBoardWithOneLetter(){
-        char[] lineWithLetter = BLANK_LINE.clone();
-        lineWithLetter[7] = 'A';
-        when(mockBoard.getRow(intThat(i -> i != 7 && i >= 0 && i < BOARD_SIZE))).thenReturn(BLANK_LINE);
-        when(mockBoard.getColumn(intThat(i -> i != 7 && i >= 0 && i < BOARD_SIZE))).thenReturn(BLANK_LINE);
-        when(mockBoard.getRow(7)).thenReturn(lineWithLetter);
-        when(mockBoard.getColumn(7)).thenReturn(lineWithLetter);
+        when(mockBoard.getLetters()).thenReturn(new char[]{
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', 'A', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
+        });
     }
 
     private void setupBoardWithThreeLetters(){
-        char[] lineWithLetter = BLANK_LINE.clone();
-        lineWithLetter[7] = 'C';
-        char[] lineWithLetters = BLANK_LINE.clone();
-        lineWithLetters[7] = 'A';
-        lineWithLetters[11] = 'C';
-        when(mockBoard.getRow(intThat(i -> i != 7 && i != 11 && i >= 0 && i < BOARD_SIZE))).thenReturn(BLANK_LINE);
-        when(mockBoard.getColumn(intThat(i -> i != 7 && i != 11 && i >= 0 && i < BOARD_SIZE))).thenReturn(BLANK_LINE);
-        when(mockBoard.getRow(7)).thenReturn(lineWithLetters);
-        when(mockBoard.getColumn(7)).thenReturn(lineWithLetters);
-        when(mockBoard.getRow(11)).thenReturn(lineWithLetter);
-        when(mockBoard.getColumn(11)).thenReturn(lineWithLetter);
+        when(mockBoard.getLetters()).thenReturn(new char[]{
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', 'A', '.', '.', '.', 'C', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', 'C', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
+        });
     }
 
     @RepeatedTest(BOARD_SIZE * BOARD_SIZE)
@@ -80,6 +114,7 @@ public class BoardServiceTest {
         setupBlankBoard();
         int r = repetitionInfo.getCurrentRepetition() - 1;
         if(r % BOARD_SIZE >= BOARD_SIZE - 2) return; //TODO do math to repeat less rather than returning here
+        System.out.println(r);
         move[r] = 'C';
         move[r + 1] = 'A';
         move[r + 2] = 'T';
@@ -362,7 +397,8 @@ public class BoardServiceTest {
             boardService.validateMove(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
-        Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
+        Assertions.assertEquals("Invalid Move. Illegal characters placed on board.",
+                thrown.getMessage());
     }
 
     @Test
@@ -390,7 +426,7 @@ public class BoardServiceTest {
             boardService.validateMove(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
-        Assertions.assertEquals("Invalid Move. More than one tile in different rows and columns may not be placed at once.",
+        Assertions.assertEquals("Invalid Move. All tiles must be placed in either the same row or same column.",
                 thrown.getMessage());
     }
 
@@ -405,7 +441,7 @@ public class BoardServiceTest {
             boardService.validateMove(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
-        Assertions.assertEquals("Invalid Move. More than one tile in different rows and columns may not be placed at once.",
+        Assertions.assertEquals("Invalid Move. All tiles must be placed in either the same row or same column.",
                 thrown.getMessage());
     }
 
@@ -462,7 +498,8 @@ public class BoardServiceTest {
             boardService.validateMove(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
-        Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
+        Assertions.assertEquals("Invalid Move. Illegal characters placed on board.",
+                thrown.getMessage());
     }
 
     @Test
@@ -476,7 +513,8 @@ public class BoardServiceTest {
             boardService.validateMove(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
-        Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
+        Assertions.assertEquals("Invalid Move. Illegal characters placed on board.",
+                thrown.getMessage());
     }
 
     @Test
@@ -490,6 +528,7 @@ public class BoardServiceTest {
             boardService.validateMove(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
-        Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
+        Assertions.assertEquals("Invalid Move. Illegal characters placed on board.",
+                thrown.getMessage());
     }
 }

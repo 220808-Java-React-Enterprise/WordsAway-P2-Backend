@@ -37,7 +37,7 @@ public class TokenService {
     public static User extractRequesterDetails(HttpServletRequest request){
         String token = request.getHeader("Authorization");
         if((token == null) || (token.isEmpty())){
-            throw new AuthenticationException("No Authorization token provide.");
+            throw new AuthenticationException("No Authorization token provided.");
         }
         try {
             Claims claims = Jwts.parser()
