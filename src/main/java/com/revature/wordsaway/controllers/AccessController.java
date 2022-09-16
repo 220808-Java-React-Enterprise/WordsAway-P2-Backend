@@ -9,6 +9,7 @@ import com.revature.wordsaway.utils.customExceptions.AuthenticationException;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import com.revature.wordsaway.utils.customExceptions.NetworkException;
 import com.revature.wordsaway.utils.customExceptions.ResourceConflictException;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -44,11 +45,11 @@ public class AccessController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "/salt", consumes = "application/json")
-    public String salt(@RequestBody UsernameRequest request) {
+    @GetMapping(value = "/salt")
+    public String salt(@Param("username") String username) {
         User user;
         try{
-            user = UserService.getByUsername(request.getUsername());
+            user = UserService.getByUsername(username);
         }catch (InvalidRequestException e){
             return UUID.randomUUID().toString().replace("-","");
         }
