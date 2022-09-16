@@ -1,8 +1,16 @@
 package com.revature.wordsaway.services;
 
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.*;
 import com.revature.wordsaway.dtos.responses.AnagramResponse;
+import com.revature.wordsaway.utils.customExceptions.NotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AnagramService {
@@ -21,5 +29,40 @@ public class AnagramService {
         } catch (NullPointerException e) {
             return false;
         }
+    }
+
+    @ExceptionHandler(value = IOException.class)
+    public static List<String> getAllList(String letters, String pattern, int wordLength){
+        List<String> words = new ArrayList<>();
+        // Instantiate a client
+        WebClient client = new WebClient();
+        client.getOptions().setCssEnabled(false);
+        client.getOptions().setJavaScriptEnabled(false);
+
+        String pageURL = !pattern.equals("")
+                ? "https://anagram-solver.io/words-for/" + letters + "/pattern/" + pattern + "/?dictionary=otcwl"
+                : "https://anagram-solver.io/words-for/" + letters + "/pattern/___/?dictionary=otcwl";
+
+        try {
+            // Make request
+            HtmlPage page = client.getPage(pageURL);
+
+            // Get all anagrams
+            List<HtmlElement> items = page.getByXPath("//div[@class='wordblock']/a");
+
+            for (HtmlElement item : items){
+                // Save to a list
+                String word = item.asNormalizedText();
+
+                // Check if it's the pattern
+                if (!word.equals(pattern))
+                    // Skip if length of word is greater than what we want
+                    if (word.length() <= wordLength)
+                        words.add(word.toUpperCase());
+            }
+        } catch (IOException e){
+            throw new NotFoundException("Page not found");
+        }
+        return words;
     }
 }

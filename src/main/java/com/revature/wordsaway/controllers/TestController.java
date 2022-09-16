@@ -1,12 +1,12 @@
 package com.revature.wordsaway.controllers;
 
 import com.revature.wordsaway.dtos.requests.AnagramRequest;
-import com.revature.wordsaway.dtos.requests.MoveRequest;
 import com.revature.wordsaway.models.Game;
 import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.services.BoardService;
 import com.revature.wordsaway.services.TokenService;
 import com.revature.wordsaway.services.UserService;
+import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import com.revature.wordsaway.utils.customExceptions.NetworkException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,6 +35,7 @@ public class TestController {
         return new Game(UserService.getByUsername("koukaakiva"), UserService.getByUsername("christhewizard")).toString();
     }
 
+    @ExceptionHandler(value = {InvalidRequestException.class})
     @CrossOrigin
     @GetMapping(value = "/getgame", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String getGame(@RequestBody AnagramRequest gameID) {
