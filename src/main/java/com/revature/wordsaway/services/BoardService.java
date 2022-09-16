@@ -160,6 +160,89 @@ public class BoardService {
         } else throw new InvalidRequestException("Invalid Move. Must be some change in boards.");
     }
 
+    public static void validateMove2TheWrathOfKhan(MoveRequest request) throws InvalidRequestException {
+        char[] oldLetters = getByID(request.getBoardID()).getLetters();
+        char[] newLetters = request.getMove();
+        Set<ChangeSpot> changeSpots = new HashSet<>();
+        for(int i = 0; i < oldLetters.length; i++){
+            if(oldLetters[i] != newLetters[i]){
+                changeSpots.add(new ChangeSpot(i));
+            }
+        }
+        if(changeSpots.size() == 0) throw new InvalidRequestException("Invalid Move. Must be some change in boards.");
+        ChangeSpot[] changeSpotArr = (ChangeSpot[]) changeSpots.toArray();
+        if(changeSpots.size() == 1){
+            char c = newLetters[changeSpotArr[0].getI()];
+            if(c == '*') return;
+            else if (!isWord(new char[] {c}))
+                throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
+        }
+        boolean checkRow = changeSpotArr[0].row == changeSpotArr[1].row;
+        boolean checkColumn = changeSpotArr[0].column == changeSpotArr[1].column;
+        if(!checkRow && !checkColumn)
+            throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
+        for(int i = 2; i < changeSpotArr.length; i++){
+            if(checkRow && changeSpotArr[i].row != changeSpotArr[0].row)
+                throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
+            if(checkColumn && changeSpotArr[i].column != changeSpotArr[0].column)
+                throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
+        }
+
+        if(!isWord(findConnectedWord(newLetters, changeSpotArr[0], checkRow, checkColumn)))
+            throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
+        for(ChangeSpot spot : changeSpotArr){
+            if(!isWord(findConnectedWord(newLetters, spot, !checkRow, !checkColumn)))
+                throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
+        }
+    }
+
+    private static class ChangeSpot{
+        int row;
+        int column;
+        ChangeSpot(int i){
+            this.row = i / BOARD_SIZE;
+            this.column = i % BOARD_SIZE;
+        }
+        int getI(){
+            return row * BOARD_SIZE + column;
+        }
+    }
+
+    private static char[] findConnectedWord(char[] letters, ChangeSpot spot, boolean checkRow, boolean checkColumn){
+        if(checkRow && checkColumn) throw new IllegalArgumentException("Both checkRow and checkColumn may not be true.");
+        if(checkRow){
+            int start = spot.row;
+            int end = spot.row;
+            for(int i = start - 1; i % BOARD_SIZE != BOARD_SIZE - 1 && letters[i] != '.' && letters[i] != '*'; i--){
+                start = i;
+            }
+            for(int i = end + 1; i % BOARD_SIZE != 0 && letters[i] != '.' && letters[i] != '*'; i++){
+                end = i;
+            }
+            char[] word = new char[end - start + 1];
+            for(int i = 0; i < word.length; i++){
+                word[i] = letters[spot.getI() + i];
+            }
+            return word;
+        }
+        if(checkColumn){
+            int start = spot.column;
+            int end = spot.column;
+            for(int i = start - BOARD_SIZE; i / BOARD_SIZE >= 0 && letters[i] != '.' && letters[i] != '*'; i -= BOARD_SIZE){
+                start = i;
+            }
+            for(int i = end + BOARD_SIZE; i /BOARD_SIZE < BOARD_SIZE && letters[i] != '.' && letters[i] != '*'; i += BOARD_SIZE){
+                end = i;
+            }
+            char[] word = new char[end - start + 1];
+            for(int i = 0; i < word.length; i += BOARD_SIZE){
+                word[i] = letters[spot.getI() + i];
+            }
+            return word;
+        }
+        throw new IllegalArgumentException("Either checkRow or checkColumn must be true.");
+    }
+
     private static boolean isWord(char[] rowOrColumn){
         String word = new String(rowOrColumn);
         word = word.replaceAll("^\\.*([^\\.](?:.*[^\\.])?)\\.*$", "$1");

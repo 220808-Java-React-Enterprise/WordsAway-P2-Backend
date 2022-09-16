@@ -7,6 +7,7 @@ import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.services.UserService;
 import com.revature.wordsaway.utils.customExceptions.AuthenticationException;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
+import com.revature.wordsaway.utils.customExceptions.NetworkException;
 import com.revature.wordsaway.utils.customExceptions.ResourceConflictException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,18 +20,27 @@ import java.util.UUID;
 public class AccessController {
 
     @CrossOrigin
-    @ExceptionHandler(value = {ResourceConflictException.class, InvalidRequestException.class})
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(value = "/signup", consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String signup(@RequestBody NewUserRequest request) {
-        return UserService.register(request).toString();
+        try {
+            return UserService.register(request).toString();
+        }catch (NetworkException e){
+            return e.getMessage();
+        }
+
     }
 
     @CrossOrigin
     @PostMapping(value = "/login", consumes = "application/json")
-    public void login(@RequestBody LoginRequest request, HttpServletResponse resp) {
-        String token = UserService.login(request);
-        resp.setHeader("Authorization", token);
+    public String login(@RequestBody LoginRequest request, HttpServletResponse resp) {
+        try {
+            String token = UserService.login(request);
+            resp.setHeader("Authorization", token);
+            return "Logged In";
+        }catch (NetworkException e){
+            return e.getMessage();
+        }
     }
 
     @CrossOrigin
