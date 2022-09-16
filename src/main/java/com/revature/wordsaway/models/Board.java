@@ -123,6 +123,14 @@ public class Board {
         return lettersColumns;
     }
 
+    public void setLetters(char[] letters) {
+        this.letters = letters;
+    }
+
+    public void toggleActive() {
+        isActive = !isActive;
+    }
+
     @Override
     public String toString() {
         return "Board{" +

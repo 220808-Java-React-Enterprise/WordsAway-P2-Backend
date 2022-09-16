@@ -3,17 +3,17 @@ package com.revature.wordsaway.dtos.requests;
 import java.util.UUID;
 
 public class MoveRequest {
-    private String boardID;
-    private String move;
+    private UUID boardID;
+    private char[] move;
 
     public MoveRequest() {
     }
 
-    public String getBoardID() {
+    public UUID getBoardID() {
         return boardID;
     }
 
-    public String getMove() {
+    public char[] getMove() {
         return move;
     }
 
