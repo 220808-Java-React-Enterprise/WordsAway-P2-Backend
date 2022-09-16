@@ -75,7 +75,7 @@ public class MainDriver {
         List<String> list = new ArrayList<>();
         long total = 0;
 
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 10; i++){
             long start = System.currentTimeMillis();
 
             board = new AIService(board).startEasyBot(start);
@@ -95,7 +95,7 @@ public class MainDriver {
             System.out.println();
         }
         System.out.println(list);
-        System.out.println(total / 50);
+        System.out.println(total / 10);
         System.out.println(board.getFireballs());
     }
 }

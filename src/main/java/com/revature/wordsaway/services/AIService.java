@@ -35,7 +35,7 @@ public class AIService {
 
     public Board startEasyBot(long startTime){
         // If bot has taken longer than 25 seconds leave
-        if (System.currentTimeMillis() - startTime > 25000) return null;
+        //if (System.currentTimeMillis() - startTime > 25000) return null;
         // Get random number from 0-31
         Random rand = new Random();
         // Set seed to system time
@@ -56,6 +56,7 @@ public class AIService {
         List<String> validWords;
         String existingLetters;
 
+        // Get a final list of all moves in give row or col
         while (isLoop(col, start, curr)) {
             existingLetters = getExistingLetters(curr, increment);
             validWords = getWordList(existingLetters, curr, increment);
@@ -65,8 +66,20 @@ public class AIService {
                 curr += increment;
             curr += increment;
         }
+        // Check if list is empty
+        if (finalList.isEmpty()){
+            Board newBoard = startEasyBot(startTime);
 
-        return getMove(finalList, startTime, rand, increment);
+            // If board has made no changes, replace tray, and return board
+            if (newBoard == null)
+                for (int i = 0; i < tray.length; i++)
+                    tray[i] = (char) (rand.nextInt(26) + 65);
+            board.setTray(tray);
+            return board;
+        }
+        WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
+
+        return finalizeMove(board, wl, rand, increment);
     }
 
     private String getExistingLetters(int start, int increment){
@@ -168,35 +181,20 @@ public class AIService {
         return start / BOARD_SIZE == curr / BOARD_SIZE;
     }
 
-    private Board getMove(List<WordAndLocation> finalList, long startTime, Random rand, int increment){
-        Board newBoard = board;
-        // Check if list is empty
-        if (finalList.isEmpty()){
-            newBoard = startEasyBot(startTime);
-
-            // If board has made no changes, replace tray, and return board
-            if (newBoard == null)
-                for (int i = 0; i < tray.length; i++)
-                    tray[i] = (char) (rand.nextInt(26) + 65);
-            board.setTray(tray);
-            return board;
-        }
-        else{
-            WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
-
-            int counter = 0;
-            char[] c = wl.word.toCharArray();
-            for (int i = wl.location; counter < c.length; i += increment) {
-                if (letters[i] == '.' || letters[i] == '*'){
-                    letters[i] = c[counter];
-                    tray = String.valueOf(tray).replace(c[counter], (char) (rand.nextInt(26) + 65)).toCharArray();
-                }
-                else board.setFireballs(board.getFireballs() + 1);
-                counter++;
+    private Board finalizeMove(Board board, WordAndLocation wl, Random rand, int increment){
+        int counter = 0;
+        char[] c = wl.word.toCharArray();
+        for (int i = wl.location; counter < c.length; i += increment) {
+            if (letters[i] == '.' || letters[i] == '*'){
+                letters[i] = c[counter];
+                tray = String.valueOf(tray).replace(c[counter], (char) (rand.nextInt(26) + 65)).toCharArray();
             }
-            newBoard.setLetters(letters);
-            newBoard.setTray(tray);
+            else board.setFireballs(board.getFireballs() + 1);
+            counter++;
         }
-        return newBoard;
+        board.setLetters(letters);
+        board.setTray(tray);
+
+        return board;
     }
 }
