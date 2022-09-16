@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping
 public class AnagramController {
-    //TODO remove from final to prevent cheating or make only accessible by CUPs
+    // TODO remove from final to prevent cheating or make only accessible by CUPs
     @CrossOrigin
     @GetMapping(value = "/best", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String testBest(@RequestBody AnagramRequest request, HttpServletResponse resp){
@@ -23,7 +23,7 @@ public class AnagramController {
         }
     }
 
-    //TODO remove from final to prevent cheating or make only accessible by CUPs
+    // TODO remove from final to prevent cheating or make only accessible by CUPs
     @CrossOrigin
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String testAll(@RequestBody AnagramRequest request, HttpServletResponse resp){
