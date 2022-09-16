@@ -5,11 +5,15 @@ import com.revature.wordsaway.dtos.requests.MoveRequest;
 import com.revature.wordsaway.models.Game;
 import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.services.BoardService;
+import com.revature.wordsaway.services.TokenService;
 import com.revature.wordsaway.services.UserService;
 import com.revature.wordsaway.utils.customExceptions.NetworkException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,9 +48,15 @@ public class TestController {
         BoardService.deleteAll();
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)
-    public @ResponseBody NetworkException handleException(NetworkException e) {
-        return e;
+
+    @CrossOrigin
+    @GetMapping(value = "/testAuth")
+    public String makeMove(HttpServletRequest httpServletRequest, HttpServletResponse resp) {
+        try {
+            return TokenService.extractRequesterDetails(httpServletRequest).toString();
+        } catch (NetworkException e) {
+            resp.setStatus(e.getStatusCode());
+            return e.getMessage();
+        }
     }
 }

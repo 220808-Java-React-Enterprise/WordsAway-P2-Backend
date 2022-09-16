@@ -30,7 +30,6 @@ public class AccessController {
             resp.setStatus(e.getStatusCode());
             return e.getMessage();
         }
-
     }
 
     @CrossOrigin
@@ -39,6 +38,7 @@ public class AccessController {
         try {
             String token = UserService.login(request);
             resp.setHeader("Authorization", token);
+            resp.setHeader("Access-Control-Expose-Headers", "Authorization");
             return "Logged In";
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());

@@ -163,34 +163,38 @@ public class BoardService {
     public static void validateMove2TheWrathOfKhan(MoveRequest request) throws InvalidRequestException {
         char[] oldLetters = getByID(request.getBoardID()).getLetters();
         char[] newLetters = request.getMove();
-        Set<ChangeSpot> changeSpots = new HashSet<>();
-        for(int i = 0; i < oldLetters.length; i++){
+        System.out.println(oldLetters);
+        System.out.println(newLetters);
+        List<ChangeSpot> changeSpots = new ArrayList<>();
+        loop: for(int i = 0; i < oldLetters.length; i++){
             if(oldLetters[i] != newLetters[i]){
-                changeSpots.add(new ChangeSpot(i));
+                ChangeSpot spot = new ChangeSpot(i);
+                for(ChangeSpot existingSpot : changeSpots){
+                    if(existingSpot.equals(spot)) continue loop;
+                }
+                changeSpots.add(spot);
             }
         }
         if(changeSpots.size() == 0) throw new InvalidRequestException("Invalid Move. Must be some change in boards.");
-        ChangeSpot[] changeSpotArr = (ChangeSpot[]) changeSpots.toArray();
         if(changeSpots.size() == 1){
-            char c = newLetters[changeSpotArr[0].getI()];
+            char c = newLetters[changeSpots.get(0).getI()];
             if(c == '*') return;
             else if (!isWord(new char[] {c}))
                 throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
         }
-        boolean checkRow = changeSpotArr[0].row == changeSpotArr[1].row;
-        boolean checkColumn = changeSpotArr[0].column == changeSpotArr[1].column;
+        boolean checkRow = changeSpots.get(0).row == changeSpots.get(1).row;
+        boolean checkColumn = changeSpots.get(0).column == changeSpots.get(1).column;
         if(!checkRow && !checkColumn)
             throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
-        for(int i = 2; i < changeSpotArr.length; i++){
-            if(checkRow && changeSpotArr[i].row != changeSpotArr[0].row)
+        for(int i = 2; i < changeSpots.size(); i++){
+            if(checkRow && changeSpots.get(i).row != changeSpots.get(0).row)
                 throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
-            if(checkColumn && changeSpotArr[i].column != changeSpotArr[0].column)
+            if(checkColumn && changeSpots.get(i).column != changeSpots.get(0).column)
                 throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
         }
-
-        if(!isWord(findConnectedWord(newLetters, changeSpotArr[0], checkRow, checkColumn)))
+        if(!isWord(findConnectedWord(newLetters, changeSpots.get(0), checkRow, checkColumn)))
             throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
-        for(ChangeSpot spot : changeSpotArr){
+        for(ChangeSpot spot : changeSpots){
             if(!isWord(findConnectedWord(newLetters, spot, !checkRow, !checkColumn)))
                 throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
         }
@@ -205,6 +209,13 @@ public class BoardService {
         }
         int getI(){
             return row * BOARD_SIZE + column;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if(!(obj instanceof ChangeSpot)) return false;
+            ChangeSpot spot = (ChangeSpot) obj;
+            return spot.row == row && spot.column == column;
         }
     }
 
@@ -231,7 +242,7 @@ public class BoardService {
             for(int i = start - BOARD_SIZE; i / BOARD_SIZE >= 0 && letters[i] != '.' && letters[i] != '*'; i -= BOARD_SIZE){
                 start = i;
             }
-            for(int i = end + BOARD_SIZE; i /BOARD_SIZE < BOARD_SIZE && letters[i] != '.' && letters[i] != '*'; i += BOARD_SIZE){
+            for(int i = end + BOARD_SIZE; i / BOARD_SIZE < BOARD_SIZE && letters[i] != '.' && letters[i] != '*'; i += BOARD_SIZE){
                 end = i;
             }
             char[] word = new char[end - start + 1];

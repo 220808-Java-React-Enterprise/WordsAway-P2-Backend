@@ -24,6 +24,24 @@ public class BoardServiceTest2 {
     private char[] move = new char[BOARD_SIZE*BOARD_SIZE];
 
     private static final char[] BLANK_LINE = {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'};
+    private static final char[] BLANK_BOARD = {
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
+    };
 
     @BeforeEach
     public void setupTest(){
@@ -50,8 +68,7 @@ public class BoardServiceTest2 {
     }
 
     private void setupBlankBoard(){
-        when(mockBoard.getRow(intThat(i -> i >= 0 && i < BOARD_SIZE))).thenReturn(BLANK_LINE);
-        when(mockBoard.getColumn(intThat(i -> i >= 0 && i < BOARD_SIZE))).thenReturn(BLANK_LINE);
+        when(mockBoard.getLetters()).thenReturn(BLANK_LINE);
     }
 
     private void setupBoardWithOneLetter(){
@@ -86,11 +103,11 @@ public class BoardServiceTest2 {
         move[r + 1] = 'A';
         move[r + 2] = 'T';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
-
+/**
     @RepeatedTest(BOARD_SIZE * BOARD_SIZE)
     public void test_validateMove_LongVerticalMoveOnBlankBoard_succeed(RepetitionInfo repetitionInfo){
         setupBlankBoard();
@@ -100,7 +117,7 @@ public class BoardServiceTest2 {
         move[r + BOARD_SIZE] = 'A';
         move[r + BOARD_SIZE * 2] = 'T';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -111,7 +128,7 @@ public class BoardServiceTest2 {
         int r = repetitionInfo.getCurrentRepetition() - 1;
         move[r] = 'I';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -121,7 +138,7 @@ public class BoardServiceTest2 {
         setupBlankBoard();
         when(request.getMove()).thenReturn(move);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
-            boardService.validateMove(request);
+            boardService.validateMove2TheWrathOfKhan(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. Must be some change in boards.", thrown.getMessage());
@@ -136,7 +153,7 @@ public class BoardServiceTest2 {
         move[2] = 'T';
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -150,7 +167,7 @@ public class BoardServiceTest2 {
         move[32] = 'T';
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -162,7 +179,7 @@ public class BoardServiceTest2 {
         move[0] = 'I';
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -174,7 +191,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 6] = 'A';
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -185,7 +202,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 6] = 'P';
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -197,7 +214,7 @@ public class BoardServiceTest2 {
         move[6 * BOARD_SIZE + 7] = 'A';
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -208,7 +225,7 @@ public class BoardServiceTest2 {
         move[6 * BOARD_SIZE + 7] = 'P';
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -220,7 +237,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 8] = 'C';
         move[7 * BOARD_SIZE + 9] = 'T';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -231,7 +248,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         move[7 * BOARD_SIZE + 8] = 'T';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -243,7 +260,7 @@ public class BoardServiceTest2 {
         move[8 * BOARD_SIZE + 7] = 'C';
         move[9 * BOARD_SIZE + 7] = 'T';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -254,7 +271,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         move[8 * BOARD_SIZE + 7] = 'T';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -266,7 +283,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         move[7 * BOARD_SIZE + 8] = 'T';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -278,7 +295,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         move[8 * BOARD_SIZE + 7] = 'T';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -293,7 +310,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 11] = 'C';
         move[11 * BOARD_SIZE + 7] = 'C';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -308,7 +325,7 @@ public class BoardServiceTest2 {
         move[11 * BOARD_SIZE + 7] = 'C';
         move[7 * BOARD_SIZE + 11] = 'C';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(1));
     }
@@ -319,7 +336,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 6] = '*';
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
     }
 
@@ -329,7 +346,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         move[7 * BOARD_SIZE + 8] = '*';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
     }
 
@@ -339,7 +356,7 @@ public class BoardServiceTest2 {
         move[6 * BOARD_SIZE + 7] = '*';
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
     }
 
@@ -349,7 +366,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         move[8 * BOARD_SIZE + 7] = '*';
         when(request.getMove()).thenReturn(move);
-        boardService.validateMove(request);
+        boardService.validateMove2TheWrathOfKhan(request);
         verify(mockRepo, times(1)).findBoardByID(any());
     }
 
@@ -361,7 +378,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
-            boardService.validateMove(request);
+            boardService.validateMove2TheWrathOfKhan(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
@@ -375,7 +392,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
-            boardService.validateMove(request);
+            boardService.validateMove2TheWrathOfKhan(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
@@ -389,7 +406,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
-            boardService.validateMove(request);
+            boardService.validateMove2TheWrathOfKhan(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. More than one tile in different rows and columns may not be placed at once.",
@@ -404,7 +421,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
-            boardService.validateMove(request);
+            boardService.validateMove2TheWrathOfKhan(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. More than one tile in different rows and columns may not be placed at once.",
@@ -419,7 +436,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
-            boardService.validateMove(request);
+            boardService.validateMove2TheWrathOfKhan(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
@@ -433,7 +450,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 9] = '*';
         when(request.getMove()).thenReturn(move);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
-            boardService.validateMove(request);
+            boardService.validateMove2TheWrathOfKhan(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
@@ -447,7 +464,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 7] = 'A';
         when(request.getMove()).thenReturn(move);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
-            boardService.validateMove(request);
+            boardService.validateMove2TheWrathOfKhan(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
@@ -461,7 +478,7 @@ public class BoardServiceTest2 {
         move[9 * BOARD_SIZE + 7] = '*';
         when(request.getMove()).thenReturn(move);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
-            boardService.validateMove(request);
+            boardService.validateMove2TheWrathOfKhan(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
@@ -475,7 +492,7 @@ public class BoardServiceTest2 {
         move[7 * BOARD_SIZE + 8] = '*';
         when(request.getMove()).thenReturn(move);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
-            boardService.validateMove(request);
+            boardService.validateMove2TheWrathOfKhan(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
@@ -489,9 +506,10 @@ public class BoardServiceTest2 {
         move[8 * BOARD_SIZE + 7] = '*';
         when(request.getMove()).thenReturn(move);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
-            boardService.validateMove(request);
+            boardService.validateMove2TheWrathOfKhan(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. Illegal characters placed on board.", thrown.getMessage());
     }
+    **/
 }
