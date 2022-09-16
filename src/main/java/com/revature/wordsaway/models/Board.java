@@ -69,8 +69,16 @@ public class Board {
         return tray;
     }
 
+    public void setTray(char[] tray) {
+        this.tray = tray;
+    }
+
     public int getFireballs() {
         return fireballs;
+    }
+
+    public void setFireballs(int fireballs) {
+        this.fireballs = fireballs;
     }
 
     public char[] getWorms() {
@@ -79,6 +87,10 @@ public class Board {
 
     public char[] getLetters() {
         return letters;
+    }
+
+    public void setLetters(char[] letters) {
+        this.letters = letters;
     }
 
     public UUID getGameID() {

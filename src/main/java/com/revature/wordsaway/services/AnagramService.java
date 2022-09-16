@@ -32,16 +32,20 @@ public class AnagramService {
     }
 
     @ExceptionHandler(value = IOException.class)
-    public static List<String> getAllList(String letters){
+    public static List<String> getAllList(String letters, String pattern, int wordLength){
         List<String> words = new ArrayList<>();
         // Instantiate a client
         WebClient client = new WebClient();
         client.getOptions().setCssEnabled(false);
         client.getOptions().setJavaScriptEnabled(false);
 
+        String pageURL = !pattern.equals("")
+                ? "https://anagram-solver.io/words-for/" + letters + "/pattern/" + pattern + "/?dictionary=otcwl"
+                : "https://anagram-solver.io/words-for/" + letters + "/pattern/___/?dictionary=otcwl";
+
         try {
             // Make request
-            HtmlPage page = client.getPage("https://anagram-solver.io/words-for/" + letters + "/?dictionary=otcwl");
+            HtmlPage page = client.getPage(pageURL);
 
             // Get all anagrams
             List<HtmlElement> items = page.getByXPath("//div[@class='wordblock']/a");
@@ -50,10 +54,11 @@ public class AnagramService {
                 // Save to a list
                 String word = item.asNormalizedText();
 
-                // Exit if length of word is 2
-                if (word.length() == 2) break;
-
-                words.add(word);
+                // Check if it's the pattern
+                if (!word.equals(pattern))
+                    // Skip if length of word is greater than what we want
+                    if (word.length() <= wordLength)
+                        words.add(word.toUpperCase());
             }
         } catch (IOException e){
             throw new NotFoundException("Page not found");

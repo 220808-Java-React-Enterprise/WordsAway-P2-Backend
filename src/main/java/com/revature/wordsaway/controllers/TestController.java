@@ -7,7 +7,6 @@ import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.services.BoardService;
 import com.revature.wordsaway.services.UserService;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,7 @@ public class TestController {
         return new Game(UserService.getByUsername("koukaakiva"), UserService.getByUsername("christhewizard")).toString();
     }
 
-    @ExceptionHandler(value = {InvalidArgumentException.class})
+    @ExceptionHandler(value = {InvalidRequestException.class})
     @GetMapping(value = "/getgame", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String getGame(@RequestBody AnagramRequest gameID) {
         Game game = new Game(UUID.fromString(gameID.getLetters()));

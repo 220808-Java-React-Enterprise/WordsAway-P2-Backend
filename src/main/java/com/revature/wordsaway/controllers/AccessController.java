@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping
 public class AccessController {
 
+    @CrossOrigin
     @ExceptionHandler(value = {ResourceConflictException.class, InvalidRequestException.class})
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(value = "/signup", consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -21,6 +22,7 @@ public class AccessController {
         return UserService.register(request).toString();
     }
 
+    @CrossOrigin
     @PostMapping(value = "/login", consumes = "application/json")
     public void login(@RequestBody LoginRequest request, HttpServletResponse resp) {
         String token = UserService.login(request);
