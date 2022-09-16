@@ -9,14 +9,7 @@ import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import com.revature.wordsaway.utils.customExceptions.ResourceConflictException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.xml.bind.DatatypeConverter;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -30,15 +23,13 @@ public class UserService {
     public static User register(NewUserRequest request){
         validateUsername(request.getUsername());
         validatePassword(request.getPassword());
-        validateEmail(request.getEmail());
+        if(request.getEmail() != null) validateEmail(request.getEmail());
         checkAvailableUsername(request.getUsername());
         checkAvailableEmail(request.getEmail());
-        String salt = UUID.randomUUID().toString().replace("-","");
-        String hashedPassword = hashPassword(request.getPassword().toCharArray(), DatatypeConverter.parseHexBinary(salt));
         User user = new User(
                 request.getUsername(),
-                hashedPassword,
-                salt,
+                request.getPassword(),
+                request.getSalt(),
                 request.getEmail(),
                 1000, //TODO set this to be the average ELO
                 0,
@@ -51,8 +42,7 @@ public class UserService {
 
     public static String login(LoginRequest request) throws AuthenticationException {
         User user = userRepository.findUserByUsername(request.getUsername());
-        if (user != null && user.getPassword().equals(
-                hashPassword(request.getPassword().toCharArray(), DatatypeConverter.parseHexBinary(user.getSalt()))))
+        if (user != null && user.getPassword().equals(request.getPassword()))
             return TokenService.generateToken(user.getUsername());
         throw new AuthenticationException("Login unsuccessful. Please check username and password.");
     }
@@ -91,16 +81,6 @@ public class UserService {
     public static void checkAvailableEmail(String email) throws ResourceConflictException {
         if (userRepository.findUserByEmail(email) != null){
             throw new ResourceConflictException("Email is already taken, please choose another.");
-        }
-    }
-
-    public static String hashPassword(char[] password, byte[] salt) {
-        try {
-            SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-            KeySpec ks = new PBEKeySpec(password, salt, 1024, 128);
-            return DatatypeConverter.printHexBinary(f.generateSecret(ks).getEncoded());
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException(e);
         }
     }
 }

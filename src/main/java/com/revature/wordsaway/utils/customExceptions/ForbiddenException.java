@@ -8,4 +8,9 @@ public class ForbiddenException extends NetworkException{
     public ForbiddenException(String message) {
         super(message);
     }
+
+    @Override
+    public int getStatusCode() {
+        return 403;
+    }
 }
