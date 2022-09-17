@@ -123,6 +123,10 @@ public class BoardService {
             ChangeSpot spot = (ChangeSpot) obj;
             return spot.row == row && spot.column == column;
         }
+        /**@Override
+        public String toString(){
+            return "(" + row + "," + column + ")";
+         }**/
     }
 
     private static char[] findConnectedWord(char[] letters, ChangeSpot spot, boolean checkRow, boolean checkColumn){
@@ -130,7 +134,7 @@ public class BoardService {
         if(checkRow){
             int start = spot.getI();
             int end = spot.getI();
-            int rowStart = (spot.column / BOARD_SIZE) * BOARD_SIZE;
+            int rowStart = spot.row * BOARD_SIZE;
             for(int i = start - 1; i >= rowStart && letters[i] != '.' && letters[i] != '*'; i--){
                 start = i;
             }
