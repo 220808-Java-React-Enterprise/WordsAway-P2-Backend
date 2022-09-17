@@ -49,9 +49,9 @@ public class BoardService {
         return board;
     }
 
-    public static List<Board> getByGameID(UUID gameID) {
+    public static List<Board> getByGameID(UUID gameID) throws InvalidRequestException {
         List<Board> boards = boardRepository.findBoardByGameID(gameID);
-        if(boards == null) throw new InvalidRequestException("No boards with gameID " + gameID + " found.");
+        if(boards == null || boards.size() == 0) throw new InvalidRequestException("No boards with gameID " + gameID + " found.");
         return boards;
     }
 
@@ -61,41 +61,40 @@ public class BoardService {
         return opposingBoard;
     }
 
-    //TODO probably delete this at the end
-    public static void deleteAll(){
-        boardRepository.deleteAll();
-    }
-
     public static void validateMove(MoveRequest request) throws InvalidRequestException {
         char[] oldLetters = getByID(request.getBoardID()).getLetters();
         char[] newLetters = request.getMove();
         List<ChangeSpot> changeSpots = new ArrayList<>();
+        boolean checkRow = false, checkColumn = false, asterisk = false;
         loop: for(int i = 0; i < oldLetters.length; i++){
             if(oldLetters[i] != newLetters[i]){
                 ChangeSpot spot = new ChangeSpot(i);
                 for(ChangeSpot existingSpot : changeSpots){
                     if(existingSpot.equals(spot)) continue loop;
                 }
+                if(asterisk) throw new InvalidRequestException("Invalid Move. Fireball may only be placed alone.");
+                else if(newLetters[i] == '*' && changeSpots.size() == 0) asterisk = true;
+                else if(newLetters[i] == '*') throw new InvalidRequestException("Invalid Move. Fireball may only be placed alone.");
                 changeSpots.add(spot);
+                if (changeSpots.size() > 2) {
+                    if(checkRow && changeSpots.get(changeSpots.size() - 1).row != changeSpots.get(0).row)
+                        throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
+                    if(checkColumn && changeSpots.get(changeSpots.size() - 1).column != changeSpots.get(0).column)
+                        throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
+                } else if(changeSpots.size() == 2){
+                    checkRow = changeSpots.get(0).row == changeSpots.get(1).row;
+                    checkColumn = changeSpots.get(0).column == changeSpots.get(1).column;
+                    if(!checkRow && !checkColumn)
+                        throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
+                }
             }
         }
         if(changeSpots.size() == 0) throw new InvalidRequestException("Invalid Move. Must be some change in boards.");
         if(changeSpots.size() == 1){
-            char c = newLetters[changeSpots.get(0).getI()];
-            if (c != '*' && !isWord(findConnectedWord(newLetters, changeSpots.get(0), true, false))
+            if (!asterisk && !isWord(findConnectedWord(newLetters, changeSpots.get(0), true, false))
                     && !isWord(findConnectedWord(newLetters, changeSpots.get(0), false, true)))
                 throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
             return;
-        }
-        boolean checkRow = changeSpots.get(0).row == changeSpots.get(1).row;
-        boolean checkColumn = changeSpots.get(0).column == changeSpots.get(1).column;
-        if(!checkRow && !checkColumn)
-            throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
-        for(int i = 2; i < changeSpots.size(); i++){
-            if(checkRow && changeSpots.get(i).row != changeSpots.get(0).row)
-                throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
-            if(checkColumn && changeSpots.get(i).column != changeSpots.get(0).column)
-                throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
         }
         if(!isWord(findConnectedWord(newLetters, changeSpots.get(0), checkRow, checkColumn)))
             throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");

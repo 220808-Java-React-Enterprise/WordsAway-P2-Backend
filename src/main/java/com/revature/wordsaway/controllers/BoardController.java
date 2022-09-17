@@ -19,6 +19,7 @@ public class BoardController {
     @CrossOrigin
     @GetMapping(value = "/checkMove", consumes = "application/json")
     public boolean checkMove(@RequestBody MoveRequest request, HttpServletResponse resp) {
+        //TODO possibly change to use params
         try {
             BoardService.validateMove(request);
         }catch (InvalidRequestException e){

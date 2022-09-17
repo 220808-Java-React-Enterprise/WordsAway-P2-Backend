@@ -1,11 +1,14 @@
 package com.revature.wordsaway.models;
 
+import org.springframework.stereotype.Component;
+
 import javax.persistence.*;
 import java.util.Arrays;
 import java.util.UUID;
 
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 
+@Component
 @Entity
 @Table(name = "boards")
 public class Board {

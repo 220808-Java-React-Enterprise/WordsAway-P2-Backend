@@ -110,6 +110,27 @@ public class BoardServiceTest {
         });
     }
 
+    private void setupBoardWithOneAsterisk(){
+        when(mockBoard.getLetters()).thenReturn(new char[]{
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '*', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
+        });
+    }
+
     private void setupBoardWithThreeLetters(){
         when(mockBoard.getLetters()).thenReturn(new char[]{
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
@@ -124,6 +145,27 @@ public class BoardServiceTest {
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
+        });
+    }
+
+    private void setupBoardWithThreeAsterisks(){
+        when(mockBoard.getLetters()).thenReturn(new char[]{
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '*', '.', '.', '.', '*', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '*', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
@@ -229,13 +271,6 @@ public class BoardServiceTest {
         assertNull(board[0]);
         verify(mockRepo, times(1)).findOpposingBoardByIDAndGameID(any(), any());
         Assertions.assertEquals("No boards opposing 00000000-0000-0000-0000-000000000000 found.", thrown.getMessage());
-    }
-
-    //TODO probably delete this at the end
-    @Test
-    public void test_deleteAll_succeed(){
-        boardService.deleteAll();
-        verify(mockRepo, times(1)).deleteAll();
     }
 
     @RepeatedTest(BOARD_SIZE * BOARD_SIZE)
@@ -361,6 +396,20 @@ public class BoardServiceTest {
     }
 
     @Test
+    public void test_validateMove_ConnectedLongHorizontalFrontMoveOnBoardWithOneAsterisk_succeed(){
+        setupBoardWithOneAsterisk();
+        move[7 * BOARD_SIZE + 3] = 'T';
+        move[7 * BOARD_SIZE + 4] = 'E';
+        move[7 * BOARD_SIZE + 5] = 'S';
+        move[7 * BOARD_SIZE + 6] = 'T';
+        move[7 * BOARD_SIZE + 7] = '*';
+        when(request.getMove()).thenReturn(move);
+        boardService.validateMove(request);
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord("test"), times(1));
+    }
+
+    @Test
     public void test_validateMove_ConnectedShortHorizontalFrontMoveOnBoardWithOneLetter_succeed(){
         setupBoardWithOneLetter();
         move[7 * BOARD_SIZE + 6] = 'I';
@@ -372,12 +421,37 @@ public class BoardServiceTest {
     }
 
     @Test
+    public void test_validateMove_ConnectedShortHorizontalFrontMoveOnBoardWithOneAsterisk_succeed(){
+        setupBoardWithOneAsterisk();
+        move[7 * BOARD_SIZE + 6] = '*';
+        move[7 * BOARD_SIZE + 7] = '*';
+        when(request.getMove()).thenReturn(move);
+        boardService.validateMove(request);
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(0));
+    }
+
+    @Test
     public void test_validateMove_ConnectedLongVerticalFrontMoveOnBoardWithOneLetter_succeed(){
         setupBoardWithOneLetter();
         move[4 * BOARD_SIZE + 7] = 'T';
         move[5 * BOARD_SIZE + 7] = 'E';
         move[6 * BOARD_SIZE + 7] = 'S';
         move[7 * BOARD_SIZE + 7] = 'T';
+        when(request.getMove()).thenReturn(move);
+        boardService.validateMove(request);
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord("test"), times(1));
+    }
+
+    @Test
+    public void test_validateMove_ConnectedLongVerticalFrontMoveOnBoardWithOneAsterisk_succeed(){
+        setupBoardWithOneAsterisk();
+        move[3 * BOARD_SIZE + 7] = 'T';
+        move[4 * BOARD_SIZE + 7] = 'E';
+        move[5 * BOARD_SIZE + 7] = 'S';
+        move[6 * BOARD_SIZE + 7] = 'T';
+        move[7 * BOARD_SIZE + 7] = '*';
         when(request.getMove()).thenReturn(move);
         boardService.validateMove(request);
         verify(mockRepo, times(1)).findBoardByID(any());
@@ -398,12 +472,37 @@ public class BoardServiceTest {
     }
 
     @Test
+    public void test_validateMove_ConnectedShortVerticalFrontMoveOnBoardWithOneAsterisk_succeed(){
+        setupBoardWithOneAsterisk();
+        move[6 * BOARD_SIZE + 7] = '*';
+        move[7 * BOARD_SIZE + 7] = '*';
+        when(request.getMove()).thenReturn(move);
+        boardService.validateMove(request);
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(0));
+    }
+
+    @Test
     public void test_validateMove_ConnectedLongHorizontalBackMoveOnBoardWithOneLetter_succeed(){
         setupBoardWithOneLetter();
         move[7 * BOARD_SIZE + 7] = 'T';
         move[7 * BOARD_SIZE + 8] = 'E';
         move[7 * BOARD_SIZE + 9] = 'S';
         move[7 * BOARD_SIZE + 10] = 'T';
+        when(request.getMove()).thenReturn(move);
+        boardService.validateMove(request);
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord("test"), times(1));
+    }
+
+    @Test
+    public void test_validateMove_ConnectedLongHorizontalBackMoveOnBoardWithOneAsterisk_succeed(){
+        setupBoardWithOneAsterisk();
+        move[7 * BOARD_SIZE + 7] = '*';
+        move[7 * BOARD_SIZE + 8] = 'T';
+        move[7 * BOARD_SIZE + 9] = 'E';
+        move[7 * BOARD_SIZE + 10] = 'S';
+        move[7 * BOARD_SIZE + 11] = 'T';
         when(request.getMove()).thenReturn(move);
         boardService.validateMove(request);
         verify(mockRepo, times(1)).findBoardByID(any());
@@ -422,12 +521,37 @@ public class BoardServiceTest {
     }
 
     @Test
+    public void test_validateMove_ConnectedShortHorizontalBackMoveOnBoardWithOneAsterisk_succeed(){
+        setupBoardWithOneAsterisk();
+        move[7 * BOARD_SIZE + 7] = '*';
+        move[7 * BOARD_SIZE + 8] = '*';
+        when(request.getMove()).thenReturn(move);
+        boardService.validateMove(request);
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(0));
+    }
+
+    @Test
     public void test_validateMove_ConnectedLongVerticalBackMoveOnBoardWithOneLetter_succeed(){
         setupBoardWithOneLetter();
         move[7 * BOARD_SIZE + 7] = 'T';
         move[8 * BOARD_SIZE + 7] = 'E';
         move[9 * BOARD_SIZE + 7] = 'S';
         move[10 * BOARD_SIZE + 7] = 'T';
+        when(request.getMove()).thenReturn(move);
+        boardService.validateMove(request);
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord("test"), times(1));
+    }
+
+    @Test
+    public void test_validateMove_ConnectedLongVerticalBackMoveOnBoardWithOneAsterisk_succeed(){
+        setupBoardWithOneAsterisk();
+        move[7 * BOARD_SIZE + 7] = '*';
+        move[8 * BOARD_SIZE + 7] = 'T';
+        move[9 * BOARD_SIZE + 7] = 'E';
+        move[10 * BOARD_SIZE + 7] = 'S';
+        move[11 * BOARD_SIZE + 7] = 'T';
         when(request.getMove()).thenReturn(move);
         boardService.validateMove(request);
         verify(mockRepo, times(1)).findBoardByID(any());
@@ -445,6 +569,17 @@ public class BoardServiceTest {
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord("o"), times(1));
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord("to"), times(1));
+    }
+
+    @Test
+    public void test_validateMove_ConnectedShortVerticalBackMoveOnBoardWithOneAsterisk_succeed(){
+        setupBoardWithOneAsterisk();
+        move[7 * BOARD_SIZE + 7] = '*';
+        move[8 * BOARD_SIZE + 7] = '*';
+        when(request.getMove()).thenReturn(move);
+        boardService.validateMove(request);
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(0));
     }
 
     @Test
@@ -491,6 +626,21 @@ public class BoardServiceTest {
     }
 
     @Test
+    public void test_validateMove_ConnectedLongHorizontalBetweenMoveOnBoardWithThreeAsterisks_succeed(){
+        setupBoardWithThreeAsterisks();
+        move[7 * BOARD_SIZE + 7] = '*';
+        move[7 * BOARD_SIZE + 8] = 'T';
+        move[7 * BOARD_SIZE + 9] = 'E';
+        move[7 * BOARD_SIZE + 10] = 'S';
+        move[7 * BOARD_SIZE + 11] = 'T';
+        move[11 * BOARD_SIZE + 7] = '*';
+        when(request.getMove()).thenReturn(move);
+        boardService.validateMove(request);
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord("test"), times(1));
+    }
+
+    @Test
     public void test_validateMove_ConnectedLongVerticalBetweenMoveOnBoardWithThreeLetters_succeed(){
         setupBoardWithThreeLetters();
         move[7 * BOARD_SIZE + 7] = 'T';
@@ -503,6 +653,21 @@ public class BoardServiceTest {
         boardService.validateMove(request);
         verify(mockRepo, times(1)).findBoardByID(any());
         anagramServiceMockedStatic.verify(() -> AnagramService.isWord("tests"), times(1));
+    }
+
+    @Test
+    public void test_validateMove_ConnectedLongVerticalBetweenMoveOnBoardWithThreeAsterisks_succeed(){
+        setupBoardWithThreeAsterisks();
+        move[7 * BOARD_SIZE + 7] = '*';
+        move[8 * BOARD_SIZE + 7] = 'T';
+        move[9 * BOARD_SIZE + 7] = 'E';
+        move[10 * BOARD_SIZE + 7] = 'S';
+        move[11 * BOARD_SIZE + 7] = 'T';
+        move[7 * BOARD_SIZE + 11] = '*';
+        when(request.getMove()).thenReturn(move);
+        boardService.validateMove(request);
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord("test"), times(1));
     }
 
     @Test
@@ -562,7 +727,24 @@ public class BoardServiceTest {
             boardService.validateMove(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
-        Assertions.assertEquals("Invalid Move. Illegal characters placed on board.",
+        Assertions.assertEquals("Invalid Move. Fireball may only be placed alone.",
+                thrown.getMessage());
+    }
+
+    @RepeatedTest(BOARD_SIZE * BOARD_SIZE)
+    public void test_validateMove_LetterAndAsteriskSameRowMoveOnBlankBoard_fail(RepetitionInfo repetitionInfo){
+        setupBlankBoard();
+        int r = repetitionInfo.getCurrentRepetition() - 1;
+        //Skips tests where word would be off board
+        if(r % BOARD_SIZE >= BOARD_SIZE - 1) return;
+        move[r] = 'N';
+        move[r+1] = '*';
+        when(request.getMove()).thenReturn(move);
+        InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
+            boardService.validateMove(request);
+        });
+        verify(mockRepo, times(1)).findBoardByID(any());
+        Assertions.assertEquals("Invalid Move. Fireball may only be placed alone.",
                 thrown.getMessage());
     }
 
@@ -579,7 +761,24 @@ public class BoardServiceTest {
             boardService.validateMove(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
-        Assertions.assertEquals("Invalid Move. Illegal characters placed on board.",
+        Assertions.assertEquals("Invalid Move. Fireball may only be placed alone.",
+                thrown.getMessage());
+    }
+
+    @RepeatedTest(BOARD_SIZE * BOARD_SIZE)
+    public void test_validateMove_LetterAndAsteriskSameColumnMoveOnBlankBoard_fail(RepetitionInfo repetitionInfo){
+        setupBlankBoard();
+        int r = repetitionInfo.getCurrentRepetition() - 1;
+        //Skips tests where word would be off board
+        if(r / BOARD_SIZE >= BOARD_SIZE - 1) return;
+        move[r] = 'N';
+        move[r+ BOARD_SIZE] = '*';
+        when(request.getMove()).thenReturn(move);
+        InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
+            boardService.validateMove(request);
+        });
+        verify(mockRepo, times(1)).findBoardByID(any());
+        Assertions.assertEquals("Invalid Move. Fireball may only be placed alone.",
                 thrown.getMessage());
     }
 
@@ -596,7 +795,24 @@ public class BoardServiceTest {
             boardService.validateMove(request);
         });
         verify(mockRepo, times(1)).findBoardByID(any());
-        Assertions.assertEquals("Invalid Move. All tiles must be placed in either the same row or same column.",
+        Assertions.assertEquals("Invalid Move. Fireball may only be placed alone.",
+                thrown.getMessage());
+    }
+
+    @RepeatedTest(BOARD_SIZE * BOARD_SIZE)
+    public void test_validateMove_TwoDifferentRowAndColumnLetterAndAsteriskMoveOnBlankBoard_fail(RepetitionInfo repetitionInfo){
+        setupBlankBoard();
+        int r = repetitionInfo.getCurrentRepetition() - 1;
+        //Skips Connected Tests
+        if(r / BOARD_SIZE == 0 || r % BOARD_SIZE == 0) return;
+        move[0] = 'N';
+        move[r] = '*';
+        when(request.getMove()).thenReturn(move);
+        InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
+            boardService.validateMove(request);
+        });
+        verify(mockRepo, times(1)).findBoardByID(any());
+        Assertions.assertEquals("Invalid Move. Fireball may only be placed alone.",
                 thrown.getMessage());
     }
 
