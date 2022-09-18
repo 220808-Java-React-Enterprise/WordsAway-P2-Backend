@@ -3,26 +3,25 @@ package com.revature.wordsaway.services;
 import com.revature.wordsaway.models.Board;
 import org.springframework.stereotype.Service;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 
 @Service
 public class AIService { // TODO improve bot/make harder bot
+    static Map<String, Integer> wordCounter = new TreeMap<>();
+
+    public static Map<String, Integer> getWordCounter(){ return wordCounter; }
     private final Board board;
     private final char[] letters;
     private char[] tray;
 
     private final static Map<Integer, boolean[]> existingList = new HashMap<>();
 
-    class WordAndLocation{
-        public int location;
-        public String word;
-        @Override
-        public String toString() {
-            return "ValidWord{" +
-                    "location=" + location +
-                    ", word='" + word + '\'' +
-                    '}';
-        }
+    private class WordAndLocation{
+        private int location;
+        private String word;
+        private int fireBalls;
     }
 
     public AIService(Board board){
@@ -54,30 +53,38 @@ public class AIService { // TODO improve bot/make harder bot
         List<String> validWords;
         String existingLetters;
 
+        int counter = 0;
         // Get a final list of all moves in give row or col
-        while (isLoop(col, start, curr)) {
+        while (counter < BOARD_SIZE - 2) {
             existingLetters = getExistingLetters(curr, increment);
             validWords = getWordList(existingLetters, curr, increment);
             finalList.addAll(getWordListAndLocation(validWords, curr, increment));
 
-            while (isLoop(col, start, curr) && letters[curr] != '.' && letters[curr] != '*')
+            while (isLoop(col, start, curr) && letters[curr] != '.' && letters[curr] != '*'){
                 curr += increment;
+                counter++;
+            }
             curr += increment;
+            counter++;
         }
+
         // Check if list is empty
         if (finalList.isEmpty()){
             Board newBoard = startEasyBot(startTime);
 
             // If board has made no changes, replace tray, and return board
-            if (newBoard == null)
+            if (newBoard == null){
                 for (int i = 0; i < tray.length; i++)
-                    tray[i] = (char) (rand.nextInt(26) + 65);
-            board.setTray(tray);
-            return board;
+                    tray[i] = BoardService.getRandomChar();
+                board.setTray(tray);
+                return board;
+            }
+            return newBoard;
         }
+
         // Get random answer and play it
         WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
-        return finalizeMove(board, wl, rand, increment);
+        return finalizeMove(board, wl, increment);
     }
 
     private String getExistingLetters(int start, int increment){
@@ -106,14 +113,19 @@ public class AIService { // TODO improve bot/make harder bot
 
     private List<String> getWordList(String pattern, int start, int increment) {
         List<String> words = new ArrayList<>();
+        List<String> incomingWords;
 
         int rowOrCol = increment == BOARD_SIZE ? start / BOARD_SIZE : start % BOARD_SIZE,
-            maxWordLength = tray.length + pattern.replace("_", "").length(),
-            wordLength = Math.min(BOARD_SIZE - rowOrCol, maxWordLength);
+            maxWordLength = tray.length - pattern.replaceAll("[A-Z]", "").length() + pattern.length(),
+            wordLength = Math.min(maxWordLength, BOARD_SIZE - rowOrCol);
 
         // Loop for all possible words in that given space
         do {
-            words.addAll(AnagramService.getAllList(String.valueOf(tray), pattern, wordLength));
+            // todo Look into page not found error; maybe
+            incomingWords = AnagramService.getAllList(String.valueOf(tray), pattern, wordLength);
+            if (incomingWords != null)
+                words.addAll(incomingWords);
+
             if (pattern.lastIndexOf("_") == -1) break;
             pattern = pattern.substring(0, pattern.lastIndexOf("_"));
             wordLength = pattern.length();
@@ -126,7 +138,7 @@ public class AIService { // TODO improve bot/make harder bot
         List<WordAndLocation> list = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         WordAndLocation wl;
-        int index;
+        int index, fireBalls = 0;
         char[] c;
         boolean lessThan, greaterThan, col = increment == BOARD_SIZE;
         // Switch increment for validity
@@ -136,7 +148,7 @@ public class AIService { // TODO improve bot/make harder bot
         for (String word : words){
             // Index for each char in word
             index = 0;
-            c = word.toLowerCase().toCharArray();
+            c = word.toCharArray();
             exit:{
                 // Loop to validate word
                 for (int j = start; index < word.length(); j += increment){
@@ -145,26 +157,25 @@ public class AIService { // TODO improve bot/make harder bot
                     // Check if letter fits in current location
                     if (letters[j] != '.' && letters[j] != c[index]) break exit;
 
-                    // Declare booleans
-                    lessThan = j - newIncrement < 0;
-                    greaterThan = j + newIncrement > letters.length - 1;
-
                     // Letters in the neg direction
-                    if (!lessThan)
+                    if (!(j - newIncrement < 0))
                         for (int cw = j - newIncrement; isLoop(!col, j, cw) && letters[cw] != '.' && letters[cw] != '*'; cw -= newIncrement)
                             sb.insert(0, sb.length() != 0 ? letters[cw] : String.valueOf(letters[cw]) + c[index]);
 
                     // Letters in the pos direction
-                    if (!greaterThan)
+                    if (!(j + newIncrement > letters.length - 1))
                         for (int cw = j + newIncrement; isLoop(!col, j, cw) && letters[cw] != '.' && letters[cw] != '*'; cw += newIncrement)
                             sb.append(sb.length() != 0 ? letters[cw] : String.valueOf(c[index]) + letters[cw]);
 
                     // Validate word
                     if (sb.length() > 0 && !AnagramService.isWord(sb.toString().toLowerCase())) break exit;
 
+                    //if (sb.length() > 2) fireBalls++;
+
                     index++;
                 }
                 wl = new WordAndLocation();
+                wl.fireBalls = fireBalls;
                 wl.location = start;
                 wl.word = word;
                 list.add(wl);
@@ -179,21 +190,22 @@ public class AIService { // TODO improve bot/make harder bot
         return start / BOARD_SIZE == curr / BOARD_SIZE;
     }
 
-    private Board finalizeMove(Board board, WordAndLocation wl, Random rand, int increment){
+    private Board finalizeMove(Board board, WordAndLocation wl, int increment){
+        StringBuilder sb = new StringBuilder(String.valueOf(tray));
         int counter = 0;
+        // Word being played
         char[] c = wl.word.toCharArray();
         for (int i = wl.location; counter < c.length; i += increment) {
             if (letters[i] == '.' || letters[i] == '*'){
                 letters[i] = c[counter];
-                // TODO get better random tray
-                tray = String.valueOf(tray).replace(c[counter], (char) (rand.nextInt(26) + 65)).toCharArray();
-            }
-            else board.setFireballs(board.getFireballs() + 1);
+                sb.setCharAt(sb.indexOf(String.valueOf(c[counter])), BoardService.getRandomChar());
+                tray = sb.toString().toCharArray();
+            } else board.setFireballs(board.getFireballs() + 1); // todo fix increment of fireball
             counter++;
         }
         board.setLetters(letters);
         board.setTray(tray);
-
+        wordCounter.put(wordCounter.size() + 1 + "-" + wl.word, wl.location);
         return board;
     }
 }

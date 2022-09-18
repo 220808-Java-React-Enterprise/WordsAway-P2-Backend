@@ -1,5 +1,6 @@
 package com.revature.wordsaway.services;
 
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.revature.wordsaway.dtos.responses.AnagramResponse;
@@ -52,16 +53,18 @@ public class AnagramService {
 
             for (HtmlElement item : items){
                 // Save to a list
-                String word = item.asNormalizedText();
+                String word = item.asNormalizedText().toUpperCase();
+
+                if (word.length() == 2) break;
 
                 // Check if it's the pattern
-                if (!word.equals(pattern))
+                if (!word.equals(pattern.replace("_", "")))
                     // Skip if length of word is greater than what we want
                     if (word.length() <= wordLength)
-                        words.add(word.toUpperCase());
+                        words.add(word);
             }
-        } catch (IOException e){
-            throw new NotFoundException("Page not found");
+        } catch (IOException | FailingHttpStatusCodeException e){ // todo handle exceptions
+            return null;
         }
         return words;
     }
