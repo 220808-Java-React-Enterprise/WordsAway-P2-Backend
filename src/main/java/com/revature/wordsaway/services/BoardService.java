@@ -1,6 +1,6 @@
 package com.revature.wordsaway.services;
 
-import com.revature.wordsaway.dtos.requests.MoveRequest;
+import com.revature.wordsaway.dtos.requests.BoardRequest;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.repositories.BoardRepository;
@@ -61,9 +61,9 @@ public class BoardService {
         return opposingBoard;
     }
 
-    public static void validateMove(MoveRequest request) throws InvalidRequestException {
+    public static void validateMove(BoardRequest request) throws InvalidRequestException {
         char[] oldLetters = getByID(request.getBoardID()).getLetters();
-        char[] newLetters = request.getMove();
+        char[] newLetters = request.getLayout();
         List<ChangeSpot> changeSpots = new ArrayList<>();
         boolean checkRow = false, checkColumn = false, asterisk = false;
         loop: for(int i = 0; i < oldLetters.length; i++){

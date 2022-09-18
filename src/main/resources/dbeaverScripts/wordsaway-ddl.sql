@@ -10,6 +10,8 @@ drop table boards cascade;
 /*Alter*/
 
 /*Truncate*/
+truncate table users cascade;
+truncate table boards cascade;
 
 /*Comment*/
 
