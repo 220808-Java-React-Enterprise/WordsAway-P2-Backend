@@ -832,4 +832,92 @@ public class BoardServiceTest {
         Assertions.assertEquals("Invalid Move. All tiles must be placed in either the same row or same column.",
                 thrown.getMessage());
     }
+
+    @Test
+    public void test_validateMove_TwoLongSameRowMoveOnBlankBoard_succeed(){
+        setupBlankBoard();
+        move[7 * BOARD_SIZE] = 'T';
+        move[7 * BOARD_SIZE + 1] = 'E';
+        move[7 * BOARD_SIZE + 2] = 'S';
+        move[7 * BOARD_SIZE + 3] = 'T';
+        move[7 * BOARD_SIZE + 4] = '.';
+        move[7 * BOARD_SIZE + 5] = 'T';
+        move[7 * BOARD_SIZE + 6] = 'E';
+        move[7 * BOARD_SIZE + 7] = 'S';
+        move[7 * BOARD_SIZE + 8] = 'T';
+        when(request.getMove()).thenReturn(move);
+        InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
+            boardService.validateMove(request);
+        });
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(0));
+        Assertions.assertEquals("Invalid Move. Only one word may be placed at a time.",
+                thrown.getMessage());
+    }
+
+    @Test
+    public void test_validateMove_TwoLongSameColumnMoveOnBlankBoard_succeed(){
+        setupBlankBoard();
+        move[3 * BOARD_SIZE + 7] = 'T';
+        move[4 * BOARD_SIZE + 7] = 'E';
+        move[5 * BOARD_SIZE + 7] = 'S';
+        move[6 * BOARD_SIZE + 7] = 'T';
+        move[7 * BOARD_SIZE + 7] = '.';
+        move[8 * BOARD_SIZE + 7] = 'T';
+        move[9 * BOARD_SIZE + 7] = 'E';
+        move[10 * BOARD_SIZE + 7] = 'S';
+        move[11 * BOARD_SIZE + 7] = 'T';
+        when(request.getMove()).thenReturn(move);
+        InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
+            boardService.validateMove(request);
+        });
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(0));
+        Assertions.assertEquals("Invalid Move. Only one word may be placed at a time.",
+                thrown.getMessage());
+    }
+
+    @Test
+    public void test_validateMove_TwoLongSameRowWithAsteriskMoveOnBlankBoard_succeed(){
+        setupBlankBoard();
+        move[7 * BOARD_SIZE] = 'T';
+        move[7 * BOARD_SIZE + 1] = 'E';
+        move[7 * BOARD_SIZE + 2] = 'S';
+        move[7 * BOARD_SIZE + 3] = 'T';
+        move[7 * BOARD_SIZE + 4] = '*';
+        move[7 * BOARD_SIZE + 5] = 'T';
+        move[7 * BOARD_SIZE + 6] = 'E';
+        move[7 * BOARD_SIZE + 7] = 'S';
+        move[7 * BOARD_SIZE + 8] = 'T';
+        when(request.getMove()).thenReturn(move);
+        InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
+            boardService.validateMove(request);
+        });
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(0));
+        Assertions.assertEquals("Invalid Move. Fireball may only be placed alone.",
+                thrown.getMessage());
+    }
+
+    @Test
+    public void test_validateMove_TwoLongSameColumnWithAsteriskMoveOnBlankBoard_succeed(){
+        setupBlankBoard();
+        move[3 * BOARD_SIZE + 7] = 'T';
+        move[4 * BOARD_SIZE + 7] = 'E';
+        move[5 * BOARD_SIZE + 7] = 'S';
+        move[6 * BOARD_SIZE + 7] = 'T';
+        move[7 * BOARD_SIZE + 7] = '*';
+        move[8 * BOARD_SIZE + 7] = 'T';
+        move[9 * BOARD_SIZE + 7] = 'E';
+        move[10 * BOARD_SIZE + 7] = 'S';
+        move[11 * BOARD_SIZE + 7] = 'T';
+        when(request.getMove()).thenReturn(move);
+        InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
+            boardService.validateMove(request);
+        });
+        verify(mockRepo, times(1)).findBoardByID(any());
+        anagramServiceMockedStatic.verify(() -> AnagramService.isWord(any()), times(0));
+        Assertions.assertEquals("Invalid Move. Fireball may only be placed alone.",
+                thrown.getMessage());
+    }
 }

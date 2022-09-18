@@ -22,4 +22,8 @@ public class GameService {
     public static List<Board> getByID(UUID gameID) throws InvalidRequestException {
         return BoardService.getByGameID(gameID);
     }
+
+    public static void update(Board boardA, Board boardB){
+        //TODO finish this
+    }
 }

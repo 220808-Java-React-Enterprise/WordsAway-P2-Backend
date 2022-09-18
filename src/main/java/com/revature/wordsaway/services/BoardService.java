@@ -78,9 +78,9 @@ public class BoardService {
                 changeSpots.add(spot);
                 if (changeSpots.size() > 2) {
                     if(checkRow && changeSpots.get(changeSpots.size() - 1).row != changeSpots.get(0).row)
-                        throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
+                        throw new InvalidRequestException("Invalid Move. Only one word may be placed at a time.");
                     if(checkColumn && changeSpots.get(changeSpots.size() - 1).column != changeSpots.get(0).column)
-                        throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
+                        throw new InvalidRequestException("Invalid Move. Only one word may be placed at a time.");
                 } else if(changeSpots.size() == 2){
                     checkRow = changeSpots.get(0).row == changeSpots.get(1).row;
                     checkColumn = changeSpots.get(0).column == changeSpots.get(1).column;
@@ -95,6 +95,15 @@ public class BoardService {
                     && !isWord(findConnectedWord(newLetters, changeSpots.get(0), false, true)))
                 throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
             return;
+        }
+        if(checkRow){
+            for(int i = changeSpots.get(0).getI() + 1; i <= changeSpots.get(changeSpots.size() - 1).getI(); i++){
+                if(newLetters[i] == '.' || newLetters[i] == '*') throw new InvalidRequestException("Invalid Move. Only one word may be placed at a time.");
+            }
+        } else if (checkColumn) {
+            for(int i = changeSpots.get(0).getI() + BOARD_SIZE; i <= changeSpots.get(changeSpots.size() - 1).getI(); i += BOARD_SIZE){
+                if(newLetters[i] == '.' || newLetters[i] == '*') throw new InvalidRequestException("Invalid Move. Only one word may be placed at a time.");
+            }
         }
         if(!isWord(findConnectedWord(newLetters, changeSpots.get(0), checkRow, checkColumn)))
             throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
