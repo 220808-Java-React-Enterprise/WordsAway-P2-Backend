@@ -8,6 +8,7 @@ import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
 
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
@@ -24,11 +25,16 @@ public class BoardService {
     public static Board register(User user, UUID gameID, boolean isActive){
         //TODO probably validate some things
         char[] blankArr = new char[BOARD_SIZE*BOARD_SIZE];
+        char[] tray = new char[7];
+
+        for (int i = 0; i < tray.length; i++)
+            tray[i] = getRandomChar();
+
         Arrays.fill(blankArr, '.');
         Board board = new Board(
                 UUID.randomUUID(),
                 user,
-                "abcdefg".toCharArray(), //TODO make random starting tray
+                tray,
                 0,
                 blankArr,
                 blankArr,
@@ -248,5 +254,19 @@ public class BoardService {
         word = word.replaceAll("^\\.*([^\\.](?:.*[^\\.])?)\\.*$", "$1");
         if(!word.matches("^[A-Z]+$")) throw new InvalidRequestException("Invalid Move. Illegal characters placed on board.");
         return AnagramService.isWord(word.toLowerCase());
+    }
+
+    public static char getRandomChar(){
+        double[] weights = new double[] { 0.03d, 0.05d, 0.08d, 0.12d, 0.16d, 0.18d, 0.18d, 0.18d };
+        String[] charSets = new String[] { "G", "JKQXZ", "O", "E", "DLSU", "AI", "NRT", "BCFHMPVWY" };
+
+        int counter = 0;
+        for (double r = Math.random(); counter < weights.length - 1; counter++){
+            r -= weights[counter];
+            if (r <= 0.0) break;
+        }
+
+        Random rand = new Random();
+        return charSets[counter].charAt(rand.nextInt(100) % charSets[counter].length());
     }
 }
