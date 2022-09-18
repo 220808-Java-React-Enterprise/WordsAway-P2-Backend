@@ -178,4 +178,58 @@ public class BoardService {
         if(!word.matches("^[A-Z]+$")) throw new InvalidRequestException("Invalid Move. Illegal characters placed on board.");
         return AnagramService.isWord(word.toLowerCase());
     }
+
+    public static boolean[] getHits(char[] letters){
+        boolean[] hits = new boolean[BOARD_SIZE * BOARD_SIZE];
+        for (int i = 0; i < hits.length; i++) {
+            switch (letters[i]) {
+                case 'A': case 'B': case 'C':
+                case 'D': case 'E': case 'G':
+                case 'H': case 'I': case 'L':
+                case 'M': case 'N': case 'O':
+                case 'P': case 'S': case 'T':
+                case 'R': case 'U': case '*':
+                    hits[i] = true;
+                    break;
+                case 'F': case 'K': case 'V':
+                case 'Y': case 'W':
+                    makeAdjacentTrue(hits, i);
+                    break;
+                case 'J': case 'Q': case 'X':
+                case 'Z':
+                    int startingRow = i / BOARD_SIZE;
+                    for (int j = i; j >= 0 && j / BOARD_SIZE == startingRow; j--) {
+                        if(letters[j] != '.' && letters[j] != '*'){
+                            makeAdjacentTrue(hits, j);
+                        }
+                    }
+                    for (int j = i + 1; j < BOARD_SIZE*BOARD_SIZE && j / BOARD_SIZE == startingRow; j++) {
+                        if(letters[j] != '.' && letters[j] != '*'){
+                            makeAdjacentTrue(hits, j);
+                        }
+                    }
+                    int startingColumn = i / BOARD_SIZE;
+                    for (int j = i; j >= 0 && j % BOARD_SIZE == startingColumn; j-= BOARD_SIZE) {
+                        if(letters[j] != '.' && letters[j] != '*'){
+                            makeAdjacentTrue(hits, j);
+                        }
+                    }
+                    for (int j = i + BOARD_SIZE; j < BOARD_SIZE*BOARD_SIZE && j % BOARD_SIZE == startingColumn; j += BOARD_SIZE) {
+                        if(letters[j] != '.' && letters[j] != '*'){
+                            makeAdjacentTrue(hits, j);
+                        }
+                    }
+                    break;
+            }
+        }
+        return hits;
+    }
+
+    private static void makeAdjacentTrue(boolean[] hits, int i){
+        hits[i] = true;
+        if (i - 1 >= 0) hits[i - 1] = true;
+        if (i + 1 < BOARD_SIZE * BOARD_SIZE) hits[i + 1] = true;
+        if (i - BOARD_SIZE >= 0) hits[i - BOARD_SIZE] = true;
+        if (i + BOARD_SIZE < BOARD_SIZE * BOARD_SIZE) hits[i + BOARD_SIZE] = true;
+    }
 }

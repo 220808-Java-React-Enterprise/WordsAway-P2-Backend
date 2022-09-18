@@ -17,8 +17,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
+import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 
 @RestController
 @RequestMapping
@@ -104,9 +107,9 @@ public class GameController {
     @CrossOrigin
     @GetMapping(value = "/getHits", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String getHits(@Param("id") String id, HttpServletResponse resp) {
+        //TODO maybe use the opponents letters depending on how front end wants these.
         try {
-            //TODO finish this
-            return "";
+            return Arrays.toString(BoardService.getHits(BoardService.getByID(UUID.fromString(id)).getLetters()));
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
             return e.getMessage();
