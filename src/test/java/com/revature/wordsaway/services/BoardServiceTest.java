@@ -7,7 +7,6 @@ import com.revature.wordsaway.repositories.BoardRepository;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
