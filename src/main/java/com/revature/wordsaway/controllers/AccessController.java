@@ -19,10 +19,10 @@ import java.util.UUID;
 public class AccessController {
 
     @CrossOrigin
-    @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(value = "/signup", consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String signup(@RequestBody NewUserRequest request, HttpServletResponse resp) {
         try {
+            resp.setStatus(201);
             return UserService.register(request).toString();
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());

@@ -195,7 +195,7 @@ public class BoardService {
     }
 
 
-    public static boolean[] getHits(char[] letters){
+    public static boolean[] getChecked(char[] letters){
         boolean[] hits = new boolean[BOARD_SIZE * BOARD_SIZE];
         for (int i = 0; i < hits.length; i++) {
             switch (letters[i]) {

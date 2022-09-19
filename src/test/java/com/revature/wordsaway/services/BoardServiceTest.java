@@ -929,7 +929,7 @@ public class BoardServiceTest {
     @Test
     public void test_getHitsOnBlankBoard_succeed(){
         setupBlankBoard();
-        boolean[] hits = boardService.getHits(mockBoard.getLetters());
+        boolean[] hits = boardService.getChecked(mockBoard.getLetters());
         boolean[] blankHits = new boolean[BOARD_SIZE*BOARD_SIZE];
         Arrays.fill(blankHits, false);
         assertArrayEquals(hits, blankHits);
@@ -938,7 +938,7 @@ public class BoardServiceTest {
     @Test
     public void test_getHitsOnBoardWithOneLetter_succeed(){
         setupBoardWithOneLetter();
-        boolean[] hits = boardService.getHits(mockBoard.getLetters());
+        boolean[] hits = boardService.getChecked(mockBoard.getLetters());
         boolean[] blankHits = new boolean[BOARD_SIZE*BOARD_SIZE];
         Arrays.fill(blankHits, false);
         blankHits[7 * BOARD_SIZE + 7] = true;
@@ -948,7 +948,7 @@ public class BoardServiceTest {
     @Test
     public void test_getHitsOnBoardWithOneAsterisk_succeed(){
         setupBoardWithOneAsterisk();
-        boolean[] hits = boardService.getHits(mockBoard.getLetters());
+        boolean[] hits = boardService.getChecked(mockBoard.getLetters());
         boolean[] blankHits = new boolean[BOARD_SIZE*BOARD_SIZE];
         Arrays.fill(blankHits, false);
         blankHits[7 * BOARD_SIZE + 7] = true;
@@ -975,7 +975,7 @@ public class BoardServiceTest {
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
         });
-        boolean[] hits = boardService.getHits(mockBoard.getLetters());
+        boolean[] hits = boardService.getChecked(mockBoard.getLetters());
         boolean[] blankHits = new boolean[BOARD_SIZE*BOARD_SIZE];
         Arrays.fill(blankHits, false);
         blankHits[7 * BOARD_SIZE + 7] = true;
@@ -1006,7 +1006,7 @@ public class BoardServiceTest {
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
         });
-        boolean[] hits = boardService.getHits(mockBoard.getLetters());
+        boolean[] hits = boardService.getChecked(mockBoard.getLetters());
         boolean[] blankHits = new boolean[BOARD_SIZE*BOARD_SIZE];
         Arrays.fill(blankHits, false);
         blankHits[7 * BOARD_SIZE + 7] = true;
@@ -1041,7 +1041,7 @@ public class BoardServiceTest {
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
         });
-        boolean[] hits = boardService.getHits(mockBoard.getLetters());
+        boolean[] hits = boardService.getChecked(mockBoard.getLetters());
         boolean[] blankHits = new boolean[BOARD_SIZE*BOARD_SIZE];
         Arrays.fill(blankHits, false);
         blankHits[7 * BOARD_SIZE + 6] = true;
