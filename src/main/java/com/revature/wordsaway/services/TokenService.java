@@ -17,10 +17,6 @@ public class TokenService {
         super();
     }
 
-    public TokenService(JwtConfig jwtConfig) {
-        TokenService.jwtConfig = jwtConfig;
-    }
-
     public static String generateToken(String username) {
         long now = System.currentTimeMillis();
         JwtBuilder tokenBuilder = Jwts.builder()
