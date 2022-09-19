@@ -22,7 +22,7 @@ public class UserService {
 
     public static User register(NewUserRequest request){
         validateUsername(request.getUsername());
-        validatePassword(request.getPassword());
+        //validatePassword(request.getPassword());
         if(request.getEmail() != null) validateEmail(request.getEmail());
         checkAvailableUsername(request.getUsername());
         checkAvailableEmail(request.getEmail());
