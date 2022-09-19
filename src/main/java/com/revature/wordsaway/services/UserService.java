@@ -54,12 +54,14 @@ public class UserService {
     }
 
     public static List<User> getAll() {
-        return (List<User>) userRepository.findAll();
+        List<User> users = (List<User>) userRepository.findAll();
+        if(users.size() == 0) throw new InvalidRequestException("No users found.");
+        return users;
     }
 
     public static void validateUsername(String username) throws InvalidRequestException {
         if(!username.matches("^[A-Za-z\\d]{3,15}$"))
-            throw new InvalidRequestException("Username must start with a letter and consist of between 3 and 15 alphanumeric characters or be a valid email address.");
+            throw new InvalidRequestException("Username must start with a letter and consist of between 3 and 15 alphanumeric characters.");
     }
 
     public static void validatePassword(String password) throws InvalidRequestException {
@@ -68,8 +70,8 @@ public class UserService {
     }
 
     public static void validateEmail(String email) throws InvalidRequestException {
-        if(!email.matches("^|[A-Za-z0-9][A-Za-z0-9!#$%&'*+\\-/=?^_`{}|]{0,63}@[A-Za-z0-9.-]{1,253}.[A-Za-z]{2,24}$"))
-            throw new InvalidRequestException("Password must be between 5 and 30 alphanumeric or special characters.");
+        if(!email.matches("^|[A-Za-z0-9][A-Za-z0-9!#$%&'*+\\-/=?^_`{}|]{0,63}@[A-Za-z0-9.-]{1,253}\\.[A-Za-z]{2,24}$"))
+            throw new InvalidRequestException("Invalid Email Address.");
     }
 
     public static void checkAvailableUsername(String username) throws ResourceConflictException {

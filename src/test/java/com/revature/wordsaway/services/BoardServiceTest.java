@@ -45,7 +45,7 @@ public class BoardServiceTest {
     };
 
     @BeforeEach
-    public void setupTest(){
+    public void setup(){
         mockRepo = mock(BoardRepository.class);
         boardService = new BoardService(mockRepo);
         anagramServiceMockedStatic = mockStatic(AnagramService.class);
@@ -58,7 +58,7 @@ public class BoardServiceTest {
     }
 
     @AfterEach
-    public void setdownTest(){
+    public void setdown(){
         mockRepo = null;
         boardService = null;
         anagramServiceMockedStatic.close();
