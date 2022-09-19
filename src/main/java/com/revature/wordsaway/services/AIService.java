@@ -78,10 +78,12 @@ public class AIService {
             if (isLoop(col, start, end)){
                 flag = true;
                 while (flag ? curr < end : curr >= start) {
-                    if (worms[curr] != '.') {
+                    if (worms[curr] == '.')
+                        worms[curr] = wormLetter[i];
+                    else {
                         if (!flag) worms[curr] = '.';
                         flag = false;
-                    } else worms[curr] = wormLetter[i];
+                    }
 
                     curr += flag ? increment : increment * - 1;
                 }
@@ -244,9 +246,9 @@ public class AIService {
     }
 
     private void shootFireBall(){
-        int target = rand.nextInt(BOARD_SIZE * BOARD_SIZE - 1);
+        int target = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
         while (isLetter(target))
-            target = rand.nextInt(BOARD_SIZE * BOARD_SIZE - 1);
+            target = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
         letters[target] = '*';
         board.setFireballs(board.getFireballs() - 1);
     }
