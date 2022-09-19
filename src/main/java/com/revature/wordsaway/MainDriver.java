@@ -48,13 +48,13 @@ public class MainDriver {
 //            Arrays.fill(worms, '.');
 //            board.setWorms(worms);
 //
-//            TimeUnit.SECONDS.sleep(5);
+//            TimeUnit.SECONDS.sleep(2);
 //        }
 
-        for (int i = 0; i < 1; i++){
+        for (int i = 0; i < 20; i++){
             long start = System.currentTimeMillis();
 
-            char[] move = new AIService(board).start(start, 1);
+            board = new AIService(board).start(start, 1);
 
             total += (System.currentTimeMillis() - start) / 1000;
         }
@@ -68,7 +68,7 @@ public class MainDriver {
             }
             System.out.println();
         }
-        System.out.println(total / 1);
+        System.out.println(total / 20);
         System.out.println(board.getFireballs());
     }
 }

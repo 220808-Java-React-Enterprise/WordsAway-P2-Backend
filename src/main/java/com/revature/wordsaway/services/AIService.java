@@ -29,7 +29,7 @@ public class AIService {
         this.tray = board.getTray();
     }
 
-    public char[] start(long startTime, int level){
+    public Board start(long startTime, int level){
         // If bot has taken longer than 25 seconds leave
         if (System.currentTimeMillis() - startTime > 25000) return null;
         int increment;
@@ -42,20 +42,20 @@ public class AIService {
 
         // Check if list is empty
         if (finalList.isEmpty()){
-            char[] move = start(startTime, 1); // todo update once more bots are implemented
+            Board newBoard = start(startTime, 1); // todo update once more bots are implemented
             // If board has made no changes, replace tray, and return board
-            if (move == null){
+            if (newBoard == null){
                 for (int i = 0; i < tray.length; i++)
                     tray[i] = BoardService.getRandomChar();
                 board.setTray(tray);
-                return null;
+                return board;
             }
-            return move;
+            return newBoard;
         }
         // Get random answer and play it
         WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
         finalizeMove(wl, increment);
-        return wl.word.toCharArray();
+        return board;
     }
 
     public Board setWorms(){
@@ -83,7 +83,7 @@ public class AIService {
                         flag = false;
                     } else worms[curr] = wormLetter[i];
 
-                    curr += flag ? increment : increment * -1;
+                    curr += flag ? increment : increment * - 1;
                 }
                 if (flag) i++;
             }
@@ -110,7 +110,7 @@ public class AIService {
             validWords = getWordList(existingLetters, curr, increment);
             finalList.addAll(getFinalWordListAndLocation(validWords, curr, increment));
 
-            while (isLoop(col, start, curr) && letters[curr] != '.' && letters[curr] != '*'){
+            while (isLoop(col, start, curr) && isLetter(curr) && letters[curr] != '*'){
                 curr += increment;
                 counter++;
             }
@@ -144,7 +144,7 @@ public class AIService {
         // Loop until end of colum or row
         for (int i = start; spacerCounter < tray.length && counter < BOARD_SIZE; i += increment){
             // Check if we are at a '.'
-            if (letters[i] != '.' && letters[i] != '*') {
+            if (isLetter(i) && letters[i] != '*') {
                 sb.append(spacer.append(letters[i]));
                 spacer.delete(0, spacer.length());
             }
@@ -202,14 +202,14 @@ public class AIService {
                     // Clear sb
                     sb.delete(0, sb.length());
                     // Check if letter fits in current location
-                    if (letters[j] != '.' && letters[j] != c[index]) break exit;
+                    if (isLetter(j) && letters[j] != c[index]) break exit;
 
                     // Letters in the neg direction
-                    for (int cw = j - newIncrement; cw >= 0 && isLoop(!col, j, cw) && letters[cw] != '.' && letters[cw] != '*'; cw -= newIncrement)
+                    for (int cw = j - newIncrement; cw >= 0 && isLoop(!col, j, cw) && isLetter(cw) && letters[cw] != '*'; cw -= newIncrement)
                         sb.insert(0, sb.length() != 0 ? letters[cw] : String.valueOf(letters[cw]) + c[index]);
 
                     // Letters in the pos direction
-                    for (int cw = j + newIncrement; cw < letters.length && isLoop(!col, j, cw) && letters[cw] != '.' && letters[cw] != '*'; cw += newIncrement)
+                    for (int cw = j + newIncrement; cw < letters.length && isLoop(!col, j, cw) && isLetter(cw) && letters[cw] != '*'; cw += newIncrement)
                         sb.append(sb.length() != 0 ? letters[cw] : String.valueOf(c[index]) + letters[cw]);
 
                     // Validate word
@@ -232,11 +232,11 @@ public class AIService {
         // Word being played
         char[] c = wl.word.toCharArray();
         for (int i = wl.location; counter < c.length; i += increment) {
-            if (letters[i] == '.' || letters[i] == '*'){
+            if (!isLetter(i) || letters[i] == '*'){
                 letters[i] = c[counter];
                 sb.setCharAt(sb.indexOf(String.valueOf(c[counter])), BoardService.getRandomChar());
                 tray = sb.toString().toCharArray();
-            } else board.setFireballs(board.getFireballs() + 1); // todo fix increment of fireball
+            } else board.setFireballs(board.getFireballs() + 1); // todo verify increment of fireball
             counter++;
         }
         board.setLetters(letters);
@@ -245,7 +245,7 @@ public class AIService {
 
     private void shootFireBall(){
         int target = rand.nextInt(BOARD_SIZE * BOARD_SIZE - 1);
-        while (letters[target] >= 'A' && letters[target] <= 'Z')
+        while (isLetter(target))
             target = rand.nextInt(BOARD_SIZE * BOARD_SIZE - 1);
         letters[target] = '*';
         board.setFireballs(board.getFireballs() - 1);
@@ -255,5 +255,9 @@ public class AIService {
         if (col)
             return curr < BOARD_SIZE * BOARD_SIZE && curr >= 0;
         return start / BOARD_SIZE == curr / BOARD_SIZE;
+    }
+
+    private boolean isLetter(int idx){
+        return String.valueOf(letters[idx]).matches("[A-Z]");
     }
 }

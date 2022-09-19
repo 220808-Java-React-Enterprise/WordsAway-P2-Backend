@@ -1,6 +1,5 @@
 package com.revature.wordsaway.services;
 
-import com.revature.wordsaway.dtos.requests.MoveRequest;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.repositories.BoardRepository;
 import org.junit.Before;
@@ -21,7 +20,6 @@ public class AIServiceTest {
     private BoardRepository mockRepo;
     private AIService aiService;
     private Board mockBoard;
-    private MoveRequest request;
 
     @Before
     public void setupTest(){
