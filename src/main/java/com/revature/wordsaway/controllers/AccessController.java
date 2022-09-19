@@ -50,10 +50,12 @@ public class AccessController {
         User user;
         try{
             user = UserService.getByUsername(username);
+            resp.setStatus(200);
+            return user.getSalt();
         }catch (NetworkException e){
-            resp.setStatus(e.getStatusCode());
+            System.out.println(e.getMessage());
+            resp.setStatus(201);
             return UUID.randomUUID().toString().replace("-","");
         }
-        return user.getSalt();
     }
 }
