@@ -4,25 +4,24 @@ import com.revature.wordsaway.models.Board;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 
 @Service
-public class AIService { // TODO improve bot/make harder bot
-    static Map<String, Integer> wordCounter = new TreeMap<>();
-
-    public static Map<String, Integer> getWordCounter(){ return wordCounter; }
+public class AIService {
     private final Board board;
     private final char[] letters;
     private char[] tray;
 
-    private final static Map<Integer, boolean[]> existingList = new HashMap<>();
+    private final List<WordAndLocation> finalList = new ArrayList<>();
+    private List<String> validWords;
+    private String existingLetters;
+    // Get random number from 0-31
+    Random rand = new Random(System.currentTimeMillis());
 
-    private class WordAndLocation{
+    private static class WordAndLocation{
         private int location;
         private String word;
-        private int fireBalls;
     }
 
     public AIService(Board board){
@@ -31,17 +30,72 @@ public class AIService { // TODO improve bot/make harder bot
         this.tray = board.getTray();
     }
 
-    public Board startEasyBot(long startTime){
+    public char[] start(long startTime, int level){
         // If bot has taken longer than 25 seconds leave
         if (System.currentTimeMillis() - startTime > 25000) return null;
-        // Get random number from 0-31
-        Random rand = new Random();
-        // Set seed to system time
-        rand.setSeed(rand.nextInt());
+        int increment;
 
+        switch (level){
+            case 1: increment = easyBot(); break;
+            case 3: increment = startHardBot(); break;
+            default: increment = startMedBot(); break;
+        }
+
+        // Check if list is empty
+        if (finalList.isEmpty()){
+            char[] move = start(startTime, 1); // todo update once more bots are implemented
+            // If board has made no changes, replace tray, and return board
+            if (move == null){
+                for (int i = 0; i < tray.length; i++)
+                    tray[i] = BoardService.getRandomChar();
+                board.setTray(tray);
+                return null;
+            }
+            return move;
+        }
+        // Get random answer and play it
+        WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
+        finalizeMove(wl, increment);
+        return wl.word.toCharArray();
+    }
+
+    public Board setWorms(){
+        char[] wormLetter = new char[] { 'A', 'B', 'C', 'S', 'D' };
+        int[] wormArr = new int[] { 5, 4, 3, 3, 2 };
+        char[] worms = board.getWorms();
+        boolean col, flag;
+        int start, curr, end, increment;
+
+        for (int i = 0; i < wormArr.length;) {
+            // Get a direction for the ship
+            col = rand.nextInt(BOARD_SIZE + BOARD_SIZE) % 2 == 0;
+            // Set the increment
+            increment = col ? BOARD_SIZE : 1;
+            // Get start and end of worm
+            curr = start = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
+            end = start + wormArr[i] * increment;
+
+            // Check if you can get to end
+            if (isLoop(col, start, end)){
+                flag = true;
+                while (flag ? curr < end : curr >= start) {
+                    if (worms[curr] != '.') {
+                        if (!flag) worms[curr] = '.';
+                        flag = false;
+                    } else worms[curr] = wormLetter[i];
+
+                    curr += flag ? increment : increment * -1;
+                }
+                if (flag) i++;
+            }
+        }
+        return board;
+    }
+
+    private int easyBot(){
         // Get a random colum or row
         int start;
-        boolean col = (start = rand.nextInt(32)) % 2 == 0;
+        boolean col = (start = rand.nextInt(BOARD_SIZE + BOARD_SIZE)) % 2 == 0;
         start /= 2;
 
         // Establish increment variable
@@ -50,16 +104,12 @@ public class AIService { // TODO improve bot/make harder bot
         else { increment = 1; start *= BOARD_SIZE; }
 
         int curr = start;
-        List<WordAndLocation> finalList = new ArrayList<>();
-        List<String> validWords;
-        String existingLetters;
-
         int counter = 0;
         // Get a final list of all moves in give row or col
         while (counter < BOARD_SIZE - 2) {
             existingLetters = getExistingLetters(curr, increment);
             validWords = getWordList(existingLetters, curr, increment);
-            finalList.addAll(getWordListAndLocation(validWords, curr, increment));
+            finalList.addAll(getFinalWordListAndLocation(validWords, curr, increment));
 
             while (isLoop(col, start, curr) && letters[curr] != '.' && letters[curr] != '*'){
                 curr += increment;
@@ -68,24 +118,21 @@ public class AIService { // TODO improve bot/make harder bot
             curr += increment;
             counter++;
         }
+        // todo does fireball cost a turn?
+        if (board.getFireballs() > 0 && rand.nextInt(100) % 20 == 0)
+            shootFireBall();
 
-        // Check if list is empty
-        if (finalList.isEmpty()){
-            Board newBoard = startEasyBot(startTime);
+        return increment;
+    }
 
-            // If board has made no changes, replace tray, and return board
-            if (newBoard == null){
-                for (int i = 0; i < tray.length; i++)
-                    tray[i] = BoardService.getRandomChar();
-                board.setTray(tray);
-                return board;
-            }
-            return newBoard;
-        }
+    private int startMedBot(){
+        return 0;
+        // todo implement medium bot
+    }
 
-        // Get random answer and play it
-        WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
-        return finalizeMove(board, wl, increment);
+    private int startHardBot(){
+        return 0;
+        // todo implement hard bot
     }
 
     private String getExistingLetters(int start, int increment){
@@ -135,13 +182,13 @@ public class AIService { // TODO improve bot/make harder bot
         return words;
     }
 
-    private List<WordAndLocation> getWordListAndLocation(List<String> words, int start, int increment){
+    private List<WordAndLocation> getFinalWordListAndLocation(List<String> words, int start, int increment){
         List<WordAndLocation> list = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         WordAndLocation wl;
-        int index, fireBalls = 0;
+        int index;
         char[] c;
-        boolean lessThan, greaterThan, col = increment == BOARD_SIZE;
+        boolean col = increment == BOARD_SIZE;
         // Switch increment for validity
         int newIncrement = col ? 1 : BOARD_SIZE;
 
@@ -159,24 +206,19 @@ public class AIService { // TODO improve bot/make harder bot
                     if (letters[j] != '.' && letters[j] != c[index]) break exit;
 
                     // Letters in the neg direction
-                    if (!(j - newIncrement < 0))
-                        for (int cw = j - newIncrement; isLoop(!col, j, cw) && letters[cw] != '.' && letters[cw] != '*'; cw -= newIncrement)
-                            sb.insert(0, sb.length() != 0 ? letters[cw] : String.valueOf(letters[cw]) + c[index]);
+                    for (int cw = j - newIncrement; cw >= 0 && isLoop(!col, j, cw) && letters[cw] != '.' && letters[cw] != '*'; cw -= newIncrement)
+                        sb.insert(0, sb.length() != 0 ? letters[cw] : String.valueOf(letters[cw]) + c[index]);
 
                     // Letters in the pos direction
-                    if (!(j + newIncrement > letters.length - 1))
-                        for (int cw = j + newIncrement; isLoop(!col, j, cw) && letters[cw] != '.' && letters[cw] != '*'; cw += newIncrement)
-                            sb.append(sb.length() != 0 ? letters[cw] : String.valueOf(c[index]) + letters[cw]);
+                    for (int cw = j + newIncrement; cw < letters.length && isLoop(!col, j, cw) && letters[cw] != '.' && letters[cw] != '*'; cw += newIncrement)
+                        sb.append(sb.length() != 0 ? letters[cw] : String.valueOf(c[index]) + letters[cw]);
 
                     // Validate word
                     if (sb.length() > 0 && !AnagramService.isWord(sb.toString().toLowerCase())) break exit;
 
-                    //if (sb.length() > 2) fireBalls++;
-
                     index++;
                 }
                 wl = new WordAndLocation();
-                wl.fireBalls = fireBalls;
                 wl.location = start;
                 wl.word = word;
                 list.add(wl);
@@ -185,13 +227,7 @@ public class AIService { // TODO improve bot/make harder bot
         return list;
     }
 
-    private boolean isLoop(boolean col, int start, int curr){
-        if (col)
-            return curr < BOARD_SIZE * BOARD_SIZE && curr >= 0;
-        return start / BOARD_SIZE == curr / BOARD_SIZE;
-    }
-
-    private Board finalizeMove(Board board, WordAndLocation wl, int increment){
+    private void finalizeMove(WordAndLocation wl, int increment){
         StringBuilder sb = new StringBuilder(String.valueOf(tray));
         int counter = 0;
         // Word being played
@@ -206,7 +242,19 @@ public class AIService { // TODO improve bot/make harder bot
         }
         board.setLetters(letters);
         board.setTray(tray);
-        wordCounter.put(wordCounter.size() + 1 + "-" + wl.word, wl.location);
-        return board;
+    }
+
+    private void shootFireBall(){
+        int target = rand.nextInt(BOARD_SIZE * BOARD_SIZE - 1);
+        while (letters[target] >= 'A' && letters[target] <= 'Z')
+            target = rand.nextInt(BOARD_SIZE * BOARD_SIZE - 1);
+        letters[target] = '*';
+        board.setFireballs(board.getFireballs() - 1);
+    }
+
+    private boolean isLoop(boolean col, int start, int curr){
+        if (col)
+            return curr < BOARD_SIZE * BOARD_SIZE && curr >= 0;
+        return start / BOARD_SIZE == curr / BOARD_SIZE;
     }
 }

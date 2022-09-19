@@ -85,6 +85,10 @@ public class Board {
         return worms;
     }
 
+    public void setWorms(char[] worms) {
+        this.worms = worms;
+    }
+
     public char[] getLetters() {
         return letters;
     }

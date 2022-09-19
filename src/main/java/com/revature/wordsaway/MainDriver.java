@@ -9,31 +9,52 @@ import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.services.AIService;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class MainDriver {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         //SpringApplication.run(MainDriver.class, args);
 
         char[] tray = new char[7];
         char[] letters = new char[16*16];
+        char[] worms = new char[16*16];
 
         Arrays.fill(letters, '.');
-
 
         for (int i = 0; i < tray.length; i++)
             tray[i] = BoardService.getRandomChar();
 
         User user = new User("RJamesRJ", "password1", "salt", "robertjames@gmail.com", 1000, 0, 0, false);
-        Board board = new Board(UUID.randomUUID(), user, tray, 0, new char[2], letters, UUID.randomUUID(), true);
+        Board board = new Board(UUID.randomUUID(), user, tray, 0, worms, letters, UUID.randomUUID(), true);
 
 
         long total = 0;
 
-        for (int i = 0; i < 50; i++){
+
+//        for (int i = 0; i < 10; i++){
+//            board = new AIService(board).setWorms();
+//
+//            int count = 0;
+//            for (int j = 0; j < 16; j++) {
+//                for (int k = 0; k < 16; k++) {
+//                    System.out.print(worms[count] + ", ");
+//                    count++;
+//                }
+//                System.out.println();
+//            }
+//            System.out.println();
+//
+//            Arrays.fill(worms, '.');
+//            board.setWorms(worms);
+//
+//            TimeUnit.SECONDS.sleep(5);
+//        }
+
+        for (int i = 0; i < 1; i++){
             long start = System.currentTimeMillis();
 
-            board = new AIService(board).startEasyBot(start);
+            char[] move = new AIService(board).start(start, 1);
 
             total += (System.currentTimeMillis() - start) / 1000;
         }
@@ -47,9 +68,7 @@ public class MainDriver {
             }
             System.out.println();
         }
-        System.out.println(total / 50);
+        System.out.println(total / 1);
         System.out.println(board.getFireballs());
-        System.out.println(AIService.getWordCounter());
-        System.out.println(AIService.getWordCounter().size());
     }
 }
