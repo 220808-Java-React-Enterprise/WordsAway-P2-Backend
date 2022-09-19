@@ -7,6 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -77,5 +82,17 @@ class AnagramServiceTest {
         Boolean result = anagramService.isWord("test");
         verify(mockRestTemplate, times(1)).getForObject("http://www.anagramica.com/lookup/test", AnagramResponse.class);
         assertEquals(result, false);
+    }
+
+    @Test
+    public void test_getAllList_succeed(){
+        List<String> result = anagramService.getAllList("test", "", 4);
+        assertEquals(result, new ArrayList<>(Arrays.asList("SETT", "STET", "TEST", "TETS", "EST", "SET", "TES", "TET")));
+    }
+
+    @Test
+    public void test_getAllList_fail(){
+        List<String> result = anagramService.getAllList("va", "", 4);
+        assertEquals(result, new ArrayList<>());
     }
 }

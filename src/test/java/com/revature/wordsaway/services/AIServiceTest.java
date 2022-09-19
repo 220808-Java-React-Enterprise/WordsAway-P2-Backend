@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -115,6 +117,6 @@ public class AIServiceTest {
                 countShipLength++;
         }
 
-        Assert.assertTrue(countShipLength == 17);
+        assertEquals(17, countShipLength);
     }
 }
