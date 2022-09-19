@@ -7,10 +7,7 @@ import com.revature.wordsaway.repositories.BoardRepository;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
-
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 
 @Service
