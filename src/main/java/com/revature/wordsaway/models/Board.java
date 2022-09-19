@@ -1,11 +1,14 @@
 package com.revature.wordsaway.models;
 
+import org.springframework.stereotype.Component;
+
 import javax.persistence.*;
 import java.util.Arrays;
 import java.util.UUID;
 
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 
+@Component
 @Entity
 @Table(name = "boards")
 public class Board {
@@ -46,17 +49,6 @@ public class Board {
         this.isActive = isActive;
     }
 
-    public Board(Board oldBoard, char[] move){
-        this.id = oldBoard.getId();
-        this.user = oldBoard.getUser();
-        this.tray = oldBoard.getTray();
-        this.fireballs = oldBoard.getFireballs();
-        this.worms = oldBoard.getWorms();
-        this.letters = move;
-        this.gameID = oldBoard.getGameID();
-        this.isActive = oldBoard.isActive();
-    }
-
     public UUID getId() {
         return id;
     }
@@ -85,12 +77,18 @@ public class Board {
         return worms;
     }
 
+    public void setWorms(char[] worms) {
+        this.worms = worms;
+    }
+
     public char[] getLetters() {
         return letters;
     }
 
     public void setLetters(char[] letters) {
         this.letters = letters;
+        lettersRows = null;
+        lettersColumns = null;
     }
 
     public UUID getGameID() {
