@@ -166,10 +166,10 @@ public class BoardService {
             ChangeSpot spot = (ChangeSpot) obj;
             return spot.row == row && spot.column == column;
         }
-        /**@Override
+        /*@Override
         public String toString(){
             return "(" + row + "," + column + ")";
-         }**/
+         }*/
     }
 
     private static char[] findConnectedWord(char[] letters, ChangeSpot spot, boolean checkRow, boolean checkColumn){

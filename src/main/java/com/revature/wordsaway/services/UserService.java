@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -70,12 +71,11 @@ public class UserService {
         List<OpponentResponse> results = new ArrayList<>();
         for(User opponent : userRepository.findAllOtherUsers(username)){
             List<Board> boards = boardRepository.findBoardsByTwoUsernames(username, opponent.getUsername());
-            if(boards.size() > 0)
-                results.add(new OpponentResponse(
-                    opponent.getUsername(),
-                    opponent.getELO(),
-                    boards.get(0).getGameID()
-                ));
+            results.add(new OpponentResponse(
+                opponent.getUsername(),
+                opponent.getELO(),
+                boards.size() > 0 ? boards.get(0).getGameID() : null
+            ));
         }
         return results;
     }
