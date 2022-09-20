@@ -18,6 +18,10 @@ public class AIService {
     // Get random number from 0-31
     Random rand = new Random(System.currentTimeMillis());
 
+    public void setRandomSeed(int seed){
+        rand.setSeed(seed);
+    }
+
     private static class WordAndLocation{
         private int location;
         private String word;
@@ -29,20 +33,18 @@ public class AIService {
         this.tray = board.getTray();
     }
 
-    public Board start(long startTime, int level){
+    public Board start(long startTime){ // todo add level for bots
         // If bot has taken longer than 25 seconds leave
         if (System.currentTimeMillis() - startTime > 25000) return null;
         int increment;
 
-        switch (level){
-            case 1: increment = easyBot(); break;
-            case 3: increment = startHardBot(); break;
-            default: increment = startMedBot(); break;
-        }
+        // todo add other bots here
+        // If increment is -1 means a fireball was cast
+        if ((increment = easyBot()) == -1) return board;
 
         // Check if list is empty
         if (finalList.isEmpty()){
-            Board newBoard = start(startTime, 1); // todo update once more bots are implemented
+            Board newBoard = start(startTime); // todo update once more bots are implemented
             // If board has made no changes, replace tray, and return board
             if (newBoard == null){
                 for (int i = 0; i < tray.length; i++)
@@ -119,21 +121,13 @@ public class AIService {
             curr += increment;
             counter++;
         }
-        // todo does fireball cost a turn?
-        if (board.getFireballs() > 0 && rand.nextInt(100) % 20 == 0)
+
+        if (board.getFireballs() > 0 && rand.nextInt(100) % 20 == 0) {
             shootFireBall();
+            return -1;
+        }
 
         return increment;
-    }
-
-    private int startMedBot(){
-        return 0;
-        // todo implement medium bot
-    }
-
-    private int startHardBot(){
-        return 0;
-        // todo implement hard bot
     }
 
     private String getExistingLetters(int start, int increment){
@@ -170,7 +164,6 @@ public class AIService {
 
         // Loop for all possible words in that given space
         do {
-            // todo Look into page not found error; maybe
             incomingWords = AnagramService.getAllList(String.valueOf(tray), pattern, wordLength);
             if (incomingWords != null)
                 words.addAll(incomingWords);
@@ -238,16 +231,17 @@ public class AIService {
                 letters[i] = c[counter];
                 sb.setCharAt(sb.indexOf(String.valueOf(c[counter])), BoardService.getRandomChar());
                 tray = sb.toString().toCharArray();
-            } else board.setFireballs(board.getFireballs() + 1); // todo verify increment of fireball
+            } else board.setFireballs(board.getFireballs() + 1); // todo ask if boardService increments fireball
             counter++;
         }
         board.setLetters(letters);
         board.setTray(tray);
     }
 
+    // todo adjust fireball aim
     private void shootFireBall(){
         int target = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
-        while (isLetter(target))
+        while (isLetter(target) || letters[target] == '*')
             target = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
         letters[target] = '*';
         board.setFireballs(board.getFireballs() - 1);

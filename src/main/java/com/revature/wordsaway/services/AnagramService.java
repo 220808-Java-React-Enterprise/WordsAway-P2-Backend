@@ -2,6 +2,7 @@ package com.revature.wordsaway.services;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebClientOptions;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.revature.wordsaway.dtos.responses.AnagramResponse;
 import org.springframework.stereotype.Service;
@@ -15,9 +16,14 @@ import java.util.List;
 @Service
 public class AnagramService {
     private static RestTemplate restTemplate = new RestTemplate();
+    private static WebClient client = new WebClient();
 
     public AnagramService(RestTemplate restTemplate){
-        this.restTemplate = restTemplate;
+        AnagramService.restTemplate = restTemplate;
+    }
+
+    public AnagramService(WebClient client){
+        AnagramService.client = client;
     }
 
     public static String getBest(String letters){
@@ -36,20 +42,39 @@ public class AnagramService {
         }
     }
 
+    @ExceptionHandler(value = {IOException.class, FailingHttpStatusCodeException.class})
     public static boolean isWord(String letters) {
+        StringBuilder pattern = new StringBuilder();
+        setOptions();
+
+        for (char c : letters.toCharArray())
+            pattern.append("_");
+
+        String pageURL = "https://anagram-solver.io/words-for/" + letters.toLowerCase() + "/pattern/" + pattern + "/?dictionary=otcwl";
+
         try {
-            return restTemplate.getForObject("http://www.anagramica.com/lookup/" + letters, AnagramResponse.class).getFound() == 1;
-        } catch (NullPointerException e) {
+            // Make request
+            HtmlPage page = client.getPage(pageURL);
+
+            // Get all anagrams
+            List<HtmlElement> items = page.getByXPath("//div[@class='wordblock']/a");
+
+            for (HtmlElement item : items){
+                // Save to a list
+                String word = item.asNormalizedText();
+
+                if (word.matches(letters)) return true;
+            }
+        } catch (IOException | FailingHttpStatusCodeException e){ // todo handle exceptions
             return false;
         }
+        return false;
     }
 
-    @ExceptionHandler(value = IOException.class)
+    @ExceptionHandler(value = {IOException.class, FailingHttpStatusCodeException.class})
     public static List<String> getAllList(String letters, String pattern, int wordLength){
         List<String> words = new ArrayList<>();
-        WebClient client = new WebClient();
-        client.getOptions().setCssEnabled(false);
-        client.getOptions().setJavaScriptEnabled(false);
+        setOptions();
 
         String pageURL = !pattern.equals("")
                 ? "https://anagram-solver.io/words-for/" + letters + "/pattern/" + pattern + "/?dictionary=otcwl"
@@ -78,5 +103,12 @@ public class AnagramService {
             return null;
         }
         return words;
+    }
+
+    private static void setOptions() {
+        try{
+            client.getOptions().setCssEnabled(false);
+            client.getOptions().setJavaScriptEnabled(false);
+        } catch (NullPointerException ignored){}
     }
 }
