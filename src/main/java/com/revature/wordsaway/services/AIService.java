@@ -10,7 +10,7 @@ import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 public class AIService {
     private final Board board;
     private final char[] letters;
-    private char[] tray;
+    private final char[] tray;
 
     private final List<WordAndLocation> finalList = new ArrayList<>();
     private List<String> validWords;
@@ -33,34 +33,27 @@ public class AIService {
         this.tray = board.getTray();
     }
 
-    public Board start(long startTime){ // todo add level for bots
+    public boolean start(long startTime){ // todo add level for bots
         // If bot has taken longer than 25 seconds leave
-        if (System.currentTimeMillis() - startTime > 25000) return null;
+        if (System.currentTimeMillis() - startTime > 25000) return false;
         int increment;
 
         // todo add other bots here
         // If increment is -1 means a fireball was cast
-        if ((increment = easyBot()) == -1) return board;
+        if ((increment = easyBot()) == -1) return true;
 
         // Check if list is empty
-        if (finalList.isEmpty()){
-            Board newBoard = start(startTime); // todo update once more bots are implemented
+        if (finalList.isEmpty())
             // If board has made no changes, replace tray, and return board
-            if (newBoard == null){
-                for (int i = 0; i < tray.length; i++)
-                    tray[i] = BoardService.getRandomChar();
-                board.setTray(tray);
-                return board;
-            }
-            return newBoard;
-        }
+            return start(startTime);
+
         // Get random answer and play it
         WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
         finalizeMove(wl, increment);
-        return board;
+        return true;
     }
 
-    public Board setWorms(){
+    public void setWorms(){
         char[] wormLetter = new char[] { 'A', 'B', 'C', 'S', 'D' };
         int[] wormArr = new int[] { 5, 4, 3, 3, 2 };
         char[] worms = board.getWorms();
@@ -92,7 +85,6 @@ public class AIService {
                 if (flag) i++;
             }
         }
-        return board;
     }
 
     private int easyBot(){
@@ -222,16 +214,12 @@ public class AIService {
     }
 
     private void finalizeMove(WordAndLocation wl, int increment){
-        StringBuilder sb = new StringBuilder(String.valueOf(tray));
         int counter = 0;
         // Word being played
         char[] c = wl.word.toCharArray();
         for (int i = wl.location; counter < c.length; i += increment) {
-            if (!isLetter(i) || letters[i] == '*'){
+            if (!isLetter(i) || letters[i] == '*')
                 letters[i] = c[counter];
-                sb.setCharAt(sb.indexOf(String.valueOf(c[counter])), BoardService.getRandomChar());
-                tray = sb.toString().toCharArray();
-            } else board.setFireballs(board.getFireballs() + 1); // todo ask if boardService increments fireball
             counter++;
         }
         board.setLetters(letters);

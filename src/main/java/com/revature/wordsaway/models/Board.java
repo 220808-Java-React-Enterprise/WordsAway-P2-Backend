@@ -49,6 +49,17 @@ public class Board {
         this.isActive = isActive;
     }
 
+    public Board(Board board){
+        this.id = board.getId();
+        this.user = board.getUser();
+        this.tray = board.getTray();
+        this.fireballs = board.getFireballs();
+        this.worms = board.getWorms();
+        this.letters = board.getLetters();
+        this.gameID = board.getGameID();
+        this.isActive = board.isActive();
+    }
+
     public UUID getId() {
         return id;
     }

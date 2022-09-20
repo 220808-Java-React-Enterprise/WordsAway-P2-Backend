@@ -193,11 +193,11 @@ public class AIServiceTest {
         mockAnagram.when(() -> AnagramService.getAllList(anyString(), anyString(), anyInt())).thenReturn(null);
         aiService.start(System.currentTimeMillis());
 
-        when(request.getLayout()).thenReturn(botTwentyFirstsMove());
+        when(request.isReplacedTray()).thenReturn(true);
+        when(request.getLayout()).thenReturn(setupBoardTwentyMovesIn());
         when(mockRepo.findBoardByID(any())).thenReturn(twentyMoveBoard);
         when(twentyMoveBoard.getLetters()).thenReturn(setupBoardTwentyMovesIn());
 
-        boardService.validateMove(request);
         mockAnagram.close();
     }
 

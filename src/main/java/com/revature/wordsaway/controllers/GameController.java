@@ -4,6 +4,7 @@ import com.revature.wordsaway.dtos.requests.BoardRequest;
 import com.revature.wordsaway.dtos.requests.GameRequest;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
+import com.revature.wordsaway.services.AIService;
 import com.revature.wordsaway.services.BoardService;
 import com.revature.wordsaway.services.TokenService;
 import com.revature.wordsaway.services.UserService;
@@ -55,10 +56,14 @@ public class GameController {
 
     @CrossOrigin
     @PostMapping(value = "/placeWorms", consumes = "application/json")
-    public String placeWorms(@RequestBody BoardRequest request, HttpServletResponse resp) {
+    public String placeWorms(@RequestBody BoardRequest request, HttpServletRequest httpServletRequest, HttpServletResponse resp) {
         try {
+            User user = TokenService.extractRequesterDetails(httpServletRequest);
             Board board = BoardService.getByID(request.getBoardID());
-            board.setWorms(request.getLayout());
+
+            if (user.isCPU()) new AIService(board).setWorms();
+            else board.setWorms(request.getLayout());
+
             BoardService.update(board);
         }catch (InvalidRequestException e){
             resp.setStatus(e.getStatusCode());
@@ -89,7 +94,17 @@ public class GameController {
             Board board = BoardService.getByID(request.getBoardID());
             if(!board.getUser().equals(user)) throw new ForbiddenException("Can not make move on board you don't own.");
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
-            BoardService.validateMove(request);
+
+            if (user.isCPU()) {
+                Board copy = new Board(board);
+                request.setBoardID(board.getId());
+                request.setReplacedTray(new AIService(copy).start(System.currentTimeMillis()));
+                request.setLayout(copy.getLetters());
+            }
+
+            if (!request.isReplacedTray()) BoardService.validateMove(request);
+            else board.setTray(BoardService.getNewTray(board.getTray()));
+
             Board opposingBoard = BoardService.getOpposingBoard(board);
             board.setLetters(request.getLayout());
             board.toggleActive();

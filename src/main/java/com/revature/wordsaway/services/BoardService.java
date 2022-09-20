@@ -24,8 +24,7 @@ public class BoardService {
         char[] blankArr = new char[BOARD_SIZE*BOARD_SIZE];
         char[] tray = new char[7];
 
-        for (int i = 0; i < tray.length; i++)
-            tray[i] = getRandomChar();
+        BoardService.getNewTray(tray);
 
         Arrays.fill(blankArr, '.');
         Board board = new Board(
@@ -62,6 +61,12 @@ public class BoardService {
         Board opposingBoard =  boardRepository.findOpposingBoardByIDAndGameID(board.getId(), board.getGameID());
         if(opposingBoard == null) throw new InvalidRequestException("No boards opposing " + board.getGameID() + " found.");
         return opposingBoard;
+    }
+
+    public static char[] getNewTray(char[] tray){
+        for (int i = 0; i < tray.length; i++)
+            tray[i] = getRandomChar();
+        return tray;
     }
 
     public static char getRandomChar() {
