@@ -275,8 +275,10 @@ public class BoardServiceTest {
 
     @RepeatedTest(100)
     public void test_getRandomChar_succeed(){
-        char c = boardService.getRandomChar();
-        assertTrue(('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z'), "Char is out of range: " + c);
+        char[] tray = new char[7];
+        BoardService.getNewTray(tray);
+
+        assertTrue(String.valueOf(tray).matches("[A-Z]+"));
     }
 
     @RepeatedTest(BOARD_SIZE * BOARD_SIZE)

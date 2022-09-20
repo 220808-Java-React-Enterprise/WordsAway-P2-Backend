@@ -24,8 +24,7 @@ public class BoardService {
         char[] blankArr = new char[BOARD_SIZE*BOARD_SIZE];
         char[] tray = new char[7];
 
-        for (int i = 0; i < tray.length; i++)
-            tray[i] = getRandomChar();
+        BoardService.getNewTray(tray);
 
         Arrays.fill(blankArr, '.');
         Board board = new Board(
@@ -64,7 +63,17 @@ public class BoardService {
         return opposingBoard;
     }
 
-    public static char getRandomChar() {
+    public static void getNewTray(char[] tray){
+        for (int i = 0; i < tray.length; i++)
+            tray[i] = getRandomChar();
+    }
+
+    // todo finsih
+    private static void replaceLetters(char[] tray, char[] letters){
+        StringBuilder sb = new StringBuilder(String.valueOf(tray));
+    }
+
+    private static char getRandomChar() {
         double[] weights = new double[]{0.03d, 0.05d, 0.08d, 0.12d, 0.16d, 0.18d, 0.18d, 0.18d};
         String[] charSets = new String[]{"G", "JKQXZ", "O", "E", "DLSU", "AI", "NRT", "BCFHMPVWY"};
         int counter = 0;
@@ -74,6 +83,26 @@ public class BoardService {
         }
         Random rand = new Random();
         return charSets[counter].charAt(rand.nextInt(100) % charSets[counter].length());
+    }
+
+    public static void makeMove(BoardRequest request, Board board){
+        if (!request.isReplacedTray()) board.addFireballs(BoardService.validateMove(request));
+        else BoardService.getNewTray(board.getTray());
+
+        Board opposingBoard = BoardService.getOpposingBoard(board);
+        board.setLetters(request.getLayout());
+        board.toggleActive();
+        opposingBoard.toggleActive();
+        BoardService.update(board);
+        BoardService.update(opposingBoard);
+
+        if (opposingBoard.getUser().isCPU()) {
+            Board copy = new Board(opposingBoard);
+            request.setBoardID(opposingBoard.getId());
+            request.setReplacedTray(new AIService(copy).start(System.currentTimeMillis()));
+            request.setLayout(copy.getLetters());
+            makeMove(request, opposingBoard);
+        }
     }
 
     public static int validateMove(BoardRequest request) throws InvalidRequestException {
@@ -106,6 +135,7 @@ public class BoardService {
                 }
             }
         }
+        if (asterisk) return -1;
         List<Character> tray = new ArrayList<>();
         for(char c : oldBoard.getTray()){
             tray.add(c);
@@ -123,7 +153,7 @@ public class BoardService {
             fireballs += word1.length - 1;
             char[] word2 = findConnectedWord(newLetters, changeSpots.get(0), false, true);
             fireballs += word2.length - 1;
-            if (!asterisk && !isWord(word1) && !isWord(word2))
+            if (!isWord(word1) && !isWord(word2))
                 throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
             return fireballs;
         }

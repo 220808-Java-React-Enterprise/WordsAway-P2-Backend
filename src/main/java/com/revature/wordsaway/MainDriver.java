@@ -1,5 +1,6 @@
 package com.revature.wordsaway;
 
+import com.gargoylesoftware.htmlunit.WebClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -16,4 +17,10 @@ public class MainDriver {
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder.build();
     }
+
+    @Bean
+    public WebClient webClient(){
+        return new WebClient();
+    }
+
 }

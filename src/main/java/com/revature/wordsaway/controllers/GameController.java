@@ -5,6 +5,7 @@ import com.revature.wordsaway.dtos.requests.GameRequest;
 import com.revature.wordsaway.dtos.responses.OpponentResponse;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
+import com.revature.wordsaway.services.AIService;
 import com.revature.wordsaway.services.BoardService;
 import com.revature.wordsaway.services.TokenService;
 import com.revature.wordsaway.services.UserService;
@@ -54,10 +55,14 @@ public class GameController {
 
     @CrossOrigin
     @PostMapping(value = "/placeWorms", consumes = "application/json")
-    public String placeWorms(@RequestBody BoardRequest request, HttpServletResponse resp) {
+    public String placeWorms(@RequestBody BoardRequest request, HttpServletRequest httpServletRequest, HttpServletResponse resp) {
         try {
+            User user = TokenService.extractRequesterDetails(httpServletRequest);
             Board board = BoardService.getByID(request.getBoardID());
-            board.setWorms(request.getLayout());
+
+            if (user.isCPU()) new AIService(board).setWorms();
+            else board.setWorms(request.getLayout());
+
             BoardService.update(board);
         }catch (InvalidRequestException e){
             resp.setStatus(e.getStatusCode());
@@ -88,13 +93,9 @@ public class GameController {
             Board board = BoardService.getByID(request.getBoardID());
             if(!board.getUser().equals(user)) throw new ForbiddenException("Can not make move on board you don't own.");
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
-            board.addFireballs(BoardService.validateMove(request));
-            Board opposingBoard = BoardService.getOpposingBoard(board);
-            board.setLetters(request.getLayout());
-            board.toggleActive();
-            opposingBoard.toggleActive();
-            BoardService.update(board);
-            BoardService.update(opposingBoard);
+
+            BoardService.makeMove(request, board);
+
             //TODO maybe post to opponent that it's their turn if not checking continuously
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
