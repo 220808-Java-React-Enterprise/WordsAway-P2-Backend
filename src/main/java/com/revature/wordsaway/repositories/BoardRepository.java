@@ -1,6 +1,7 @@
 package com.revature.wordsaway.repositories;
 
 import com.revature.wordsaway.models.Board;
+import org.hibernate.annotations.Type;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -20,6 +21,12 @@ public interface BoardRepository extends CrudRepository<Board, UUID> {
 
     @Query(value = "SELECT * FROM boards WHERE game_id = ?2 AND id != ?1", nativeQuery = true)
     Board findOpposingBoardByIDAndGameID(UUID id, UUID gameID);
+
+    @Query(value = "SELECT * FROM boards WHERE username = ?1", nativeQuery = true)
+    List<Board> findAllBoardsByUsername(String username);
+
+    @Query(value = "SELECT * FROM boards B1, boards B2 WHERE B1.game_id = B1.game_id AND B1.username = ?1 AND B2.username = ?2", nativeQuery = true)
+    List<Board> findBoardsByTwoUsernames(String username1, String username2);
 
     @Transactional
     @Modifying

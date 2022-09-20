@@ -1,9 +1,12 @@
 package com.revature.wordsaway.repositories;
 
+import com.revature.wordsaway.dtos.responses.OpponentResponse;
 import com.revature.wordsaway.models.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, String> {
@@ -15,4 +18,7 @@ public interface UserRepository extends CrudRepository<User, String> {
 
     @Query(value = "SELECT * FROM users WHERE username = ?1 AND password = ?2", nativeQuery = true)
     User findUserByUsernameAndPassword(String username, String password);
+
+    @Query(value = "SELECT * FROM users WHERE username != ?1", nativeQuery = true)
+    List<User> findAllOtherUsers(String username);
 }

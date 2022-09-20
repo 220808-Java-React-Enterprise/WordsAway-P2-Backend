@@ -2,22 +2,29 @@ package com.revature.wordsaway.services;
 
 import com.revature.wordsaway.dtos.requests.LoginRequest;
 import com.revature.wordsaway.dtos.requests.NewUserRequest;
+import com.revature.wordsaway.dtos.responses.OpponentResponse;
+import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
+import com.revature.wordsaway.repositories.BoardRepository;
 import com.revature.wordsaway.repositories.UserRepository;
 import com.revature.wordsaway.utils.customExceptions.AuthenticationException;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import com.revature.wordsaway.utils.customExceptions.ResourceConflictException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class UserService {
     private static UserRepository userRepository;
+    private static BoardRepository boardRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository, BoardRepository boardRepository){
         this.userRepository = userRepository;
+        this.boardRepository = boardRepository;
     }
 
     public static User register(NewUserRequest request){
@@ -57,6 +64,20 @@ public class UserService {
         List<User> users = (List<User>) userRepository.findAll();
         if(users.size() == 0) throw new InvalidRequestException("No users found.");
         return users;
+    }
+
+    public static List<OpponentResponse> getAllOpponents(String username) {
+        List<OpponentResponse> results = new ArrayList<>();
+        for(User opponent : userRepository.findAllOtherUsers(username)){
+            List<Board> boards = boardRepository.findBoardsByTwoUsernames(username, opponent.getUsername());
+            if(boards.size() > 0)
+                results.add(new OpponentResponse(
+                    opponent.getUsername(),
+                    opponent.getELO(),
+                    boards.get(0).getGameID()
+                ));
+        }
+        return results;
     }
 
     public static void validateUsername(String username) throws InvalidRequestException {
