@@ -107,6 +107,7 @@ class UserServiceTest {
                 thrown.getMessage());
     }
 
+    /**
     @Test
     public void test_register_WithShortPassword_fail(){
         when(mockRequest.getPassword()).thenReturn("p");
@@ -139,6 +140,7 @@ class UserServiceTest {
         Assertions.assertEquals("Password must be between 5 and 30 alphanumeric or special characters.",
                 thrown.getMessage());
     }
+    **/
 
     @Test
     public void test_register_ShortEmail_fail(){

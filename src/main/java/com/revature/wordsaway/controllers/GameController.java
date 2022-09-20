@@ -4,6 +4,7 @@ import com.revature.wordsaway.dtos.requests.BoardRequest;
 import com.revature.wordsaway.dtos.requests.GameRequest;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
+import com.revature.wordsaway.services.AIService;
 import com.revature.wordsaway.services.BoardService;
 import com.revature.wordsaway.services.TokenService;
 import com.revature.wordsaway.services.UserService;
@@ -20,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 
 @RestController
@@ -55,10 +55,14 @@ public class GameController {
 
     @CrossOrigin
     @PostMapping(value = "/placeWorms", consumes = "application/json")
-    public String placeWorms(@RequestBody BoardRequest request, HttpServletResponse resp) {
+    public String placeWorms(@RequestBody BoardRequest request, HttpServletRequest httpServletRequest, HttpServletResponse resp) {
         try {
+            User user = TokenService.extractRequesterDetails(httpServletRequest);
             Board board = BoardService.getByID(request.getBoardID());
-            board.setWorms(request.getLayout());
+
+            if (user.isCPU()) new AIService(board).setWorms();
+            else board.setWorms(request.getLayout());
+
             BoardService.update(board);
         }catch (InvalidRequestException e){
             resp.setStatus(e.getStatusCode());
@@ -89,13 +93,9 @@ public class GameController {
             Board board = BoardService.getByID(request.getBoardID());
             if(!board.getUser().equals(user)) throw new ForbiddenException("Can not make move on board you don't own.");
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
-            BoardService.validateMove(request);
-            Board opposingBoard = BoardService.getOpposingBoard(board);
-            board.setLetters(request.getLayout());
-            board.toggleActive();
-            opposingBoard.toggleActive();
-            BoardService.update(board);
-            BoardService.update(opposingBoard);
+
+            BoardService.makeMove(request, board);
+
             //TODO maybe post to opponent that it's their turn if not checking continuously
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
@@ -105,11 +105,28 @@ public class GameController {
     }
 
     @CrossOrigin
+    @GetMapping(value = "/getChecked", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody String getChecked(@Param("id") String id, HttpServletResponse resp) {
+        try {
+            return Arrays.toString(BoardService.getChecked(BoardService.getByID(UUID.fromString(id)).getLetters()));
+        }catch (NetworkException e){
+            resp.setStatus(e.getStatusCode());
+            return e.getMessage();
+        }
+    }
+
+    @CrossOrigin
     @GetMapping(value = "/getHits", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String getHits(@Param("id") String id, HttpServletResponse resp) {
-        //TODO maybe use the opponents letters depending on how front end wants these.
         try {
-            return Arrays.toString(BoardService.getHits(BoardService.getByID(UUID.fromString(id)).getLetters()));
+            boolean[] hits = new boolean[BOARD_SIZE*BOARD_SIZE];
+            Board board = BoardService.getByID(UUID.fromString(id));
+            char[] worms = BoardService.getOpposingBoard(board).getWorms();
+            boolean[] checked = BoardService.getChecked(board.getLetters());
+            for (int i = 0; i < hits.length; i++) {
+                hits[i] = worms[i] != '.' && checked[i];
+            }
+            return Arrays.toString(hits);
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
             return e.getMessage();

@@ -59,6 +59,32 @@
 			"response": []
 		},
 		{
+			"name": "New User 3",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\":\"nathanthegreat\",\n    \"password\":\"fnord\",\n    \"email\":\"koukaakiva@gmail.com\",\n    \"salt\":\"bdcb3421c06e4ff4946aec7668773580\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/signup",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get All Users",
 			"request": {
 				"method": "GET",
@@ -210,7 +236,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{url}}/getGame?id=00000000-0000-0000-0000-000000000001",
+					"raw": "{{url}}/getGame?id=00000000-0000-0000-0000-000000000000",
 					"host": [
 						"{{url}}"
 					],
@@ -220,7 +246,7 @@
 					"query": [
 						{
 							"key": "id",
-							"value": "00000000-0000-0000-0000-000000000001"
+							"value": "00000000-0000-0000-0000-000000000000"
 						}
 					]
 				}
@@ -555,12 +581,59 @@
 					}
 				],
 				"url": {
-					"raw": "{{url}}/testAuth",
+					"raw": "{{url}}/test/auth",
 					"host": [
 						"{{url}}"
 					],
 					"path": [
-						"testAuth"
+						"test",
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Checked",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/getChecked?id=00000000-0000-0000-0000-000000000005",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"getChecked"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "00000000-0000-0000-0000-000000000005"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Checked Copy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/getHits?id=00000000-0000-0000-0000-000000000005",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"getHits"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "00000000-0000-0000-0000-000000000005"
+						}
 					]
 				}
 			},

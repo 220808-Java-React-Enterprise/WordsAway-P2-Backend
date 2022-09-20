@@ -33,21 +33,10 @@ public class TestController {
         try {
             List<Board> boards = new ArrayList<>();
             UUID uuid = UUID.randomUUID();
-            boards.add(BoardService.register(UserService.getByUsername("koukaakiva"), uuid, true));
-            boards.add(BoardService.register(UserService.getByUsername("christhewizard"), uuid, false));
+            boards.add(BoardService.register(UserService.getByUsername("RJamesRJ"), uuid, true));
+            boards.add(BoardService.register(UserService.getByUsername("Easy-Bot"), uuid, false));
             return boards.toString();
         }catch (NetworkException e){
-            resp.setStatus(e.getStatusCode());
-            return e.getMessage();
-        }
-    }
-
-    @CrossOrigin
-    @GetMapping(value = "/auth")
-    public String makeMove(HttpServletRequest httpServletRequest, HttpServletResponse resp) {
-        try {
-            return TokenService.extractRequesterDetails(httpServletRequest).toString();
-        } catch (NetworkException e) {
             resp.setStatus(e.getStatusCode());
             return e.getMessage();
         }
