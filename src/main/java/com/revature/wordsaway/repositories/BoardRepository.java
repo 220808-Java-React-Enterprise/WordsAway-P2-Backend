@@ -1,7 +1,6 @@
 package com.revature.wordsaway.repositories;
 
 import com.revature.wordsaway.models.Board;
-import org.hibernate.annotations.Type;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

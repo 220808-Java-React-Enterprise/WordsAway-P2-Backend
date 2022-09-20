@@ -59,16 +59,16 @@ public class GameController {
         try {
             User user = TokenService.extractRequesterDetails(httpServletRequest);
             Board board = BoardService.getByID(request.getBoardID());
-
-            if (user.isCPU()) new AIService(board).setWorms();
+            Board opposingBoard = BoardService.getOpposingBoard(board);
+            User opponent = opposingBoard.getUser();
+            if (opponent.isCPU()) new AIService(opposingBoard).setWorms();
             else board.setWorms(request.getLayout());
-
             BoardService.update(board);
-        }catch (InvalidRequestException e){
+            return "Worms placed.";
+        }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
             return e.getMessage();
         }
-        return "Worms placed.";
     }
 
     @CrossOrigin
@@ -77,12 +77,12 @@ public class GameController {
         //TODO possibly change to use params
         try {
             BoardService.validateMove(request);
-        }catch (InvalidRequestException e){
+            return true;
+        }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
             System.out.println(e.getMessage());
             return false;
         }
-        return true;
     }
 
     @CrossOrigin
@@ -93,15 +93,13 @@ public class GameController {
             Board board = BoardService.getByID(request.getBoardID());
             if(!board.getUser().equals(user)) throw new ForbiddenException("Can not make move on board you don't own.");
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
-
             BoardService.makeMove(request, board);
-
-            //TODO maybe post to opponent that it's their turn if not checking continuously
+            //TODO maybe tell opponent that it's their turn if not checking continuously
+            return "Move made.";
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
             return e.getMessage();
         }
-        return "Move made.";
     }
 
     @CrossOrigin
