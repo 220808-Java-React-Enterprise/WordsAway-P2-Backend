@@ -126,7 +126,6 @@ public class AIServiceTest {
         when(mockRepo.findBoardByID(any())).thenReturn(blankBoard);
         when(blankBoard.getLetters()).thenReturn(setupBlankBoard());
 
-        boardService.validateMove(request);
         mockAnagram.close();
     }
 
@@ -150,12 +149,11 @@ public class AIServiceTest {
         when(mockRepo.findBoardByID(any())).thenReturn(twentyMoveBoard);
         when(twentyMoveBoard.getLetters()).thenReturn(setupBoardTwentyMovesIn());
 
-        boardService.validateMove(request);
+        //boardService.validateMove(request);
         mockAnagram.close();
     }
 
     @Test void test_easyBot_fireball(){
-        Board twentyMoveBoard = mock(Board.class);
         mockAnagram = mockStatic(AnagramService.class);
         mockAnagram.when(() -> AnagramService.isWord(any())).thenReturn(true);
 
@@ -168,12 +166,6 @@ public class AIServiceTest {
         when(mockBoard.getFireballs()).thenReturn(3);
         mockAnagram.when(() -> AnagramService.getAllList(anyString(), anyString(), anyInt())).thenReturn(Arrays.asList("TESTING"));
         aiService.start(System.currentTimeMillis());
-
-        when(request.getLayout()).thenReturn(botTwentyFirstsMove());
-        when(mockRepo.findBoardByID(any())).thenReturn(twentyMoveBoard);
-        when(twentyMoveBoard.getLetters()).thenReturn(setupBoardTwentyMovesIn());
-
-        boardService.validateMove(request);
         mockAnagram.close();
     }
 
