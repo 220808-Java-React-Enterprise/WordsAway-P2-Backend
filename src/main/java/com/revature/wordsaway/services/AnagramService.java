@@ -18,11 +18,8 @@ public class AnagramService {
     private static RestTemplate restTemplate = new RestTemplate();
     private static WebClient client = new WebClient();
 
-    public AnagramService(RestTemplate restTemplate){
+    public AnagramService(RestTemplate restTemplate, WebClient client){
         AnagramService.restTemplate = restTemplate;
-    }
-
-    public AnagramService(WebClient client){
         AnagramService.client = client;
     }
 

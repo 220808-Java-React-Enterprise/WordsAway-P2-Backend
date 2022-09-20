@@ -94,22 +94,8 @@ public class GameController {
             if(!board.getUser().equals(user)) throw new ForbiddenException("Can not make move on board you don't own.");
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
 
-            if (user.isCPU()) {
-                Board copy = new Board(board);
-                request.setBoardID(board.getId());
-                request.setReplacedTray(new AIService(copy).start(System.currentTimeMillis()));
-                request.setLayout(copy.getLetters());
-            }
+            BoardService.makeMove(request, board);
 
-            if (!request.isReplacedTray()) board.addFireballs(BoardService.validateMove(request));
-            else board.setTray(BoardService.getNewTray(board.getTray()));
-
-            Board opposingBoard = BoardService.getOpposingBoard(board);
-            board.setLetters(request.getLayout());
-            board.toggleActive();
-            opposingBoard.toggleActive();
-            BoardService.update(board);
-            BoardService.update(opposingBoard);
             //TODO maybe post to opponent that it's their turn if not checking continuously
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());

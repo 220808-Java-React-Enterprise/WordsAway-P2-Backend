@@ -18,12 +18,14 @@ import static org.mockito.Mockito.*;
 class AnagramServiceTest {
 
     private AnagramService anagramService;
+    private WebClient mockClient;
     private RestTemplate mockRestTemplate;
 
     @BeforeEach
     public void setup(){
         mockRestTemplate = mock(RestTemplate.class);
-        anagramService = new AnagramService(mockRestTemplate);
+        mockClient = mock(WebClient.class);
+        anagramService = new AnagramService(mockRestTemplate, mockClient);
     }
 
     @AfterEach
@@ -66,8 +68,6 @@ class AnagramServiceTest {
 
     @Test
     public void test_isWord_succeed() throws IOException {
-        WebClient mockClient = mock(WebClient.class);
-        anagramService = new AnagramService(mockClient);
         HtmlPage mockPage = mock(HtmlPage.class);
         HtmlElement mockElement = mock(HtmlElement.class);
 
@@ -80,8 +80,6 @@ class AnagramServiceTest {
 
     @Test
     public void test_isWord_fail() throws IOException {
-        WebClient mockClient = mock(WebClient.class);
-        anagramService = new AnagramService(mockClient);
         HtmlPage mockPage = mock(HtmlPage.class);
         HtmlElement mockElement = mock(HtmlElement.class);
 
@@ -95,8 +93,6 @@ class AnagramServiceTest {
 
     @Test
     public void test_isWord_fail_pageNotFound() throws IOException {
-        WebClient mockClient = mock(WebClient.class);
-        anagramService = new AnagramService(mockClient);
         HtmlPage mockPage = mock(HtmlPage.class);
         HtmlElement mockElement = mock(HtmlElement.class);
 
@@ -110,8 +106,6 @@ class AnagramServiceTest {
 
     @Test
     public void test_getAllList_succeed() throws IOException {
-        WebClient mockClient = mock(WebClient.class);
-        anagramService = new AnagramService(mockClient);
         HtmlPage mockPage = mock(HtmlPage.class);
         HtmlElement mockElement = mock(HtmlElement.class);
 
@@ -125,8 +119,6 @@ class AnagramServiceTest {
 
     @Test
     public void test_getAllList_succeed_whenNoWordsAreFound() throws IOException {
-        WebClient mockClient = mock(WebClient.class);
-        anagramService = new AnagramService(mockClient);
         HtmlPage mockPage = mock(HtmlPage.class);
         HtmlElement mockElement = mock(HtmlElement.class);
 
@@ -140,8 +132,6 @@ class AnagramServiceTest {
 
     @Test
     public void test_getAllList_succeed_whenPageNotFound() throws IOException {
-        WebClient mockClient = mock(WebClient.class);
-        anagramService = new AnagramService(mockClient);
         HtmlPage mockPage = mock(HtmlPage.class);
         HtmlElement mockElement = mock(HtmlElement.class);
 
