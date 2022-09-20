@@ -41,15 +41,4 @@ public class TestController {
             return e.getMessage();
         }
     }
-
-    @CrossOrigin
-    @GetMapping(value = "/auth")
-    public String makeMove(HttpServletRequest httpServletRequest, HttpServletResponse resp) {
-        try {
-            return TokenService.extractRequesterDetails(httpServletRequest).toString();
-        } catch (NetworkException e) {
-            resp.setStatus(e.getStatusCode());
-            return e.getMessage();
-        }
-    }
 }

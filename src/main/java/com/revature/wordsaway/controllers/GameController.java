@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 
 @RestController
@@ -102,7 +101,7 @@ public class GameController {
                 request.setLayout(copy.getLetters());
             }
 
-            if (!request.isReplacedTray()) BoardService.validateMove(request);
+            if (!request.isReplacedTray()) board.addFireballs(BoardService.validateMove(request));
             else board.setTray(BoardService.getNewTray(board.getTray()));
 
             Board opposingBoard = BoardService.getOpposingBoard(board);
@@ -120,11 +119,28 @@ public class GameController {
     }
 
     @CrossOrigin
+    @GetMapping(value = "/getChecked", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody String getChecked(@Param("id") String id, HttpServletResponse resp) {
+        try {
+            return Arrays.toString(BoardService.getChecked(BoardService.getByID(UUID.fromString(id)).getLetters()));
+        }catch (NetworkException e){
+            resp.setStatus(e.getStatusCode());
+            return e.getMessage();
+        }
+    }
+
+    @CrossOrigin
     @GetMapping(value = "/getHits", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String getHits(@Param("id") String id, HttpServletResponse resp) {
-        //TODO maybe use the opponents letters depending on how front end wants these.
         try {
-            return Arrays.toString(BoardService.getHits(BoardService.getByID(UUID.fromString(id)).getLetters()));
+            boolean[] hits = new boolean[BOARD_SIZE*BOARD_SIZE];
+            Board board = BoardService.getByID(UUID.fromString(id));
+            char[] worms = BoardService.getOpposingBoard(board).getWorms();
+            boolean[] checked = BoardService.getChecked(board.getLetters());
+            for (int i = 0; i < hits.length; i++) {
+                hits[i] = worms[i] != '.' && checked[i];
+            }
+            return Arrays.toString(hits);
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
             return e.getMessage();

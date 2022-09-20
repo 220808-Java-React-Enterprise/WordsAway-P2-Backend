@@ -84,6 +84,10 @@ public class Board {
         this.fireballs = fireballs;
     }
 
+    public void addFireballs(int fireballs) {
+        this.fireballs += fireballs;
+    }
+
     public char[] getWorms() {
         return worms;
     }
