@@ -77,7 +77,8 @@ public class BoardService {
     }
 
     public static void validateMove(BoardRequest request) throws InvalidRequestException {
-        char[] oldLetters = getByID(request.getBoardID()).getLetters();
+        Board oldBoard = getByID(request.getBoardID());
+        char[] oldLetters = oldBoard.getLetters();
         char[] newLetters = request.getLayout();
         List<ChangeSpot> changeSpots = new ArrayList<>();
         boolean checkRow = false, checkColumn = false, asterisk = false;
@@ -102,6 +103,17 @@ public class BoardService {
                     if(!checkRow && !checkColumn)
                         throw new InvalidRequestException("Invalid Move. All tiles must be placed in either the same row or same column.");
                 }
+            }
+        }
+        List<Character> tray = new ArrayList<>();
+        for(char c : oldBoard.getTray()){
+            tray.add(c);
+        }
+        for(ChangeSpot spot : changeSpots){
+            char c = newLetters[spot.getI()];
+            if(c != '*') {
+                if (tray.contains(c)) tray.remove(Character.valueOf(c));
+                else throw new InvalidRequestException("Invalid Move. Only tiles from your tray may be used.");
             }
         }
         if(changeSpots.size() == 0) throw new InvalidRequestException("Invalid Move. Must be some change in boards.");
