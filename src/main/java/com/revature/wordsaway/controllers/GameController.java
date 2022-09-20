@@ -88,7 +88,7 @@ public class GameController {
             Board board = BoardService.getByID(request.getBoardID());
             if(!board.getUser().equals(user)) throw new ForbiddenException("Can not make move on board you don't own.");
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
-            BoardService.validateMove(request);
+            board.addFireballs(BoardService.validateMove(request));
             Board opposingBoard = BoardService.getOpposingBoard(board);
             board.setLetters(request.getLayout());
             board.toggleActive();

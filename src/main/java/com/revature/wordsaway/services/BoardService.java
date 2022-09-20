@@ -76,7 +76,8 @@ public class BoardService {
         return charSets[counter].charAt(rand.nextInt(100) % charSets[counter].length());
     }
 
-    public static void validateMove(BoardRequest request) throws InvalidRequestException {
+    public static int validateMove(BoardRequest request) throws InvalidRequestException {
+        int fireballs = 0;
         Board oldBoard = getByID(request.getBoardID());
         char[] oldLetters = oldBoard.getLetters();
         char[] newLetters = request.getLayout();
@@ -118,10 +119,13 @@ public class BoardService {
         }
         if(changeSpots.size() == 0) throw new InvalidRequestException("Invalid Move. Must be some change in boards.");
         if(changeSpots.size() == 1){
-            if (!asterisk && !isWord(findConnectedWord(newLetters, changeSpots.get(0), true, false))
-                    && !isWord(findConnectedWord(newLetters, changeSpots.get(0), false, true)))
+            char[] word1 = findConnectedWord(newLetters, changeSpots.get(0), true, false);
+            fireballs += word1.length - 1;
+            char[] word2 = findConnectedWord(newLetters, changeSpots.get(0), false, true);
+            fireballs += word2.length - 1;
+            if (!asterisk && !isWord(word1) && !isWord(word2))
                 throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
-            return;
+            return fireballs;
         }
         if(checkRow){
             for(int i = changeSpots.get(0).getI() + 1; i <= changeSpots.get(changeSpots.size() - 1).getI(); i++){
@@ -132,13 +136,17 @@ public class BoardService {
                 if(newLetters[i] == '.' || newLetters[i] == '*') throw new InvalidRequestException("Invalid Move. Only one word may be placed at a time.");
             }
         }
-        if(!isWord(findConnectedWord(newLetters, changeSpots.get(0), checkRow, checkColumn)))
+        char[] word = findConnectedWord(newLetters, changeSpots.get(0), checkRow, checkColumn);
+        fireballs += word.length - changeSpots.size();
+        if(!isWord(word))
             throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
         for(ChangeSpot spot : changeSpots){
-            char[] word = findConnectedWord(newLetters, spot, !checkRow, !checkColumn);
+            word = findConnectedWord(newLetters, spot, !checkRow, !checkColumn);
+            fireballs += word.length - 1;
             if(word.length > 1 && !isWord(word))
                 throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
         }
+        return fireballs;
     }
 
     private static class ChangeSpot{
