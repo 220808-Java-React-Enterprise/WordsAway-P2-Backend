@@ -16,7 +16,6 @@ public class BoardService {
     private static BoardRepository boardRepository;
 
     @Autowired
-    public BoardService(){}
     public BoardService(BoardRepository boardRepository){
         this.boardRepository = boardRepository;
     }
