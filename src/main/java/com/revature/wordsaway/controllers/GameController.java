@@ -46,6 +46,7 @@ public class GameController {
     @GetMapping(value = "/getGame", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String getGame(@Param("id") String id, HttpServletResponse resp) {
         try {
+
             return BoardService.getByGameID(UUID.fromString(id)).toString();
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());

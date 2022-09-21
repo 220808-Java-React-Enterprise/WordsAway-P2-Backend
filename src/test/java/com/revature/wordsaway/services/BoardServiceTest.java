@@ -273,6 +273,8 @@ public class BoardServiceTest {
         Assertions.assertEquals("No boards opposing 00000000-0000-0000-0000-000000000000 found.", thrown.getMessage());
     }
 
+    //TODO getGame testing
+
     @RepeatedTest(100)
     public void test_getRandomChar_succeed(){
         char[] tray = new char[7];
