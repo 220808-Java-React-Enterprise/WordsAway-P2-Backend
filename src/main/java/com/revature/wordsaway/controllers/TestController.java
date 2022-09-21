@@ -6,12 +6,14 @@ import com.revature.wordsaway.services.BoardService;
 import com.revature.wordsaway.services.TokenService;
 import com.revature.wordsaway.services.UserService;
 import com.revature.wordsaway.utils.customExceptions.NetworkException;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +38,28 @@ public class TestController {
             boards.add(BoardService.register(UserService.getByUsername("RJamesRJ"), uuid, true));
             boards.add(BoardService.register(UserService.getByUsername("Easy-Bot"), uuid, false));
             return boards.toString();
+        }catch (NetworkException e){
+            resp.setStatus(e.getStatusCode());
+            return e.getMessage();
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/getChecked", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody String getChecked(@Param("id") String id, HttpServletResponse resp) {
+        try {
+            return Arrays.toString(BoardService.getChecked(BoardService.getByID(UUID.fromString(id)).getLetters()));
+        }catch (NetworkException e){
+            resp.setStatus(e.getStatusCode());
+            return e.getMessage();
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/getHits", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody String getHits(@Param("id") String id, HttpServletResponse resp) {
+        try {
+            return Arrays.toString(BoardService.getHits(id));
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
             return e.getMessage();
