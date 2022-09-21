@@ -48,41 +48,6 @@ public class AIService {
         return board;
     }
 
-    public static Board setWorms(Board board) {
-        char[] wormLetter = new char[] { 'A', 'B', 'C', 'S', 'D' };
-        int[] wormArr = new int[] { 5, 4, 3, 3, 2 };
-        char[] worms = board.getWorms();
-        boolean col, flag;
-        int start, curr, end, increment;
-
-        for (int i = 0; i < wormArr.length;) {
-            // Get a direction for the ship
-            col = rand.nextInt(BOARD_SIZE + BOARD_SIZE) % 2 == 0;
-            // Set the increment
-            increment = col ? BOARD_SIZE : 1;
-            // Get start and end of worm
-            curr = start = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
-            end = start + wormArr[i] * increment;
-
-            // Check if you can get to end
-            if (isLoop(col, start, end)){
-                flag = true;
-                while (flag ? curr < end : curr >= start) {
-                    if (worms[curr] == '.')
-                        worms[curr] = wormLetter[i];
-                    else {
-                        if (!flag) worms[curr] = '.';
-                        flag = false;
-                    }
-                    curr += flag ? increment : increment * - 1;
-                }
-                if (flag) i++;
-            }
-        }
-        board.setWorms(worms);
-        return board;
-    }
-
     private static int easyBot(){
         char[] letters = board.getLetters();
         // Get a random colum or row

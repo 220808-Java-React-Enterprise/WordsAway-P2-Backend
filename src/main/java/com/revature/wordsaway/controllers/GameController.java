@@ -60,9 +60,6 @@ public class GameController {
             User user = TokenService.extractRequesterDetails(httpServletRequest);
             Board board = BoardService.getByID(request.getBoardID());
 
-//            if (user.isCPU()) AIService.setWorms();
-//            else board.setWorms(request.getLayout());
-
             BoardService.update(board);
         }catch (InvalidRequestException e){
             resp.setStatus(e.getStatusCode());
@@ -96,6 +93,9 @@ public class GameController {
 
             BoardService.makeMove(request, board);
 
+            char[] hits = BoardService.getHits(request.getBoardID().toString());
+            if (hits == null) return "Winner!";
+
             Board opposingBoard;
             if ((opposingBoard = BoardService.getOpposingBoard(board)).getUser().isCPU()){
                 Board bot = AIService.start(System.currentTimeMillis(), opposingBoard);
@@ -104,7 +104,6 @@ public class GameController {
                 request.setLayout(bot.getLetters());
                 BoardService.makeMove(request, opposingBoard);
             }
-
             //TODO maybe post to opponent that it's their turn if not checking continuously
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
@@ -128,14 +127,7 @@ public class GameController {
     @GetMapping(value = "/getHits", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String getHits(@Param("id") String id, HttpServletResponse resp) {
         try {
-            boolean[] hits = new boolean[BOARD_SIZE*BOARD_SIZE];
-            Board board = BoardService.getByID(UUID.fromString(id));
-            char[] worms = BoardService.getOpposingBoard(board).getWorms();
-            boolean[] checked = BoardService.getChecked(board.getLetters());
-            for (int i = 0; i < hits.length; i++) {
-                hits[i] = worms[i] != '.' && checked[i];
-            }
-            return Arrays.toString(hits);
+            return Arrays.toString(BoardService.getHits(id));
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
             return e.getMessage();

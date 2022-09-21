@@ -9,12 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
+import static com.revature.wordsaway.utils.Constants.TOTAL_WORM_LENGTHS;
 
 @Service
 public class BoardService {
     private static BoardRepository boardRepository;
 
     @Autowired
+    public BoardService(){}
     public BoardService(BoardRepository boardRepository){
         this.boardRepository = boardRepository;
     }
@@ -68,6 +70,42 @@ public class BoardService {
             tray[i] = getRandomChar();
     }
 
+    public static Board setWorms(Board board) {
+        Random rand = new Random(System.currentTimeMillis());
+        char[] wormLetter = new char[] { 'A', 'B', 'C', 'S', 'D' };
+        int[] wormArr = new int[] { 5, 4, 3, 3, 2 };
+        char[] worms = board.getWorms();
+        boolean col, flag;
+        int start, curr, end, increment;
+
+        for (int i = 0; i < wormArr.length;) {
+            // Get a direction for the ship
+            col = rand.nextInt(BOARD_SIZE + BOARD_SIZE) % 2 == 0;
+            // Set the increment
+            increment = col ? BOARD_SIZE : 1;
+            // Get start and end of worm
+            curr = start = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
+            end = start + wormArr[i] * increment;
+
+            // Check if you can get to end
+            if (col ? end < BOARD_SIZE * BOARD_SIZE : start / BOARD_SIZE == end / BOARD_SIZE){
+                flag = true;
+                while (flag ? curr < end : curr >= start) {
+                    if (worms[curr] == '.')
+                        worms[curr] = wormLetter[i];
+                    else {
+                        if (!flag) worms[curr] = '.';
+                        flag = false;
+                    }
+                    curr += flag ? increment : increment * - 1;
+                }
+                if (flag) i++;
+            }
+        }
+        board.setWorms(worms);
+        return board;
+    }
+
     private static char getRandomChar() {
         double[] weights = new double[]{0.03d, 0.05d, 0.08d, 0.12d, 0.16d, 0.18d, 0.18d, 0.18d};
         String[] charSets = new String[]{"G", "JKQXZ", "O", "E", "DLSU", "AI", "NRT", "BCFHMPVWY"};
@@ -81,15 +119,15 @@ public class BoardService {
     }
 
     public static void makeMove(BoardRequest request, Board board){
-        if (request.isReplacedTray()) BoardService.getNewTray(board.getTray());
-        else board = BoardService.validateMove(request);
+        if (request.isReplacedTray()) getNewTray(board.getTray());
+        else board = validateMove(request);
 
-        Board opposingBoard = BoardService.getOpposingBoard(board);
+        Board opposingBoard = getOpposingBoard(board);
         board.setLetters(request.getLayout());
         board.toggleActive();
         opposingBoard.toggleActive();
-        BoardService.update(board);
-        BoardService.update(opposingBoard);
+        update(board);
+        update(opposingBoard);
     }
 
     public static Board validateMove(BoardRequest request) throws InvalidRequestException {
@@ -277,6 +315,23 @@ public class BoardService {
                     }
                     break;
             }
+        }
+        return hits;
+    }
+
+    public static char[] getHits(String id){
+        int hitCounter = 0, shipCounter = 0;
+        char[] hits = new char[BOARD_SIZE*BOARD_SIZE];
+        Board board = getByID(UUID.fromString(id));
+        char[] worms = getOpposingBoard(board).getWorms();
+        boolean[] checked = getChecked(board.getLetters());
+        for (int i = 0; i < hits.length; i++) {
+            if (String.valueOf(worms[i]).matches("[A-Z]")) shipCounter++;
+            if (checked[i])
+                if (worms[i] != '.') { hits[i] = 'H'; hitCounter++; }
+                else hits[i] = 'M';
+
+            if (shipCounter == TOTAL_WORM_LENGTHS && hitCounter == shipCounter) return null;
         }
         return hits;
     }

@@ -194,24 +194,4 @@ public class AIServiceTest {
         //boardService.validateMove(request);
         mockAnagram.close();
     }
-
-    @RepeatedTest(20)
-    public void test_setWorms(){
-        AIService.setWorms(mockBoard);
-
-        // Aircraft Carrier - 5
-        // Battleship - 4
-        // Cruiser - 3
-        // Submarine - 3
-        // Destroyer - 2
-        // total - 17
-        int countShipLength = 0;
-
-        for (char letter : mockBoard.getWorms()){
-            if (String.valueOf(letter).matches("[A-DS]"))
-                countShipLength++;
-        }
-
-        assertEquals(17, countShipLength);
-    }
 }
