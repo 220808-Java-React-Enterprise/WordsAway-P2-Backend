@@ -53,6 +53,7 @@ public class GameController {
         }
     }
 
+    // TODO give users the option to place their own worms
     @CrossOrigin
     @PostMapping(value = "/placeWorms", consumes = "application/json")
     public String placeWorms(@RequestBody BoardRequest request, HttpServletRequest httpServletRequest, HttpServletResponse resp) {
