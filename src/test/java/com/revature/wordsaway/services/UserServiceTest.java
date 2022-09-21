@@ -338,7 +338,8 @@ class UserServiceTest {
         when(mockUser.getELO()).thenReturn(1000F);
         Board mockBoard = mock(Board.class);
         UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
-        when(mockBoard.getGameID()).thenReturn(uuid);
+        when(mockBoard.getId()).thenReturn(uuid);
+        when(mockBoard.getUser()).thenReturn(mockUser);
         when(mockBoardRepo.findBoardsByTwoUsernames(any(), any())).thenReturn(Arrays.asList(mockBoard));
         List<OpponentResponse> opponents = userService.getAllOpponents("username");
         verify(mockUserRepo, times(1)).findAllOtherUsers(any());
@@ -347,7 +348,7 @@ class UserServiceTest {
         assertEquals(opponents.size(), 1);
         assertEquals(opponents.get(0).getUsername(), "username");
         assertEquals(opponents.get(0).getElo(), 1000F);
-        assertEquals(opponents.get(0).getGame_id(), uuid);
+        assertEquals(opponents.get(0).getBoard_id(), uuid);
     }
 
     @Test void test_getAllOpponents_NoOtherUsers_succeed(){
@@ -371,6 +372,6 @@ class UserServiceTest {
         assertEquals(opponents.size(), 1);
         assertEquals(opponents.get(0).getUsername(), "username");
         assertEquals(opponents.get(0).getElo(), 1000F);
-        assertNull(opponents.get(0).getGame_id());
+        assertNull(opponents.get(0).getBoard_id());
     }
 }

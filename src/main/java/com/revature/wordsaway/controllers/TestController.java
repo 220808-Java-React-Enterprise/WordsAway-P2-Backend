@@ -3,14 +3,12 @@ package com.revature.wordsaway.controllers;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.services.BoardService;
-import com.revature.wordsaway.services.TokenService;
 import com.revature.wordsaway.services.UserService;
 import com.revature.wordsaway.utils.customExceptions.NetworkException;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +57,7 @@ public class TestController {
     @GetMapping(value = "/getHits", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String getHits(@Param("id") String id, HttpServletResponse resp) {
         try {
-            return Arrays.toString(BoardService.getHits(id));
+            return Arrays.toString(BoardService.getHits(UUID.fromString(id)));
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
             return e.getMessage();

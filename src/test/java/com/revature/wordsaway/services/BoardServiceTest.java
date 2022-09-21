@@ -7,9 +7,6 @@ import com.revature.wordsaway.repositories.BoardRepository;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
-import org.mockito.Spy;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -312,6 +309,7 @@ public class BoardServiceTest {
         assertTrue(String.valueOf(tray).matches("[A-Z]+"));
     }
 
+    //TODO test makeMove
 //    @Test
 //    public void test_makeMove_user(){
 //        anagramServiceMockedStatic.close();
@@ -1108,6 +1106,7 @@ public class BoardServiceTest {
         assertArrayEquals(hits, blankHits);
     }
 
+    //TODO test getHits
 //    @Test
 //    public void test_getHits_duringGame(){
 //        char[] worms = new char[]{

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -69,11 +70,12 @@ public class UserService {
         List<OpponentResponse> results = new ArrayList<>();
         for(User opponent : userRepository.findAllOtherUsers(username)){
             List<Board> boards = boardRepository.findBoardsByTwoUsernames(username, opponent.getUsername());
-            results.add(new OpponentResponse(
-                opponent.getUsername(),
-                opponent.getELO(),
-                boards.size() > 0 ? boards.get(0).getGameID() : null
-            ));
+            UUID boardID;
+            if(boards.size() > 0){
+                if(boards.get(0).getUser().getUsername().equals(username)) boardID = boards.get(0).getId();
+                else boardID = boards.get(1).getId();
+            } else boardID = null;
+            results.add(new OpponentResponse(opponent.getUsername(), opponent.getELO(), boardID));
         }
         return results;
     }
@@ -89,7 +91,6 @@ public class UserService {
             throw new InvalidRequestException("Password must be between 5 and 30 alphanumeric or special characters.");
     }
     */
-
 
     public static void validateEmail(String email) throws InvalidRequestException {
         if(!email.matches("^|[A-Za-z0-9][A-Za-z0-9!#$%&'*+\\-/=?^_`{}|]{0,63}@[A-Za-z0-9.-]{1,253}\\.[A-Za-z]{2,24}$"))

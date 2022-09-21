@@ -2,6 +2,7 @@ package com.revature.wordsaway.controllers;
 
 import com.revature.wordsaway.dtos.requests.BoardRequest;
 import com.revature.wordsaway.dtos.requests.GameRequest;
+import com.revature.wordsaway.dtos.responses.GameResponse;
 import com.revature.wordsaway.dtos.responses.OpponentResponse;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
@@ -30,10 +31,12 @@ public class GameController {
     public @ResponseBody String makeGame(@RequestBody GameRequest request, HttpServletResponse resp, HttpServletRequest req) {
         try {
             //TODO check for existing game with opponent
+            //TODO make random worm placement
+            User user = TokenService.extractRequesterDetails(req);
             UUID uuid = UUID.randomUUID();
             BoardService.register(UserService.getByUsername(request.getUsername()), uuid, true);
-            BoardService.register(TokenService.extractRequesterDetails(req), uuid, false);
-            return uuid.toString();
+            Board board = BoardService.register(user, uuid, false);
+            return board.getId().toString();
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
             return e.getMessage();
@@ -42,13 +45,14 @@ public class GameController {
 
     @CrossOrigin
     @GetMapping(value = "/getGame", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String getGame(@Param("id") String id, HttpServletResponse resp) {
+    public @ResponseBody GameResponse getGame(@Param("id") String id, HttpServletResponse resp, HttpServletRequest req) {
         try {
-            //TODO finish this
-            return BoardService.getByGameID(UUID.fromString(id)).toString();
+            User user = TokenService.extractRequesterDetails(req);
+            return BoardService.getGame(UUID.fromString(id));
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
-            return e.getMessage();
+            System.out.println(e.getMessage());
+            return null;
         }
     }
 
@@ -75,9 +79,10 @@ public class GameController {
 
     @CrossOrigin
     @GetMapping(value = "/checkMove", consumes = "application/json")
-    public boolean checkMove(@RequestBody BoardRequest request, HttpServletResponse resp) {
+    public boolean checkMove(@RequestBody BoardRequest request, HttpServletRequest req, HttpServletResponse resp) {
         //TODO possibly change to use params
         try {
+            User user = TokenService.extractRequesterDetails(req);
             BoardService.validateMove(request);
             return true;
         }catch (NetworkException e){
@@ -89,14 +94,13 @@ public class GameController {
 
     @CrossOrigin
     @PostMapping(value = "/makeMove", consumes = "application/json")
-    public String makeMove(@RequestBody BoardRequest request, HttpServletRequest httpServletRequest, HttpServletResponse resp) {
+    public String makeMove(@RequestBody BoardRequest request, HttpServletRequest req, HttpServletResponse resp) {
         try {
-            User user = TokenService.extractRequesterDetails(httpServletRequest);
+            User user = TokenService.extractRequesterDetails(req);
             Board board = BoardService.getByID(request.getBoardID());
-            if(!board.getUser().equals(user)) throw new ForbiddenException("Can not make move on board you don't own.");
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
             BoardService.makeMove(request, board);
-            char[] hits = BoardService.getHits(request.getBoardID().toString());
+            char[] hits = BoardService.getHits(request.getBoardID());
             if (hits == null) return "Winner!";
             Board opposingBoard;
             if ((opposingBoard = BoardService.getOpposingBoard(board)).getUser().isCPU()){
@@ -116,9 +120,10 @@ public class GameController {
 
     @CrossOrigin
     @GetMapping(value = "/getOpponents", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody List<OpponentResponse> getOpponents(HttpServletRequest httpServletRequest, HttpServletResponse resp) {
+    public @ResponseBody List<OpponentResponse> getOpponents(HttpServletRequest req, HttpServletResponse resp) {
         try {
-            return UserService.getAllOpponents(TokenService.extractRequesterDetails(httpServletRequest).getUsername());
+            User user = TokenService.extractRequesterDetails(req);
+            return UserService.getAllOpponents(user.getUsername());
         }catch(NetworkException e){
             resp.setStatus(e.getStatusCode());
             System.out.println(e.getMessage());

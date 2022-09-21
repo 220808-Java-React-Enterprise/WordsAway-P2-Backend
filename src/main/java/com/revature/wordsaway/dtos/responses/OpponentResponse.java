@@ -5,12 +5,12 @@ import java.util.UUID;
 public class OpponentResponse {
     private String username;
     private float elo;
-    private UUID game_id;
+    private UUID board_id;
 
-    public OpponentResponse(String username, float elo, UUID game_id) {
+    public OpponentResponse(String username, float elo, UUID board_id) {
         this.username = username;
         this.elo = elo;
-        this.game_id = game_id;
+        this.board_id = board_id;
     }
 
     public String getUsername() {
@@ -21,8 +21,8 @@ public class OpponentResponse {
         return elo;
     }
 
-    public UUID getGame_id() {
-        return game_id;
+    public UUID getBoard_id() {
+        return board_id;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class OpponentResponse {
         return "OpponentResponse{" +
                 "username='" + username + '\'' +
                 ", elo=" + elo +
-                ", game_id=" + game_id +
+                ", board_id=" + board_id +
                 '}';
     }
 }
