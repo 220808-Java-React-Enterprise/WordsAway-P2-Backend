@@ -7,6 +7,8 @@ import com.revature.wordsaway.repositories.BoardRepository;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
+import org.mockito.stubbing.Answer;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -333,6 +335,25 @@ public class BoardServiceTest {
         });
         verify(mockRepo, times(1)).findBoardByID(any());
         Assertions.assertEquals("Invalid Move. Must be some change in boards.", thrown.getMessage());
+    }
+
+    @Test
+    public void test_makeMove_user(){
+        MockedStatic<BoardService> staticMockBoardService = mockStatic(BoardService.class);
+        Board mockOpposingBoard = mock(Board.class);
+//        AIService aiService = new AIService();
+//        Board mockBotBoard = mock(Board.class);
+
+//        when(request.isReplacedTray()).thenReturn(false);
+//        staticMockBoardService.when(() -> BoardService.validateMove(request)).thenReturn(mockBoard);
+//        staticMockBoardService.when(() -> BoardService.getOpposingBoard(mockBoard)).thenReturn(mockOpposingBoard);
+//        doNothing().when(mockBoard).setLetters(any());
+//        doNothing().when(mockBoard).toggleActive();
+//        doNothing().when(mockOpposingBoard).toggleActive();
+//        staticMockBoardService.when(() -> BoardService.update(any())).thenAnswer(invocation -> null);
+
+        boardService.makeMove(request, mockBoard);
+        staticMockBoardService.close();
     }
 
     @RepeatedTest(BOARD_SIZE * BOARD_SIZE)

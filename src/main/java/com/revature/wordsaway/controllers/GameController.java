@@ -60,8 +60,8 @@ public class GameController {
             User user = TokenService.extractRequesterDetails(httpServletRequest);
             Board board = BoardService.getByID(request.getBoardID());
 
-            if (user.isCPU()) new AIService(board).setWorms();
-            else board.setWorms(request.getLayout());
+//            if (user.isCPU()) AIService.setWorms();
+//            else board.setWorms(request.getLayout());
 
             BoardService.update(board);
         }catch (InvalidRequestException e){
@@ -95,6 +95,15 @@ public class GameController {
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
 
             BoardService.makeMove(request, board);
+
+            Board opposingBoard;
+            if ((opposingBoard = BoardService.getOpposingBoard(board)).getUser().isCPU()){
+                Board bot = AIService.start(System.currentTimeMillis(), opposingBoard);
+                request.setBoardID(opposingBoard.getId());
+                request.setReplacedTray(Arrays.equals(opposingBoard.getLetters(), bot.getLetters()));
+                request.setLayout(bot.getLetters());
+                BoardService.makeMove(request, opposingBoard);
+            }
 
             //TODO maybe post to opponent that it's their turn if not checking continuously
         }catch (NetworkException e){
