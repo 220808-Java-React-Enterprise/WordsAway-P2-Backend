@@ -12,10 +12,8 @@ import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import com.revature.wordsaway.utils.customExceptions.ResourceConflictException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -85,10 +83,13 @@ public class UserService {
             throw new InvalidRequestException("Username must start with a letter and consist of between 3 and 15 alphanumeric characters.");
     }
 
+    /* Now done client side
     public static void validatePassword(String password) throws InvalidRequestException {
         if(!password.matches("^[A-Za-z\\d@$!%*?&]{5,30}$"))
             throw new InvalidRequestException("Password must be between 5 and 30 alphanumeric or special characters.");
     }
+    */
+
 
     public static void validateEmail(String email) throws InvalidRequestException {
         if(!email.matches("^|[A-Za-z0-9][A-Za-z0-9!#$%&'*+\\-/=?^_`{}|]{0,63}@[A-Za-z0-9.-]{1,253}\\.[A-Za-z]{2,24}$"))

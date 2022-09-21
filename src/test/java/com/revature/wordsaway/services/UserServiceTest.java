@@ -2,6 +2,8 @@ package com.revature.wordsaway.services;
 
 import com.revature.wordsaway.dtos.requests.LoginRequest;
 import com.revature.wordsaway.dtos.requests.NewUserRequest;
+import com.revature.wordsaway.dtos.responses.OpponentResponse;
+import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.repositories.BoardRepository;
 import com.revature.wordsaway.repositories.UserRepository;
@@ -330,5 +332,45 @@ class UserServiceTest {
         Assertions.assertEquals("No users found.", thrown.getMessage());
     }
 
-    //TODO test getAllOpponents
+    @Test void test_getAllOpponents_succeed(){
+        when(mockUserRepo.findAllOtherUsers(any())).thenReturn(Arrays.asList(mockUser));
+        when(mockUser.getUsername()).thenReturn("username");
+        when(mockUser.getELO()).thenReturn(1000F);
+        Board mockBoard = mock(Board.class);
+        UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        when(mockBoard.getGameID()).thenReturn(uuid);
+        when(mockBoardRepo.findBoardsByTwoUsernames(any(), any())).thenReturn(Arrays.asList(mockBoard));
+        List<OpponentResponse> opponents = userService.getAllOpponents("username");
+        verify(mockUserRepo, times(1)).findAllOtherUsers(any());
+        verify(mockBoardRepo, times(1)).findBoardsByTwoUsernames(any(), any());
+        assertNotNull(opponents);
+        assertEquals(opponents.size(), 1);
+        assertEquals(opponents.get(0).getUsername(), "username");
+        assertEquals(opponents.get(0).getElo(), 1000F);
+        assertEquals(opponents.get(0).getGame_id(), uuid);
+    }
+
+    @Test void test_getAllOpponents_NoOtherUsers_succeed(){
+        when(mockUserRepo.findAllOtherUsers(any())).thenReturn(new ArrayList<>());
+        List<OpponentResponse> opponents = userService.getAllOpponents("username");
+        verify(mockUserRepo, times(1)).findAllOtherUsers(any());
+        verify(mockBoardRepo, times(0)).findBoardsByTwoUsernames(any(), any());
+        assertNotNull(opponents);
+        assertEquals(opponents.size(), 0);
+    }
+
+    @Test void test_getAllOpponents_NoBoards_succeed(){
+        when(mockUserRepo.findAllOtherUsers(any())).thenReturn(Arrays.asList(mockUser));
+        when(mockUser.getUsername()).thenReturn("username");
+        when(mockUser.getELO()).thenReturn(1000F);
+        when(mockBoardRepo.findBoardsByTwoUsernames(any(), any())).thenReturn(new ArrayList<>());
+        List<OpponentResponse> opponents = userService.getAllOpponents("username");
+        verify(mockUserRepo, times(1)).findAllOtherUsers(any());
+        verify(mockBoardRepo, times(1)).findBoardsByTwoUsernames(any(), any());
+        assertNotNull(opponents);
+        assertEquals(opponents.size(), 1);
+        assertEquals(opponents.get(0).getUsername(), "username");
+        assertEquals(opponents.get(0).getElo(), 1000F);
+        assertNull(opponents.get(0).getGame_id());
+    }
 }
