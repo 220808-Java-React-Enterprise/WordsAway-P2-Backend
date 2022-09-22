@@ -48,7 +48,7 @@ public class AccessController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "/salt")
+    @GetMapping(value = "/salt", produces = MediaType.TEXT_PLAIN_VALUE)
     public String salt(@Param("username") String username, HttpServletResponse resp) {
         User user;
         try{
