@@ -28,7 +28,7 @@ public class AIService {
 
     public static Board start(long startTime, Board board){ // todo add level for bots
         // If bot has taken longer than 20 seconds leave
-        if (System.currentTimeMillis() - startTime > 20000) return null;
+        if (System.currentTimeMillis() - startTime > 20000) return board;
         finalList = new ArrayList<>();
         AIService.board = board;
         letters = board.getLetters();
@@ -37,20 +37,20 @@ public class AIService {
 
         // todo add other bots here
         // If increment is -1 means a fireball was cast
-        exit:{
-            if ((increment = easyBot()) != -1) {
-                // Check if list is empty
-                if (finalList.isEmpty()) {
-                    Board newBoard = start(startTime, board);
+        if ((increment = easyBot()) != -1) {
+            // Check if list is empty
+            if (finalList.isEmpty()) {
+                Board newBoard = start(startTime, board);
 
-                    if (newBoard == null && board.getFireballs() > 0) shootFireBall();
-                    else return newBoard;
-                    break exit;
+                if (Arrays.equals(newBoard.getLetters(), board.getLetters()) && board.getFireballs() > 0) {
+                    shootFireBall();
+                    return board;
                 }
-                // Get random answer and play it
-                WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
-                finalizeMove(wl, increment);
+                return newBoard;
             }
+            // Get random answer and play it
+            WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
+            finalizeMove(wl, increment);
         }
         return board;
     }
