@@ -24,17 +24,20 @@ public class BoardService {
     public static Board register(User user, UUID gameID, boolean isActive){
         //TODO probably validate some things
         char[] blankArr = new char[BOARD_SIZE*BOARD_SIZE];
+        char[] worms = new char[BOARD_SIZE * BOARD_SIZE];
         char[] tray = new char[7];
+        Arrays.fill(blankArr, '.');
+        Arrays.fill(worms, '.');
+        setWorms(worms);
 
         BoardService.getNewTray(tray);
 
-        Arrays.fill(blankArr, '.');
         Board board = new Board(
                 UUID.randomUUID(),
                 user,
                 tray,
                 0,
-                blankArr,
+                worms,
                 blankArr,
                 gameID,
                 isActive
@@ -109,11 +112,10 @@ public class BoardService {
             tray[i] = getRandomChar();
     }
 
-    public static Board setWorms(Board board) {
+    public static void setWorms(char[] worms) {
         Random rand = new Random(System.currentTimeMillis());
         char[] wormLetter = new char[] { 'A', 'B', 'C', 'S', 'D' };
         int[] wormArr = new int[] { 5, 4, 3, 3, 2 };
-        char[] worms = board.getWorms();
         boolean col, flag;
         int start, curr, end, increment;
 
@@ -141,8 +143,6 @@ public class BoardService {
                 if (flag) i++;
             }
         }
-        board.setWorms(worms);
-        return board;
     }
 
     private static char getRandomChar() {
@@ -168,6 +168,7 @@ public class BoardService {
         update(board);
         update(opposingBoard);
     }
+
 
     public static Board validateMove(BoardRequest request) throws InvalidRequestException {
         int fireballs = 0;
@@ -357,21 +358,17 @@ public class BoardService {
         return hits;
     }
 
-    public static char[] getHits(UUID id){
-        int hitCounter = 0, shipCounter = 0;
-        char[] hits = new char[BOARD_SIZE*BOARD_SIZE];
+    public static boolean gameOver(UUID id){
+        int hitCounter = 0;
         Board board = getByID(id);
         char[] worms = getOpposingBoard(board).getWorms();
         boolean[] checked = getChecked(board.getLetters());
-        for (int i = 0; i < hits.length; i++) {
-            if (String.valueOf(worms[i]).matches("[A-Z]")) shipCounter++;
-            if (checked[i])
-                if (worms[i] != '.') { hits[i] = 'H'; hitCounter++; }
-                else hits[i] = 'M';
 
-            if (shipCounter == TOTAL_WORM_LENGTHS && hitCounter == shipCounter) return null;
-        }
-        return hits;
+        for (int i = 0; i < worms.length; i++)
+            if (checked[i] && worms[i] != '.' && String.valueOf(worms[i]).matches("[A-Z]"))
+                hitCounter++;
+
+        return hitCounter == TOTAL_WORM_LENGTHS;
     }
 
     private static void makeAdjacentTrue(boolean[] hits, int i){
