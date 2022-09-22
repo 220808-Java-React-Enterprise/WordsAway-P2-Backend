@@ -114,20 +114,31 @@ public class GameController {
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
             BoardService.makeMove(request, board);
             Board opposingBoard = BoardService.getOpposingBoard(board);
+            User opponent = opposingBoard.getUser();
             if (BoardService.gameOver(request.getBoardID())){
-                user.setELO(BoardService.calculateELO(user.getELO(), opposingBoard.getUser().getELO(), true));
+                user.setELO(BoardService.calculateELO(user.getELO(), opponent.getELO(), true));
                 user.setGamesPlayed(user.getGamesPlayed() + 1);
                 user.setGamesWon(user.getGamesWon() + 1);
                 UserService.update(user);
+                if(!opponent.isCPU()) opponent.setELO(BoardService.calculateELO(opponent.getELO(), user.getELO(), false));
+                opponent.setGamesPlayed(opponent.getGamesPlayed() + 1);
+                UserService.update(opponent);
                 return "Winner!";
             }
-            if (opposingBoard.getUser().isCPU()){
+            if (opponent.isCPU()){
                 Board bot = AIService.start(System.currentTimeMillis(), opposingBoard);
                 request.setBoardID(opposingBoard.getId());
                 request.setReplacedTray(Arrays.equals(opposingBoard.getLetters(), bot.getLetters()));
                 request.setLayout(bot.getLetters());
                 BoardService.makeMove(request, opposingBoard);
-                opposingBoard = board;
+                if (BoardService.gameOver(opposingBoard.getId())){
+                    user.setELO(BoardService.calculateELO(user.getELO(), opponent.getELO(), false));
+                    user.setGamesPlayed(user.getGamesPlayed() + 1);
+                    UserService.update(user);
+                    opponent.setGamesPlayed(opponent.getGamesPlayed() + 1);
+                    opponent.setGamesWon(opponent.getGamesWon() + 1);
+                    UserService.update(opponent);
+                }
             }
             SseEmitter emitter = subscribedBoards.get(opposingBoard.getId());
             if (emitter != null) {
