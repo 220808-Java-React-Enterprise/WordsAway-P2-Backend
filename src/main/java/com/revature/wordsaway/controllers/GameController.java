@@ -92,7 +92,7 @@ public class GameController {
      */
 
     @CrossOrigin
-    @GetMapping(value = "/checkMove", consumes = "application/json")
+    @PostMapping(value = "/checkMove", consumes = "application/json")
     public boolean checkMove(@RequestBody BoardRequest request, HttpServletRequest req, HttpServletResponse resp) {
         try {
             TokenService.extractRequesterDetails(req);
@@ -109,15 +109,25 @@ public class GameController {
     @PostMapping(value = "/makeMove", consumes = "application/json")
     public String makeMove(@RequestBody BoardRequest request, HttpServletRequest req, HttpServletResponse resp) {
         try {
-            TokenService.extractRequesterDetails(req);
+            User user = TokenService.extractRequesterDetails(req);
             Board board = BoardService.getByID(request.getBoardID());
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
             BoardService.makeMove(request, board);
+            Board opposingBoard = BoardService.getOpposingBoard(board);
             if (BoardService.gameOver(request.getBoardID())){
-
+                /* ELO Calculation
+                double myELO = Math.pow(10, (user.getELO())/400);
+                double oppELO = Math.pow(10, (opposingBoard.getUser().getELO())/400);
+                myELO /= myELO + oppELO;
+                oppELO /= myELO + oppELO;
+                int k = 32; //TODO do better K-Factor calculation
+                user.setELO(myELO + k * (1 - myELO));
+                user.setGamesPlayed(user.getGamesPlayed() + 1);
+                user.setGamesWon(user.getGamesWon() + 1);
+                UserService.update(user);
+                */
                 return "Winner!";
             }
-            Board opposingBoard = BoardService.getOpposingBoard(board);
             if (opposingBoard.getUser().isCPU()){
                 Board bot = AIService.start(System.currentTimeMillis(), opposingBoard);
                 request.setBoardID(opposingBoard.getId());
