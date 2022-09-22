@@ -394,10 +394,11 @@ public class BoardService {
     }
 
     public static float calculateELO(float myELO, float oppELO, boolean isWinner){
-        myELO = (float) Math.pow(10, (myELO/400));
-        oppELO = (float) Math.pow(10, (oppELO/400));
-        myELO /= myELO + oppELO;
+        //From https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
+        double myMod = Math.pow(10, (myELO/400));
+        double oppMod = Math.pow(10, (oppELO/400));
+        myMod /= myMod + oppMod;
         int k = 32; //TODO do better K-Factor calculation
-        return myELO + k * (1 - myELO);
+        return (float) (myELO + k * ((isWinner ? 1 : 0) - myMod));
     }
 }

@@ -1,6 +1,7 @@
 package com.revature.wordsaway.services;
 
 import com.revature.wordsaway.dtos.requests.BoardRequest;
+import com.revature.wordsaway.dtos.responses.GameResponse;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.repositories.BoardRepository;
@@ -273,8 +274,17 @@ public class BoardServiceTest {
         Assertions.assertEquals("No boards opposing 00000000-0000-0000-0000-000000000000 found.", thrown.getMessage());
     }
 
-    //TODO getGame testing
-
+    @Test
+    public void test_getGame_success(){
+        when(mockRepo.findBoardByID(any())).thenReturn(mockBoard);
+        when(mockRepo.findOpposingBoardByIDAndGameID(any(), any())).thenReturn(mockBoard);
+        when(mockBoard.getLetters()).thenReturn(BLANK_BOARD);
+        when(mockBoard.getWorms()).thenReturn(BLANK_BOARD);
+        when(mockBoard.getUser()).thenReturn(mock(User.class));
+        GameResponse game = BoardService.getGame(request.getBoardID());
+        //TODO maybe check more
+        assertNotNull(game);
+    }
 
     @RepeatedTest(100)
     public void test_setWorms(){
@@ -1204,5 +1214,39 @@ public class BoardServiceTest {
         }
     }
 
-    //TODO test calculateELO
+    @Test
+    public void test_calculateELO_WinWithEqualELO_succeed(){
+        float elo = BoardService.calculateELO(1000, 1000, true);
+        assertEquals(elo, 1016, 0.01);
+    }
+
+    @Test
+    public void test_calculateELO_LossWithEqualELO_succeed(){
+        float elo = BoardService.calculateELO(1000, 1000, false);
+        assertEquals(elo, 984, 0.01);
+    }
+
+    @Test
+    public void test_calculateELO_WinWithLessELO_succeed(){
+        float elo = BoardService.calculateELO(1000, 1500, true);
+        assertEquals(elo, 1030.29F, 0.01);
+    }
+
+    @Test
+    public void test_calculateELO_LossWithLessELO_succeed(){
+        float elo = BoardService.calculateELO(1000, 1500, false);
+        assertEquals(elo, 998.30F, 0.01);
+    }
+
+    @Test
+    public void test_calculateELO_WinWithMoreELO_succeed(){
+        float elo = BoardService.calculateELO(1500, 1000, true);
+        assertEquals(elo, 1501.70F, 0.01);
+    }
+
+    @Test
+    public void test_calculateELO_LossWithMoreELO_succeed(){
+        float elo = BoardService.calculateELO(1500, 1000, false);
+        assertEquals(elo, 1469.70F, 0.01);
+    }
 }
