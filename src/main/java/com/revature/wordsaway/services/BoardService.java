@@ -68,7 +68,7 @@ public class BoardService {
         return opposingBoard;
     }
 
-    public static GameResponse getGame(UUID boardID){
+    public static GameResponse getGame(UUID boardID) {
         Board myBoard = getByID(boardID);
         Board oppBoard = getOpposingBoard(myBoard);
         char[] letters = myBoard.getLetters();
@@ -77,21 +77,21 @@ public class BoardService {
         char[] oppWorms = oppBoard.getWorms();
         boolean[] checked = getChecked(letters);
         boolean[] oppChecked = getChecked(oppLetters);
-        for (int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++) {
+        for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
             if (checked[i] && letters[i] == '.') {
                 if (oppWorms[i] != '.') letters[i] = '@';
                 else letters[i] = '!';
             } else if (checked[i] && letters[i] == '*' && oppWorms[i] == '.') letters[i] = '&';
-            else if(checked[i] && oppWorms[i] == '.') letters[i] = Character.toLowerCase(letters[i]);
+            else if (checked[i] && oppWorms[i] == '.') letters[i] = Character.toLowerCase(letters[i]);
         }
-        for (int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++) {
-            if(oppChecked[i]) {
-                if(worms[i] != '.') {
-                    if(oppLetters[i] == '*') worms[i] = '*';
+        for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+            if (oppChecked[i]) {
+                if (worms[i] != '.') {
+                    if (oppLetters[i] == '*') worms[i] = '*';
                     else if (oppLetters[i] == '.') worms[i] = '@';
                     else worms[i] = oppLetters[i];
-                }else{
-                    if(oppLetters[i] == '*') worms[i] ='&';
+                } else {
+                    if (oppLetters[i] == '*') worms[i] = '&';
                     else if (oppLetters[i] == '.') worms[i] = '!';
                     else worms[i] = Character.toLowerCase(oppLetters[i]);
                 }
@@ -109,11 +109,6 @@ public class BoardService {
                 oppBoard.getUser().getUsername(),
                 winner
         );
-    }
-
-    public static void getNewTray(char[] tray){
-        for (int i = 0; i < tray.length; i++)
-            tray[i] = getRandomChar();
     }
 
     public static void setWorms(char[] worms) {
@@ -148,6 +143,11 @@ public class BoardService {
                 if (flag) i++;
             }
         }
+    }
+
+    public static void getNewTray(char[] tray){
+        for (int i = 0; i < tray.length; i++)
+            tray[i] = getRandomChar();
     }
 
     private static char getRandomChar() {
@@ -379,7 +379,7 @@ public class BoardService {
         boolean[] checked = getChecked(board.getLetters());
 
         for (int i = 0; i < worms.length; i++)
-            if (checked[i] && worms[i] != '.' && String.valueOf(worms[i]).matches("[A-Z]"))
+            if (checked[i] && worms[i] != '.')
                 hitCounter++;
 
         return hitCounter == TOTAL_WORM_LENGTHS;
