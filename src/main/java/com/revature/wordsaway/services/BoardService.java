@@ -365,7 +365,7 @@ public class BoardService {
         boolean[] checked = getChecked(board.getLetters());
 
         for (int i = 0; i < worms.length; i++)
-            if (checked[i] && worms[i] != '.' && String.valueOf(worms[i]).matches("[A-Z]"))
+            if (checked[i] && worms[i] != '.')
                 hitCounter++;
 
         return hitCounter == TOTAL_WORM_LENGTHS;

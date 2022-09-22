@@ -6,6 +6,7 @@ import java.util.*;
 
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 
+// todo run bot while user is making move to negate wait time on bot
 @Service
 public class AIService {
     private static List<WordAndLocation> finalList;
@@ -26,8 +27,8 @@ public class AIService {
     }
 
     public static Board start(long startTime, Board board){ // todo add level for bots
-        // If bot has taken longer than 25 seconds leave
-        if (System.currentTimeMillis() - startTime > 25000) return board;
+        // If bot has taken longer than 20 seconds leave
+        if (System.currentTimeMillis() - startTime > 20000) return null;
         finalList = new ArrayList<>();
         AIService.board = board;
         letters = board.getLetters();
@@ -36,14 +37,20 @@ public class AIService {
 
         // todo add other bots here
         // If increment is -1 means a fireball was cast
-        if ((increment = easyBot()) != -1) {
-            // Check if list is empty
-            if (finalList.isEmpty())
-                return start(startTime, board);
+        exit:{
+            if ((increment = easyBot()) != -1) {
+                // Check if list is empty
+                if (finalList.isEmpty()) {
+                    Board newBoard = start(startTime, board);
 
-            // Get random answer and play it
-            WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
-            finalizeMove(wl, increment);
+                    if (newBoard == null && board.getFireballs() > 0) shootFireBall();
+                    else return newBoard;
+                    break exit;
+                }
+                // Get random answer and play it
+                WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
+                finalizeMove(wl, increment);
+            }
         }
         return board;
     }
