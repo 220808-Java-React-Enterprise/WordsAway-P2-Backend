@@ -22,9 +22,9 @@ Words Away is a web based game combining the mechanics of Battleship and Scrabbl
  - Once all the opponent’s ships have been sunk, the remaining player is the winner.
  - Letters will have a rarity value 1-3. 1's only hit their spot when placed. 2's hit their spot and adjacent spots. 3's make the whole word hit adjacent spots.
 ### MVP
- - User signup
+ - U**ser signup
  - A game can be instantiated against a CPU when the Player is ready.
- - During Game...
+ - During Gam**e...
    - Player can chose the location of their ships at the start of game.
    - Player can attempt a move using letters from tray.
    - Server will check if move is legal. 
