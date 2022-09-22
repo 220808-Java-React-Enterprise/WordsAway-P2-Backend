@@ -289,7 +289,7 @@ public class BoardServiceTest {
         // total - 17
         int countShipLength = 0, counter = 0;
         for (char letter : move){
-            if (String.valueOf(letter).matches("[A-DS]"))
+            if (String.valueOf(letter).matches("[0-5]"))
                 countShipLength++;
 
 //            if (counter % BOARD_SIZE < BOARD_SIZE - 1) System.out.print(letter + ", ");
@@ -422,7 +422,6 @@ public class BoardServiceTest {
         if(r % BOARD_SIZE == 7 && r / BOARD_SIZE >= 6 && r / BOARD_SIZE <= 8) return;
         if(r / BOARD_SIZE == 7 && r % BOARD_SIZE >= 6 && r % BOARD_SIZE <= 8) return;
         move[0] = 'A';
-        move[7 * BOARD_SIZE + 7] = 'T';
         when(request.getLayout()).thenReturn(move);
         boardService.validateMove(request);
         verify(mockRepo, times(1)).findBoardByID(any());

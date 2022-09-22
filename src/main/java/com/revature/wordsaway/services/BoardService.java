@@ -177,10 +177,13 @@ public class BoardService {
         //TODO rewrite this less dumn now that move only is being sent.
         int fireballs = 0;
         Board oldBoard = getByID(request.getBoardID());
-        char[] oldLetters = oldBoard.getLetters(), newLetters = oldBoard.getLetters();
+        char[] oldLetters = oldBoard.getLetters();
+        char[] newLetters = new char[BOARD_SIZE*BOARD_SIZE];
         for(int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++){
             if(request.getLayout()[i] != '.') newLetters[i] = request.getLayout()[i];
+            else newLetters[i] = oldLetters[i];
         }
+
         List<ChangeSpot> changeSpots = new ArrayList<>();
         boolean checkRow = false, checkColumn = false, asterisk = false;
         loop: for(int i = 0; i < oldLetters.length; i++){
