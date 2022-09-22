@@ -160,21 +160,26 @@ public class BoardService {
     public static void makeMove(BoardRequest request, Board board){
         if (request.isReplacedTray()) getNewTray(board.getTray());
         else board = validateMove(request);
-
         Board opposingBoard = getOpposingBoard(board);
-        board.setLetters(request.getLayout());
+        char[] newLetters = board.getLetters();
+        for(int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++){
+            if(request.getLayout()[i] != '.') newLetters[i] = request.getLayout()[i];
+        }
+        board.setLetters(newLetters);
         board.toggleActive();
         opposingBoard.toggleActive();
         update(board);
         update(opposingBoard);
     }
 
-
     public static Board validateMove(BoardRequest request) throws InvalidRequestException {
+        //TODO rewrite this less dumn now that move only is being sent.
         int fireballs = 0;
         Board oldBoard = getByID(request.getBoardID());
-        char[] oldLetters = oldBoard.getLetters();
-        char[] newLetters = request.getLayout();
+        char[] oldLetters = oldBoard.getLetters(), newLetters = oldBoard.getLetters();
+        for(int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++){
+            if(request.getLayout()[i] != '.') newLetters[i] = request.getLayout()[i];
+        }
         List<ChangeSpot> changeSpots = new ArrayList<>();
         boolean checkRow = false, checkColumn = false, asterisk = false;
         loop: for(int i = 0; i < oldLetters.length; i++){
