@@ -1,6 +1,7 @@
 package com.revature.wordsaway.services;
 
 import com.revature.wordsaway.dtos.requests.BoardRequest;
+import com.revature.wordsaway.dtos.responses.GameResponse;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.repositories.BoardRepository;
@@ -65,6 +66,45 @@ public class BoardService {
         Board opposingBoard =  boardRepository.findOpposingBoardByIDAndGameID(board.getId(), board.getGameID());
         if(opposingBoard == null) throw new InvalidRequestException("No boards opposing " + board.getGameID() + " found.");
         return opposingBoard;
+    }
+
+    public static GameResponse getGame(UUID boardID){
+        Board myBoard = getByID(boardID);
+        Board oppBoard = getOpposingBoard(myBoard);
+        char[] letters = myBoard.getLetters();
+        char[] oppLetters = oppBoard.getLetters();
+        char[] worms = myBoard.getWorms();
+        char[] oppWorms = oppBoard.getWorms();
+        boolean[] checked = getChecked(letters);
+        boolean[] oppChecked = getChecked(oppLetters);
+        for (int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++) {
+            if (checked[i] && letters[i] == '.') {
+                if (oppWorms[i] != '.') letters[i] = '@';
+                else letters[i] = '!';
+            } else if (checked[i] && letters[i] == '*' && oppWorms[i] == '.') letters[i] = '&';
+            else if(checked[i] && oppWorms[i] == '.') letters[i] = Character.toLowerCase(letters[i]);
+        }
+        for (int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++) {
+            if(oppChecked[i]) {
+                if(worms[i] != '.') {
+                    if(oppLetters[i] == '*') worms[i] = '*';
+                    else if (oppLetters[i] == '.') worms[i] = '@';
+                    else worms[i] = oppLetters[i];
+                }else{
+                    if(oppLetters[i] == '*') worms[i] ='&';
+                    else if (oppLetters[i] == '.') worms[i] = '!';
+                    else worms[i] = Character.toLowerCase(oppLetters[i]);
+                }
+            }
+        }
+        return new GameResponse(
+                letters,
+                worms,
+                myBoard.getTray(),
+                myBoard.getFireballs(),
+                myBoard.isActive(),
+                oppBoard.getUser().getUsername()
+        );
     }
 
     public static void getNewTray(char[] tray){
@@ -224,10 +264,10 @@ public class BoardService {
             ChangeSpot spot = (ChangeSpot) obj;
             return spot.row == row && spot.column == column;
         }
-        /**@Override
+        /*@Override
         public String toString(){
             return "(" + row + "," + column + ")";
-         }**/
+         }*/
     }
 
     private static char[] findConnectedWord(char[] letters, ChangeSpot spot, boolean checkRow, boolean checkColumn){
@@ -271,7 +311,6 @@ public class BoardService {
         if(!word.matches("^[A-Z]+$")) throw new InvalidRequestException("Invalid Move. Illegal characters placed on board.");
         return AnagramService.isWord(word.toLowerCase());
     }
-
 
     public static boolean[] getChecked(char[] letters){
         boolean[] hits = new boolean[BOARD_SIZE * BOARD_SIZE];
@@ -319,10 +358,10 @@ public class BoardService {
         return hits;
     }
 
-    public static char[] getHits(String id){
+    public static char[] getHits(UUID id){
         int hitCounter = 0, shipCounter = 0;
         char[] hits = new char[BOARD_SIZE*BOARD_SIZE];
-        Board board = getByID(UUID.fromString(id));
+        Board board = getByID(id);
         char[] worms = getOpposingBoard(board).getWorms();
         boolean[] checked = getChecked(board.getLetters());
         for (int i = 0; i < hits.length; i++) {

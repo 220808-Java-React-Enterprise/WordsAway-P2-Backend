@@ -1,5 +1,7 @@
 package com.revature.wordsaway.models;
 
+import com.revature.wordsaway.services.BoardService;
+
 import javax.persistence.*;
 
 @Entity
@@ -64,6 +66,13 @@ public class User {
 
     public boolean isCPU() {
         return isCPU;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof User)) return false;
+        User user = (User) obj;
+        return this.username.equals(user.getUsername());
     }
 
     @Override
