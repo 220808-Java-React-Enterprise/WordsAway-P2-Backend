@@ -46,7 +46,7 @@ public class UserService {
                 request.getPassword(),
                 request.getSalt(),
                 request.getEmail(),
-                sum / total,
+                total != 0 ? sum / total : 1000,
                 0,
                 0,
                 false
