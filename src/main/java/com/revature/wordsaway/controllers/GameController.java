@@ -114,11 +114,15 @@ public class GameController {
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
             BoardService.makeMove(request, board);
             Board opposingBoard = BoardService.getOpposingBoard(board);
+            User opponent = opposingBoard.getUser();
             if (BoardService.gameOver(request.getBoardID())){
-                user.setELO(BoardService.calculateELO(user.getELO(), opposingBoard.getUser().getELO(), true));
+                user.setELO(BoardService.calculateELO(user.getELO(), opponent.getELO(), true));
                 user.setGamesPlayed(user.getGamesPlayed() + 1);
                 user.setGamesWon(user.getGamesWon() + 1);
                 UserService.update(user);
+                opponent.setELO(BoardService.calculateELO(opponent.getELO(), user.getELO(), false));
+                opponent.setGamesPlayed(opponent.getGamesPlayed() + 1);
+                UserService.update(opponent);
                 return "Winner!";
             }
             if (opposingBoard.getUser().isCPU()){
