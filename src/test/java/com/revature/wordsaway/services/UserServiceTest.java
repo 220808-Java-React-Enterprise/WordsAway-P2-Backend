@@ -2,7 +2,10 @@ package com.revature.wordsaway.services;
 
 import com.revature.wordsaway.dtos.requests.LoginRequest;
 import com.revature.wordsaway.dtos.requests.NewUserRequest;
+import com.revature.wordsaway.dtos.responses.OpponentResponse;
+import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
+import com.revature.wordsaway.repositories.BoardRepository;
 import com.revature.wordsaway.repositories.UserRepository;
 import com.revature.wordsaway.utils.customExceptions.AuthenticationException;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
@@ -19,7 +22,8 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
 class UserServiceTest {
-    private UserRepository mockRepo;
+    private UserRepository mockUserRepo;
+    private BoardRepository mockBoardRepo;
     private UserService userService;
     private NewUserRequest mockRequest;
     private MockedStatic<TokenService> tokenServiceMockedStatic;
@@ -27,8 +31,9 @@ class UserServiceTest {
 
     @BeforeEach
     public void setup() {
-        mockRepo = mock(UserRepository.class);
-        userService = new UserService(mockRepo);
+        mockUserRepo = mock(UserRepository.class);
+        mockBoardRepo = mock(BoardRepository.class);
+        userService = new UserService(mockUserRepo, mockBoardRepo);
         mockRequest = mock(NewUserRequest.class);
         when(mockRequest.getUsername()).thenReturn("username");
         when(mockRequest.getPassword()).thenReturn("password");
@@ -41,7 +46,8 @@ class UserServiceTest {
 
     @AfterEach
     public void setdown(){
-        mockRepo = null;
+        mockUserRepo = null;
+        mockBoardRepo = null;
         userService = null;
         mockRequest = null;
         tokenServiceMockedStatic.close();
@@ -52,9 +58,9 @@ class UserServiceTest {
     @Test
     public void test_register_WithNullEmail_succeed(){
         when(mockRequest.getEmail()).thenReturn(null);
-        when(mockRepo.findUserByUsername(any())).thenReturn(null);
+        when(mockUserRepo.findUserByUsername(any())).thenReturn(null);
         User user = userService.register(mockRequest);
-        verify(mockRepo, times(1)).save(any());
+        verify(mockUserRepo, times(1)).save(any());
         assertNotNull(user);
         assertEquals(user.getUsername(), "username");
         assertEquals(user.getPassword(), "password");
@@ -64,9 +70,9 @@ class UserServiceTest {
 
     @Test
     public void test_register_WithEmail_succeed(){
-        when(mockRepo.findUserByUsername(any())).thenReturn(null);
+        when(mockUserRepo.findUserByUsername(any())).thenReturn(null);
         User user = userService.register(mockRequest);
-        verify(mockRepo, times(1)).save(any());
+        verify(mockUserRepo, times(1)).save(any());
         assertNotNull(user);
         assertEquals(user.getUsername(), "username");
         assertEquals(user.getPassword(), "password");
@@ -80,7 +86,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Username must start with a letter and consist of between 3 and 15 alphanumeric characters.",
                 thrown.getMessage());
     }
@@ -91,7 +97,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Username must start with a letter and consist of between 3 and 15 alphanumeric characters.",
                 thrown.getMessage());
     }
@@ -102,7 +108,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Username must start with a letter and consist of between 3 and 15 alphanumeric characters.",
                 thrown.getMessage());
     }
@@ -148,7 +154,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Invalid Email Address.", thrown.getMessage());
     }
 
@@ -158,7 +164,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Invalid Email Address.", thrown.getMessage());
     }
 
@@ -168,7 +174,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Invalid Email Address.", thrown.getMessage());
     }
 
@@ -178,7 +184,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Invalid Email Address.", thrown.getMessage());
     }
 
@@ -188,7 +194,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Invalid Email Address.", thrown.getMessage());
     }
 
@@ -198,7 +204,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Invalid Email Address.", thrown.getMessage());
     }
 
@@ -208,7 +214,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Invalid Email Address.", thrown.getMessage());
     }
 
@@ -218,7 +224,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Invalid Email Address.", thrown.getMessage());
     }
 
@@ -228,7 +234,7 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Invalid Email Address.", thrown.getMessage());
     }
 
@@ -238,27 +244,27 @@ class UserServiceTest {
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Invalid Email Address.", thrown.getMessage());
     }
 
     @Test
     public void test_register_WithTakenUsername_fail(){
-        when(mockRepo.findUserByUsername(any())).thenReturn(mock(User.class));
+        when(mockUserRepo.findUserByUsername(any())).thenReturn(mock(User.class));
         ResourceConflictException thrown = Assertions.assertThrows(ResourceConflictException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Username is already taken, please choose another.", thrown.getMessage());
     }
 
     @Test
     public void test_register_WithTakenEmail_fail(){
-        when(mockRepo.findUserByEmail(any())).thenReturn(mock(User.class));
+        when(mockUserRepo.findUserByEmail(any())).thenReturn(mock(User.class));
         ResourceConflictException thrown = Assertions.assertThrows(ResourceConflictException.class, () -> {
             userService.register(mockRequest);
         });
-        verify(mockRepo, times(0)).save(any());
+        verify(mockUserRepo, times(0)).save(any());
         Assertions.assertEquals("Email is already taken, please choose another.", thrown.getMessage());
     }
 
@@ -268,9 +274,9 @@ class UserServiceTest {
         when(request.getPassword()).thenReturn("password");
         when(request.getUsername()).thenReturn("username");
         when(mockUser.getPassword()).thenReturn("password");
-        when(mockRepo.findUserByUsername(any())).thenReturn(mockUser);
+        when(mockUserRepo.findUserByUsername(any())).thenReturn(mockUser);
         String token = userService.login(request);
-        verify(mockRepo, times(1)).findUserByUsername(any());
+        verify(mockUserRepo, times(1)).findUserByUsername(any());
         assertEquals(token, "testtoken");
     }
 
@@ -280,49 +286,92 @@ class UserServiceTest {
         when(request.getPassword()).thenReturn("wrong password");
         when(request.getUsername()).thenReturn("username");
         when(mockUser.getPassword()).thenReturn("password");
-        when(mockRepo.findUserByUsername(any())).thenReturn(mockUser);
+        when(mockUserRepo.findUserByUsername(any())).thenReturn(mockUser);
         final String[] token = new String[1];
         AuthenticationException thrown = Assertions.assertThrows(AuthenticationException.class, () -> {
             token[0] = userService.login(request);
         });
-        verify(mockRepo, times(1)).findUserByUsername(any());
+        verify(mockUserRepo, times(1)).findUserByUsername(any());
         Assertions.assertEquals("Login unsuccessful. Please check username and password.", thrown.getMessage());
         assertNull(token[0]);
     }
 
     @Test
     public void test_getByUsername_succeed(){
-        when(mockRepo.findUserByUsername(any())).thenReturn(mockUser);
+        when(mockUserRepo.findUserByUsername(any())).thenReturn(mockUser);
         User user = userService.getByUsername("username");
-        verify(mockRepo, times(1)).findUserByUsername(any());
+        verify(mockUserRepo, times(1)).findUserByUsername(any());
         assertNotNull(user);
     }
 
     @Test
     public void test_getByUsername_fail(){
-        when(mockRepo.findUserByUsername(any())).thenReturn(null);
+        when(mockUserRepo.findUserByUsername(any())).thenReturn(null);
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.getByUsername("username");
         });
-        verify(mockRepo, times(1)).findUserByUsername(any());
+        verify(mockUserRepo, times(1)).findUserByUsername(any());
         Assertions.assertEquals("No user with username username found.", thrown.getMessage());
     }
 
     @Test
     public void test_getAll_succeed(){
-        when(mockRepo.findAll()).thenReturn(Arrays.asList(mockUser));
+        when(mockUserRepo.findAll()).thenReturn(Arrays.asList(mockUser));
         List<User> users = userService.getAll();
-        verify(mockRepo, times(1)).findAll();
+        verify(mockUserRepo, times(1)).findAll();
         assertNotNull(users);
     }
 
     @Test
     public void test_getAll_fail(){
-        when(mockRepo.findAll()).thenReturn(new ArrayList<>());
+        when(mockUserRepo.findAll()).thenReturn(new ArrayList<>());
         InvalidRequestException thrown = Assertions.assertThrows(InvalidRequestException.class, () -> {
             userService.getAll();
         });
-        verify(mockRepo, times(1)).findAll();
+        verify(mockUserRepo, times(1)).findAll();
         Assertions.assertEquals("No users found.", thrown.getMessage());
+    }
+
+    @Test void test_getAllOpponents_succeed(){
+        when(mockUserRepo.findAllOtherUsers(any())).thenReturn(Arrays.asList(mockUser));
+        when(mockUser.getUsername()).thenReturn("username");
+        when(mockUser.getELO()).thenReturn(1000F);
+        Board mockBoard = mock(Board.class);
+        UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        when(mockBoard.getId()).thenReturn(uuid);
+        when(mockBoard.getUser()).thenReturn(mockUser);
+        when(mockBoardRepo.findBoardsByTwoUsernames(any(), any())).thenReturn(Arrays.asList(mockBoard));
+        List<OpponentResponse> opponents = userService.getAllOpponents("username");
+        verify(mockUserRepo, times(1)).findAllOtherUsers(any());
+        verify(mockBoardRepo, times(1)).findBoardsByTwoUsernames(any(), any());
+        assertNotNull(opponents);
+        assertEquals(opponents.size(), 1);
+        assertEquals(opponents.get(0).getUsername(), "username");
+        assertEquals(opponents.get(0).getElo(), 1000F);
+        assertEquals(opponents.get(0).getBoard_id(), uuid);
+    }
+
+    @Test void test_getAllOpponents_NoOtherUsers_succeed(){
+        when(mockUserRepo.findAllOtherUsers(any())).thenReturn(new ArrayList<>());
+        List<OpponentResponse> opponents = userService.getAllOpponents("username");
+        verify(mockUserRepo, times(1)).findAllOtherUsers(any());
+        verify(mockBoardRepo, times(0)).findBoardsByTwoUsernames(any(), any());
+        assertNotNull(opponents);
+        assertEquals(opponents.size(), 0);
+    }
+
+    @Test void test_getAllOpponents_NoBoards_succeed(){
+        when(mockUserRepo.findAllOtherUsers(any())).thenReturn(Arrays.asList(mockUser));
+        when(mockUser.getUsername()).thenReturn("username");
+        when(mockUser.getELO()).thenReturn(1000F);
+        when(mockBoardRepo.findBoardsByTwoUsernames(any(), any())).thenReturn(new ArrayList<>());
+        List<OpponentResponse> opponents = userService.getAllOpponents("username");
+        verify(mockUserRepo, times(1)).findAllOtherUsers(any());
+        verify(mockBoardRepo, times(1)).findBoardsByTwoUsernames(any(), any());
+        assertNotNull(opponents);
+        assertEquals(opponents.size(), 1);
+        assertEquals(opponents.get(0).getUsername(), "username");
+        assertEquals(opponents.get(0).getElo(), 1000F);
+        assertNull(opponents.get(0).getBoard_id());
     }
 }

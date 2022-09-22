@@ -2,15 +2,14 @@ package com.revature.wordsaway.services;
 
 import com.revature.wordsaway.dtos.requests.BoardRequest;
 import com.revature.wordsaway.models.Board;
+import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.repositories.BoardRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
@@ -21,6 +20,7 @@ public class AIServiceTest {
     private BoardService boardService;
     private BoardRepository mockRepo;
     private Board mockBoard;
+    private Board newBoard;
     private AIService aiService;
     private MockedStatic<AnagramService> mockAnagram;
     private BoardRequest request;
@@ -32,6 +32,7 @@ public class AIServiceTest {
     public void setupTest(){
         Arrays.fill(letters, '.');
         Arrays.fill(worms, '.');
+        newBoard = new Board(UUID.fromString("00000000-0000-0000-0000-000000000000"), mock(User.class), tray, 0, worms, letters, UUID.randomUUID(), true);
 
         mockRepo = mock(BoardRepository.class);
         boardService = new BoardService(mockRepo);
@@ -42,7 +43,20 @@ public class AIServiceTest {
 
         request = mock(BoardRequest.class);
 
+        aiService = new AIService();
+
         when(request.getBoardID()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000000"));
+    }
+
+    @AfterEach
+    public void tearDown(){
+        boardService = null;
+        mockRepo = null;
+        mockBoard = null;
+        newBoard = null;
+        aiService = null;
+        mockAnagram = null;
+        request = null;
     }
 
     private char[] setupBlankBoard(){
@@ -87,45 +101,25 @@ public class AIServiceTest {
         });
     }
 
-    private char[] botTwentyFirstsMove(){
-        return (new char[]{
-                '.', '.', '.', '.', '.', '.', '.', '.', 'V', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '*', '.', '.', '.', 'I', '.', 'I', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', 'W', '.', 'R', '.', 'N', '.', 'A', 'C', 'T', '.', '.', '.',
-                '.', 'T', '.', '.', 'A', '.', 'E', 'M', '.', '.', '.', '.', '.', 'E', '.', '.',
-                '.', 'A', '.', '.', 'P', '.', '.', 'E', '.', '.', '*', '.', '.', 'C', '.', '.',
-                '.', 'N', '.', '.', '.', 'C', 'I', 'T', 'R', 'O', 'N', '.', '.', 'O', '.', '.',
-                '.', '.', '.', '.', '.', 'O', '.', 'A', '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', '.', 'N', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', 'J', 'O', 'E', '.', '.', 'G', 'A', 'D', 'I', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', '.', 'E', '.', '.', '.', '.', '.', 'P', 'E', 'E', '.', '.',
-                '.', '.', '.', '.', '.', 'E', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-                'S', 'H', 'A', 'D', 'O', 'W', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', '.', '.', 'W', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', 'F', '.', 'S', '.', 'E', '.', '.', '.', '.', 'G', 'L', 'E', 'D', '.',
-                '.', '.', 'I', '.', 'A', 'X', 'E', '.', 'I', 'F', 'F', '.', '.', '.', '.', '.',
-                '.', '.', 'L', '.', 'G', '.', 'S', '.', '.', '.', '.', '.', '.', '.', '.', '.'
-        });
-    }
-
     @Test
     public void test_easyBot_emptyBoard(){
-        Board blankBoard = mock(Board.class);
+        Board blank = mock(Board.class);
         mockAnagram = mockStatic(AnagramService.class);
         mockAnagram.when(() -> AnagramService.isWord(any())).thenReturn(true);
 
         tray = "TESTING".toCharArray();
-        when(mockBoard.getTray()).thenReturn(tray);
-        aiService = new AIService(mockBoard);
+        newBoard.setTray(tray);
         aiService.setRandomSeed(0);
 
         mockAnagram.when(() -> AnagramService.getAllList(anyString(), anyString(), anyInt())).thenReturn(Arrays.asList("TESTING"));
-        aiService.start(System.currentTimeMillis());
+        newBoard = AIService.start(System.currentTimeMillis(), newBoard);
 
-        when(request.getLayout()).thenReturn(letters);
-        when(mockRepo.findBoardByID(any())).thenReturn(blankBoard);
-        when(blankBoard.getLetters()).thenReturn(setupBlankBoard());
+        when(request.getLayout()).thenReturn(newBoard.getLetters());
+        when(mockRepo.findBoardByID(any())).thenReturn(blank);
+        when(blank.getLetters()).thenReturn(setupBlankBoard());
+        when(blank.getTray()).thenReturn(newBoard.getTray());
 
+        boardService.validateMove(request);
         mockAnagram.close();
     }
 
@@ -136,81 +130,67 @@ public class AIServiceTest {
         mockAnagram.when(() -> AnagramService.isWord(any())).thenReturn(true);
 
         tray = "SHADOWI".toCharArray();
-        when(mockBoard.getTray()).thenReturn(tray);
-        when(mockBoard.getLetters()).thenReturn(setupBoardTwentyMovesIn());
-        aiService = new AIService(mockBoard);
+        newBoard.setTray(tray);
+        newBoard.setLetters(setupBoardTwentyMovesIn());
         aiService.setRandomSeed(2);
 
-        when(mockBoard.getFireballs()).thenReturn(3);
         mockAnagram.when(() -> AnagramService.getAllList(anyString(), anyString(), anyInt())).thenReturn(Arrays.asList("SHADOW"));
-        aiService.start(System.currentTimeMillis());
+        newBoard = AIService.start(System.currentTimeMillis(), newBoard);
 
-        when(request.getLayout()).thenReturn(botTwentyFirstsMove());
+        when(request.getLayout()).thenReturn(newBoard.getLetters());
         when(mockRepo.findBoardByID(any())).thenReturn(twentyMoveBoard);
         when(twentyMoveBoard.getLetters()).thenReturn(setupBoardTwentyMovesIn());
+        when(twentyMoveBoard.getTray()).thenReturn(newBoard.getTray());
 
-        //boardService.validateMove(request);
+        boardService.validateMove(request);
         mockAnagram.close();
     }
 
-    @Test void test_easyBot_fireball(){
+    @Test
+    void test_easyBot_fireball(){
+        Board twentyMoveBoard = mock(Board.class);
         mockAnagram = mockStatic(AnagramService.class);
         mockAnagram.when(() -> AnagramService.isWord(any())).thenReturn(true);
 
         tray = "TESTING".toCharArray();
-        when(mockBoard.getTray()).thenReturn(tray);
-        when(mockBoard.getLetters()).thenReturn(setupBoardTwentyMovesIn());
-        aiService = new AIService(mockBoard);
+        newBoard.setTray(tray);
+        newBoard.setLetters(setupBoardTwentyMovesIn());
+        newBoard.setFireballs(3);
         aiService.setRandomSeed(3);
 
-        when(mockBoard.getFireballs()).thenReturn(3);
         mockAnagram.when(() -> AnagramService.getAllList(anyString(), anyString(), anyInt())).thenReturn(Arrays.asList("TESTING"));
-        aiService.start(System.currentTimeMillis());
+        newBoard = AIService.start(System.currentTimeMillis(), newBoard);
+
+
+        when(request.getLayout()).thenReturn(newBoard.getLetters());
+        when(mockRepo.findBoardByID(any())).thenReturn(twentyMoveBoard);
+        when(twentyMoveBoard.getLetters()).thenReturn(setupBoardTwentyMovesIn());
+
+        boardService.validateMove(request);
         mockAnagram.close();
     }
 
-    @Test void test_forceNoMove(){
+    @Test
+    void test_easyBot_forceNoMove(){
         Board twentyMoveBoard = mock(Board.class);
         mockAnagram = mockStatic(AnagramService.class);
         mockAnagram.when(() -> AnagramService.isWord(any())).thenReturn(true);
 
         tray = "GGGGGGG".toCharArray();
-        when(mockBoard.getTray()).thenReturn(tray);
-        when(mockBoard.getLetters()).thenReturn(setupBoardTwentyMovesIn());
-        aiService = new AIService(mockBoard);
-        AIService mockAI = mock(AIService.class);
-        aiService.setRandomSeed(4);
+        newBoard.setTray(tray);
+        newBoard.setLetters(setupBoardTwentyMovesIn());
+        aiService.setRandomSeed(3);
 
-        when(mockBoard.getFireballs()).thenReturn(3);
-        mockAnagram.when(() -> AnagramService.getAllList(anyString(), anyString(), anyInt())).thenReturn(null);
-        aiService.start(System.currentTimeMillis());
+        mockAnagram.when(() -> AnagramService.getAllList(anyString(), anyString(), anyInt())).thenReturn(Arrays.asList(""));
+        newBoard = AIService.start(System.currentTimeMillis(), newBoard);
 
-        when(request.isReplacedTray()).thenReturn(true);
-        when(request.getLayout()).thenReturn(setupBoardTwentyMovesIn());
+
+        when(request.getLayout()).thenReturn(newBoard.getLetters());
         when(mockRepo.findBoardByID(any())).thenReturn(twentyMoveBoard);
         when(twentyMoveBoard.getLetters()).thenReturn(setupBoardTwentyMovesIn());
+        when(twentyMoveBoard.getTray()).thenReturn(newBoard.getTray());
 
+        //boardService.validateMove(request);
         mockAnagram.close();
-    }
-
-    @RepeatedTest(20)
-    public void test_setWorms(){
-        aiService = new AIService(mockBoard);
-        aiService.setWorms();
-
-        // Aircraft Carrier - 5
-        // Battleship - 4
-        // Cruiser - 3
-        // Submarine - 3
-        // Destroyer - 2
-        // total - 17
-        int countShipLength = 0;
-
-        for (char letter : mockBoard.getWorms()){
-            if (String.valueOf(letter).matches("[A-DS]"))
-                countShipLength++;
-        }
-
-        assertEquals(17, countShipLength);
     }
 }

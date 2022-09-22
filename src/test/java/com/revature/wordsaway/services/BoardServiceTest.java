@@ -7,6 +7,7 @@ import com.revature.wordsaway.repositories.BoardRepository;
 import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -184,7 +185,6 @@ public class BoardServiceTest {
         assertEquals(board.getUser(), mockUser);
         assertEquals(board.getTray().length, 7);
         assertEquals(board.getFireballs(), 0);
-        assertArrayEquals(board.getWorms(), BLANK_BOARD);
         assertArrayEquals(board.getLetters(), BLANK_BOARD);
         assertEquals(board.getGameID(), uuid);
         assertTrue(board.isActive());
@@ -273,6 +273,33 @@ public class BoardServiceTest {
         Assertions.assertEquals("No boards opposing 00000000-0000-0000-0000-000000000000 found.", thrown.getMessage());
     }
 
+    //TODO getGame testing
+
+    @RepeatedTest(100)
+    public void test_setWorms(){
+        when(mockBoard.getWorms()).thenReturn(move);
+        boardService.setWorms(move);
+
+        // Aircraft Carrier - 5
+        // Battleship - 4
+        // Cruiser - 3
+        // Submarine - 3
+        // Destroyer - 2
+        // total - 17
+        int countShipLength = 0, counter = 0;
+        for (char letter : move){
+            if (String.valueOf(letter).matches("[A-DS]"))
+                countShipLength++;
+
+//            if (counter % BOARD_SIZE < BOARD_SIZE - 1) System.out.print(letter + ", ");
+//            else System.out.println(letter);
+//            counter++;
+        }
+        //System.out.println();
+
+        assertEquals(17, countShipLength);
+    }
+
     @RepeatedTest(100)
     public void test_getRandomChar_succeed(){
         char[] tray = new char[7];
@@ -280,6 +307,17 @@ public class BoardServiceTest {
 
         assertTrue(String.valueOf(tray).matches("[A-Z]+"));
     }
+
+    //TODO test makeMove
+//    @Test
+//    public void test_makeMove_user(){
+//        anagramServiceMockedStatic.close();
+//        MockedStatic<BoardService> boardServiceStatic = mockStatic(BoardService.class, CALLS_REAL_METHODS);
+//
+//        when(request.isReplacedTray()).thenReturn(false);
+//        boardServiceStatic.when(() -> BoardService.validateMove(request)).thenReturn(mockBoard);
+//        boardServiceStatic.when(() -> BoardService.makeMove(request, mockBoard)).thenCallRealMethod();
+//    }
 
     @RepeatedTest(BOARD_SIZE * BOARD_SIZE)
     public void test_validateMove_LongHorizontalMoveOnBlankBoard_succeed(RepetitionInfo repetitionInfo){
@@ -930,7 +968,7 @@ public class BoardServiceTest {
     }
 
     @Test
-    public void test_getHitsOnBlankBoard_succeed(){
+    public void test_getCheckedOnBlankBoard_succeed(){
         setupBlankBoard();
         boolean[] hits = boardService.getChecked(mockBoard.getLetters());
         boolean[] blankHits = new boolean[BOARD_SIZE*BOARD_SIZE];
@@ -939,7 +977,7 @@ public class BoardServiceTest {
     }
 
     @Test
-    public void test_getHitsOnBoardWithOneLetter_succeed(){
+    public void test_getCheckedOnBoardWithOneLetter_succeed(){
         setupBoardWithOneLetter();
         boolean[] hits = boardService.getChecked(mockBoard.getLetters());
         boolean[] blankHits = new boolean[BOARD_SIZE*BOARD_SIZE];
@@ -949,7 +987,7 @@ public class BoardServiceTest {
     }
 
     @Test
-    public void test_getHitsOnBoardWithOneAsterisk_succeed(){
+    public void test_getCheckedOnBoardWithOneAsterisk_succeed(){
         setupBoardWithOneAsterisk();
         boolean[] hits = boardService.getChecked(mockBoard.getLetters());
         boolean[] blankHits = new boolean[BOARD_SIZE*BOARD_SIZE];
@@ -959,7 +997,7 @@ public class BoardServiceTest {
     }
 
     @Test
-    public void test_getHitsOnBoardWith1PointLetters_succeed(){
+    public void test_getCheckedOnBoardWith1PointLetters_succeed(){
         when(mockBoard.getLetters()).thenReturn(new char[]{
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
@@ -990,7 +1028,7 @@ public class BoardServiceTest {
     }
 
     @Test
-    public void test_getHitsOnBoardWithSome2PointLetters_succeed(){
+    public void test_getCheckedOnBoardWithSome2PointLetters_succeed(){
         when(mockBoard.getLetters()).thenReturn(new char[]{
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
@@ -1025,7 +1063,7 @@ public class BoardServiceTest {
     }
 
     @Test
-    public void test_getHitsOnBoardWithA3PointLetter_succeed(){
+    public void test_getCheckedOnBoardWithA3PointLetter_succeed(){
         when(mockBoard.getLetters()).thenReturn(new char[]{
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
@@ -1065,5 +1103,68 @@ public class BoardServiceTest {
         blankHits[8 * BOARD_SIZE + 11] = true;
         blankHits[7 * BOARD_SIZE + 12] = true;
         assertArrayEquals(hits, blankHits);
+    }
+
+    @Test
+    public void test_gameOver_duringGame(){
+        char[] worms = new char[]{
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.',
+                '.', '.', '.', 'B', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.',
+                '.', '.', '.', 'B', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', 'B', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', 'B', '.', '.', '.', 'A', 'A', 'A', 'A', 'A', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', 'D', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', 'D', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', 'C', 'C', 'C', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
+        };
+        char[] hits = new char[]{
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.',
+                '.', '.', '-', '#', '-', '-', '.', '-', '.', '.', '.', '.', '.', 'S', '.', '.',
+                '.', '.', '.', 'B', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.',
+                '-', '-', '-', '#', '-', '-', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', 'B', '.', '.', '.', '#', 'A', 'A', 'A', 'A', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', 'D', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', 'D', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', 'C', 'C', 'C', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
+        };
+        boolean[] checked = new boolean[BOARD_SIZE*BOARD_SIZE];
+        Arrays.fill(checked, false);
+        checked[4 * BOARD_SIZE + 3] = true;
+        checked[4 * BOARD_SIZE + 4] = true;
+        checked[4 * BOARD_SIZE + 5] = true;
+        checked[4 * BOARD_SIZE + 6] = true;
+        checked[6 * BOARD_SIZE] = true;
+        checked[6 * BOARD_SIZE + 1] = true;
+        checked[6 * BOARD_SIZE + 2] = true;
+        checked[6 * BOARD_SIZE + 3] = true;
+        checked[6 * BOARD_SIZE + 4] = true;
+        checked[6 * BOARD_SIZE + 5] = true;
+        checked[7 * BOARD_SIZE + 7] = true;
+        checked[6 * BOARD_SIZE + 7] = true;
+        checked[5 * BOARD_SIZE + 7] = true;
+        checked[4 * BOARD_SIZE + 7] = true;
+
+        BoardService test = mock(BoardService.class);
+    }
+
+    @Test
+    public void test_gameOver_endOfGame(){
+
     }
 }

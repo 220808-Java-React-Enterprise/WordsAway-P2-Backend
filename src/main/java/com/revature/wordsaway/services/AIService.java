@@ -8,15 +8,13 @@ import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 
 @Service
 public class AIService {
-    private final Board board;
-    private final char[] letters;
-    private final char[] tray;
-
-    private final List<WordAndLocation> finalList = new ArrayList<>();
-    private List<String> validWords;
-    private String existingLetters;
-    // Get random number from 0-31
-    Random rand = new Random(System.currentTimeMillis());
+    private static List<WordAndLocation> finalList;
+    private static List<String> validWords;
+    private static String existingLetters;
+    private static Board board;
+    private static char[] letters;
+    private static char[] tray;
+    private static final Random rand = new Random(System.currentTimeMillis());
 
     public void setRandomSeed(int seed){
         rand.setSeed(seed);
@@ -27,67 +25,31 @@ public class AIService {
         private String word;
     }
 
-    public AIService(Board board){
-        this.board = board;
-        this.letters = board.getLetters();
-        this.tray = board.getTray();
-    }
-
-    public boolean start(long startTime){ // todo add level for bots
+    public static Board start(long startTime, Board board){ // todo add level for bots
         // If bot has taken longer than 25 seconds leave
-        if (System.currentTimeMillis() - startTime > 25000) return false;
+        if (System.currentTimeMillis() - startTime > 25000) return board;
+        finalList = new ArrayList<>();
+        AIService.board = board;
+        letters = board.getLetters();
+        tray = board.getTray();
         int increment;
 
         // todo add other bots here
         // If increment is -1 means a fireball was cast
-        if ((increment = easyBot()) == -1) return true;
+        if ((increment = easyBot()) != -1) {
+            // Check if list is empty
+            if (finalList.isEmpty())
+                return start(startTime, board);
 
-        // Check if list is empty
-        if (finalList.isEmpty())
-            // If board has made no changes, replace tray, and return board
-            return start(startTime);
-
-        // Get random answer and play it
-        WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
-        finalizeMove(wl, increment);
-        return true;
-    }
-
-    public void setWorms(){
-        char[] wormLetter = new char[] { 'A', 'B', 'C', 'S', 'D' };
-        int[] wormArr = new int[] { 5, 4, 3, 3, 2 };
-        char[] worms = board.getWorms();
-        boolean col, flag;
-        int start, curr, end, increment;
-
-        for (int i = 0; i < wormArr.length;) {
-            // Get a direction for the ship
-            col = rand.nextInt(BOARD_SIZE + BOARD_SIZE) % 2 == 0;
-            // Set the increment
-            increment = col ? BOARD_SIZE : 1;
-            // Get start and end of worm
-            curr = start = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
-            end = start + wormArr[i] * increment;
-
-            // Check if you can get to end
-            if (isLoop(col, start, end)){
-                flag = true;
-                while (flag ? curr < end : curr >= start) {
-                    if (worms[curr] == '.')
-                        worms[curr] = wormLetter[i];
-                    else {
-                        if (!flag) worms[curr] = '.';
-                        flag = false;
-                    }
-
-                    curr += flag ? increment : increment * - 1;
-                }
-                if (flag) i++;
-            }
+            // Get random answer and play it
+            WordAndLocation wl = finalList.get(rand.nextInt(finalList.size()));
+            finalizeMove(wl, increment);
         }
+        return board;
     }
 
-    private int easyBot(){
+    private static int easyBot(){
+        char[] letters = board.getLetters();
         // Get a random colum or row
         int start;
         boolean col = (start = rand.nextInt(BOARD_SIZE + BOARD_SIZE)) % 2 == 0;
@@ -118,11 +80,10 @@ public class AIService {
             shootFireBall();
             return -1;
         }
-
         return increment;
     }
 
-    private String getExistingLetters(int start, int increment){
+    private static String getExistingLetters(int start, int increment){
         StringBuilder sb = new StringBuilder();
         StringBuilder spacer = new StringBuilder();
 
@@ -146,7 +107,7 @@ public class AIService {
         return sb.toString();
     }
 
-    private List<String> getWordList(String pattern, int start, int increment) {
+    private static List<String> getWordList(String pattern, int start, int increment) {
         List<String> words = new ArrayList<>();
         List<String> incomingWords;
 
@@ -168,7 +129,7 @@ public class AIService {
         return words;
     }
 
-    private List<WordAndLocation> getFinalWordListAndLocation(List<String> words, int start, int increment){
+    private static List<WordAndLocation> getFinalWordListAndLocation(List<String> words, int start, int increment){
         List<WordAndLocation> list = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         WordAndLocation wl;
@@ -213,7 +174,7 @@ public class AIService {
         return list;
     }
 
-    private void finalizeMove(WordAndLocation wl, int increment){
+    private static void finalizeMove(WordAndLocation wl, int increment){
         int counter = 0;
         // Word being played
         char[] c = wl.word.toCharArray();
@@ -223,11 +184,10 @@ public class AIService {
             counter++;
         }
         board.setLetters(letters);
-        board.setTray(tray);
     }
 
     // todo adjust fireball aim
-    private void shootFireBall(){
+    private static void shootFireBall(){
         int target = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
         while (isLetter(target) || letters[target] == '*')
             target = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
@@ -235,13 +195,13 @@ public class AIService {
         board.setFireballs(board.getFireballs() - 1);
     }
 
-    private boolean isLoop(boolean col, int start, int curr){
+    private static boolean isLoop(boolean col, int start, int curr){
         if (col)
             return curr < BOARD_SIZE * BOARD_SIZE && curr >= 0;
         return start / BOARD_SIZE == curr / BOARD_SIZE;
     }
 
-    private boolean isLetter(int idx){
+    private static boolean isLetter(int idx){
         return String.valueOf(letters[idx]).matches("[A-Z]");
     }
 }

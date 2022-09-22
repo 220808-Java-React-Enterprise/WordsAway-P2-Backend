@@ -1,6 +1,7 @@
 package com.revature.wordsaway.services;
 
 import com.revature.wordsaway.dtos.requests.BoardRequest;
+import com.revature.wordsaway.dtos.responses.GameResponse;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.repositories.BoardRepository;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
+import static com.revature.wordsaway.utils.Constants.TOTAL_WORM_LENGTHS;
 
 @Service
 public class BoardService {
@@ -22,17 +24,20 @@ public class BoardService {
     public static Board register(User user, UUID gameID, boolean isActive){
         //TODO probably validate some things
         char[] blankArr = new char[BOARD_SIZE*BOARD_SIZE];
+        char[] worms = new char[BOARD_SIZE * BOARD_SIZE];
         char[] tray = new char[7];
+        Arrays.fill(blankArr, '.');
+        Arrays.fill(worms, '.');
+        setWorms(worms);
 
         BoardService.getNewTray(tray);
 
-        Arrays.fill(blankArr, '.');
         Board board = new Board(
                 UUID.randomUUID(),
                 user,
                 tray,
                 0,
-                blankArr,
+                worms,
                 blankArr,
                 gameID,
                 isActive
@@ -63,14 +68,81 @@ public class BoardService {
         return opposingBoard;
     }
 
+    public static GameResponse getGame(UUID boardID){
+        Board myBoard = getByID(boardID);
+        Board oppBoard = getOpposingBoard(myBoard);
+        char[] letters = myBoard.getLetters();
+        char[] oppLetters = oppBoard.getLetters();
+        char[] worms = myBoard.getWorms();
+        char[] oppWorms = oppBoard.getWorms();
+        boolean[] checked = getChecked(letters);
+        boolean[] oppChecked = getChecked(oppLetters);
+        for (int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++) {
+            if (checked[i] && letters[i] == '.') {
+                if (oppWorms[i] != '.') letters[i] = '@';
+                else letters[i] = '!';
+            } else if (checked[i] && letters[i] == '*' && oppWorms[i] == '.') letters[i] = '&';
+            else if(checked[i] && oppWorms[i] == '.') letters[i] = Character.toLowerCase(letters[i]);
+        }
+        for (int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++) {
+            if(oppChecked[i]) {
+                if(worms[i] != '.') {
+                    if(oppLetters[i] == '*') worms[i] = '*';
+                    else if (oppLetters[i] == '.') worms[i] = '@';
+                    else worms[i] = oppLetters[i];
+                }else{
+                    if(oppLetters[i] == '*') worms[i] ='&';
+                    else if (oppLetters[i] == '.') worms[i] = '!';
+                    else worms[i] = Character.toLowerCase(oppLetters[i]);
+                }
+            }
+        }
+        return new GameResponse(
+                letters,
+                worms,
+                myBoard.getTray(),
+                myBoard.getFireballs(),
+                myBoard.isActive(),
+                oppBoard.getUser().getUsername()
+        );
+    }
+
     public static void getNewTray(char[] tray){
         for (int i = 0; i < tray.length; i++)
             tray[i] = getRandomChar();
     }
 
-    // todo finsih
-    private static void replaceLetters(char[] tray, char[] letters){
-        StringBuilder sb = new StringBuilder(String.valueOf(tray));
+    public static void setWorms(char[] worms) {
+        Random rand = new Random(System.currentTimeMillis());
+        char[] wormLetter = new char[] { 'A', 'B', 'C', 'S', 'D' };
+        int[] wormArr = new int[] { 5, 4, 3, 3, 2 };
+        boolean col, flag;
+        int start, curr, end, increment;
+
+        for (int i = 0; i < wormArr.length;) {
+            // Get a direction for the ship
+            col = rand.nextInt(BOARD_SIZE + BOARD_SIZE) % 2 == 0;
+            // Set the increment
+            increment = col ? BOARD_SIZE : 1;
+            // Get start and end of worm
+            curr = start = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
+            end = start + wormArr[i] * increment;
+
+            // Check if you can get to end
+            if (col ? end < BOARD_SIZE * BOARD_SIZE : start / BOARD_SIZE == end / BOARD_SIZE){
+                flag = true;
+                while (flag ? curr < end : curr >= start) {
+                    if (worms[curr] == '.')
+                        worms[curr] = wormLetter[i];
+                    else {
+                        if (!flag) worms[curr] = '.';
+                        flag = false;
+                    }
+                    curr += flag ? increment : increment * - 1;
+                }
+                if (flag) i++;
+            }
+        }
     }
 
     private static char getRandomChar() {
@@ -86,26 +158,19 @@ public class BoardService {
     }
 
     public static void makeMove(BoardRequest request, Board board){
-        if (!request.isReplacedTray()) board.addFireballs(BoardService.validateMove(request));
-        else BoardService.getNewTray(board.getTray());
+        if (request.isReplacedTray()) getNewTray(board.getTray());
+        else board = validateMove(request);
 
-        Board opposingBoard = BoardService.getOpposingBoard(board);
+        Board opposingBoard = getOpposingBoard(board);
         board.setLetters(request.getLayout());
         board.toggleActive();
         opposingBoard.toggleActive();
-        BoardService.update(board);
-        BoardService.update(opposingBoard);
-
-        if (opposingBoard.getUser().isCPU()) {
-            Board copy = new Board(opposingBoard);
-            request.setBoardID(opposingBoard.getId());
-            request.setReplacedTray(new AIService(copy).start(System.currentTimeMillis()));
-            request.setLayout(copy.getLetters());
-            makeMove(request, opposingBoard);
-        }
+        update(board);
+        update(opposingBoard);
     }
 
-    public static int validateMove(BoardRequest request) throws InvalidRequestException {
+
+    public static Board validateMove(BoardRequest request) throws InvalidRequestException {
         int fireballs = 0;
         Board oldBoard = getByID(request.getBoardID());
         char[] oldLetters = oldBoard.getLetters();
@@ -135,15 +200,14 @@ public class BoardService {
                 }
             }
         }
-        if (asterisk) return -1;
-        List<Character> tray = new ArrayList<>();
-        for(char c : oldBoard.getTray()){
-            tray.add(c);
-        }
+        if (asterisk) { oldBoard.addFireballs(-1); return oldBoard; }
+
+        StringBuilder tray = new StringBuilder(String.valueOf(oldBoard.getTray()));
+        int idx;
         for(ChangeSpot spot : changeSpots){
             char c = newLetters[spot.getI()];
             if(c != '*') {
-                if (tray.contains(c)) tray.remove(Character.valueOf(c));
+                if ((idx = tray.indexOf(String.valueOf(c))) != -1) tray.setCharAt(idx, getRandomChar());
                 else throw new InvalidRequestException("Invalid Move. Only tiles from your tray may be used.");
             }
         }
@@ -155,7 +219,8 @@ public class BoardService {
             fireballs += word2.length - 1;
             if (!isWord(word1) && !isWord(word2))
                 throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
-            return fireballs;
+            oldBoard.addFireballs(fireballs);
+            return oldBoard;
         }
         if(checkRow){
             for(int i = changeSpots.get(0).getI() + 1; i <= changeSpots.get(changeSpots.size() - 1).getI(); i++){
@@ -176,7 +241,10 @@ public class BoardService {
             if(word.length > 1 && !isWord(word))
                 throw new InvalidRequestException("Invalid Move. Placed tiles do not form valid word.");
         }
-        return fireballs;
+
+        oldBoard.addFireballs(fireballs);
+        oldBoard.setTray(tray.toString().toCharArray());
+        return oldBoard;
     }
 
     private static class ChangeSpot{
@@ -196,10 +264,10 @@ public class BoardService {
             ChangeSpot spot = (ChangeSpot) obj;
             return spot.row == row && spot.column == column;
         }
-        /**@Override
+        /*@Override
         public String toString(){
             return "(" + row + "," + column + ")";
-         }**/
+         }*/
     }
 
     private static char[] findConnectedWord(char[] letters, ChangeSpot spot, boolean checkRow, boolean checkColumn){
@@ -243,7 +311,6 @@ public class BoardService {
         if(!word.matches("^[A-Z]+$")) throw new InvalidRequestException("Invalid Move. Illegal characters placed on board.");
         return AnagramService.isWord(word.toLowerCase());
     }
-
 
     public static boolean[] getChecked(char[] letters){
         boolean[] hits = new boolean[BOARD_SIZE * BOARD_SIZE];
@@ -289,6 +356,19 @@ public class BoardService {
             }
         }
         return hits;
+    }
+
+    public static boolean gameOver(UUID id){
+        int hitCounter = 0;
+        Board board = getByID(id);
+        char[] worms = getOpposingBoard(board).getWorms();
+        boolean[] checked = getChecked(board.getLetters());
+
+        for (int i = 0; i < worms.length; i++)
+            if (checked[i] && worms[i] != '.' && String.valueOf(worms[i]).matches("[A-Z]"))
+                hitCounter++;
+
+        return hitCounter == TOTAL_WORM_LENGTHS;
     }
 
     private static void makeAdjacentTrue(boolean[] hits, int i){
