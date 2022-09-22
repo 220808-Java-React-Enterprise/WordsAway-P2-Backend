@@ -56,12 +56,24 @@ public class User {
         return elo;
     }
 
+    public void setELO(float elo) {
+        this.elo = elo;
+    }
+
     public int getGamesPlayed() {
         return gamesPlayed;
     }
 
+    public void setGamesPlayed(int gamesPlayed) {
+        this.gamesPlayed = gamesPlayed;
+    }
+
     public int getGamesWon() {
         return gamesWon;
+    }
+
+    public void setGamesWon(int gamesWon) {
+        this.gamesWon = gamesWon;
     }
 
     public boolean isCPU() {

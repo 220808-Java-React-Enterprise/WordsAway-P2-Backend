@@ -268,6 +268,8 @@ class UserServiceTest {
         Assertions.assertEquals("Email is already taken, please choose another.", thrown.getMessage());
     }
 
+    //TODO test update
+
     @Test
     public void test_login_succeed(){
         LoginRequest request = mock(LoginRequest.class);

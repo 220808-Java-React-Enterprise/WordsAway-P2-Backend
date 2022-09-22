@@ -1163,8 +1163,11 @@ public class BoardServiceTest {
         BoardService test = mock(BoardService.class);
     }
 
+    //TODO test gameOver
     @Test
     public void test_gameOver_endOfGame(){
 
     }
+
+    //TODO test calculateELO
 }

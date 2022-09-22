@@ -387,7 +387,11 @@ public class BoardService {
         if (i + BOARD_SIZE < BOARD_SIZE * BOARD_SIZE) hits[i + BOARD_SIZE] = true;
     }
 
-//    public static float calculateELO(float myELO, float oppELO){
-//
-//    }
+    public static float calculateELO(float myELO, float oppELO, boolean isWinner){
+        myELO = (float) Math.pow(10, (myELO/400));
+        oppELO = (float) Math.pow(10, (oppELO/400));
+        myELO /= myELO + oppELO;
+        int k = 32; //TODO do better K-Factor calculation
+        return myELO + k * (1 - myELO);
+    }
 }
