@@ -36,7 +36,6 @@ public class GameController {
     public @ResponseBody String makeGame(@RequestBody GameRequest request, HttpServletResponse resp, HttpServletRequest req) {
         try {
             //TODO check for existing game with opponent
-            //TODO make random worm placement
             User user = TokenService.extractRequesterDetails(req);
             UUID uuid = UUID.randomUUID();
             User opponent = UserService.getByUsername(request.getUsername());
@@ -66,6 +65,7 @@ public class GameController {
         }
     }
 
+    // TODO give users the option to place their own worms
     /*
     @CrossOrigin
     @PostMapping(value = "/placeWorms", consumes = "application/json")

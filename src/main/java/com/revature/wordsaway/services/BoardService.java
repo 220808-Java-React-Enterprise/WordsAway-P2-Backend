@@ -24,17 +24,20 @@ public class BoardService {
     public static Board register(User user, UUID gameID, boolean isActive){
         //TODO probably validate some things
         char[] blankArr = new char[BOARD_SIZE*BOARD_SIZE];
+        char[] worms = new char[BOARD_SIZE * BOARD_SIZE];
         char[] tray = new char[7];
+        Arrays.fill(blankArr, '.');
+        Arrays.fill(worms, '.');
+        setWorms(worms);
 
         BoardService.getNewTray(tray);
 
-        Arrays.fill(blankArr, '.');
         Board board = new Board(
                 UUID.randomUUID(),
                 user,
                 tray,
                 0,
-                blankArr,
+                worms,
                 blankArr,
                 gameID,
                 isActive
@@ -109,11 +112,10 @@ public class BoardService {
             tray[i] = getRandomChar();
     }
 
-    public static Board setWorms(Board board) {
+    public static void setWorms(char[] worms) {
         Random rand = new Random(System.currentTimeMillis());
         char[] wormLetter = new char[] { 'A', 'B', 'C', 'S', 'D' };
         int[] wormArr = new int[] { 5, 4, 3, 3, 2 };
-        char[] worms = board.getWorms();
         boolean col, flag;
         int start, curr, end, increment;
 
@@ -141,8 +143,6 @@ public class BoardService {
                 if (flag) i++;
             }
         }
-        board.setWorms(worms);
-        return board;
     }
 
     private static char getRandomChar() {
@@ -168,6 +168,7 @@ public class BoardService {
         update(board);
         update(opposingBoard);
     }
+
 
     public static Board validateMove(BoardRequest request) throws InvalidRequestException {
         int fireballs = 0;
