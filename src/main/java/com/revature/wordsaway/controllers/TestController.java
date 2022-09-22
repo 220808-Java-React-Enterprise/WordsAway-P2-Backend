@@ -54,10 +54,10 @@ public class TestController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "/getHits", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String getHits(@Param("id") String id, HttpServletResponse resp) {
+    @GetMapping(value = "/gameOver", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody String gameOver(@Param("id") String id, HttpServletResponse resp) {
         try {
-            return Arrays.toString(BoardService.getHits(UUID.fromString(id)));
+            return BoardService.gameOver(UUID.fromString(id)) ? "true" : "false";
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
             return e.getMessage();

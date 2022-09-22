@@ -110,8 +110,7 @@ public class GameController {
             Board board = BoardService.getByID(request.getBoardID());
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
             BoardService.makeMove(request, board);
-            char[] hits = BoardService.getHits(request.getBoardID());
-            if (hits == null) return "Winner!";
+            if (BoardService.gameOver(request.getBoardID())) return "Winner!";
             Board opposingBoard = BoardService.getOpposingBoard(board);
             if (opposingBoard.getUser().isCPU()){
                 Board bot = AIService.start(System.currentTimeMillis(), opposingBoard);

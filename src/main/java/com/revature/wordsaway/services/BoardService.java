@@ -358,21 +358,17 @@ public class BoardService {
         return hits;
     }
 
-    public static char[] getHits(UUID id){
-        int hitCounter = 0, shipCounter = 0;
-        char[] hits = new char[BOARD_SIZE*BOARD_SIZE];
+    public static boolean gameOver(UUID id){
+        int hitCounter = 0;
         Board board = getByID(id);
         char[] worms = getOpposingBoard(board).getWorms();
         boolean[] checked = getChecked(board.getLetters());
-        for (int i = 0; i < hits.length; i++) {
-            if (String.valueOf(worms[i]).matches("[A-Z]")) shipCounter++;
-            if (checked[i])
-                if (worms[i] != '.') { hits[i] = 'H'; hitCounter++; }
-                else hits[i] = 'M';
 
-            if (shipCounter == TOTAL_WORM_LENGTHS && hitCounter == shipCounter) return null;
-        }
-        return hits;
+        for (int i = 0; i < worms.length; i++)
+            if (checked[i] && worms[i] != '.' && String.valueOf(worms[i]).matches("[A-Z]"))
+                hitCounter++;
+
+        return hitCounter == TOTAL_WORM_LENGTHS;
     }
 
     private static void makeAdjacentTrue(boolean[] hits, int i){
