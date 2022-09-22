@@ -97,13 +97,17 @@ public class BoardService {
                 }
             }
         }
+        String winner = null;
+        if(gameOver(myBoard.getId())) winner = myBoard.getUser().getUsername();
+        if(gameOver(oppBoard.getId())) winner = oppBoard.getUser().getUsername();
         return new GameResponse(
                 letters,
                 worms,
                 myBoard.getTray(),
                 myBoard.getFireballs(),
                 myBoard.isActive(),
-                oppBoard.getUser().getUsername()
+                oppBoard.getUser().getUsername(),
+                winner
         );
     }
 
@@ -159,14 +163,16 @@ public class BoardService {
     }
 
     public static void makeMove(BoardRequest request, Board board){
-        if (request.isReplacedTray()) getNewTray(board.getTray());
-        else board = validateMove(request);
         Board opposingBoard = getOpposingBoard(board);
-        char[] newLetters = board.getLetters();
-        for(int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++){
-            if(request.getLayout()[i] != '.') newLetters[i] = request.getLayout()[i];
+        if (request.isReplacedTray()) getNewTray(board.getTray());
+        else {
+            board = validateMove(request);
+            char[] newLetters = board.getLetters();
+            for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+                if (request.getLayout()[i] != '.') newLetters[i] = request.getLayout()[i];
+            }
+            board.setLetters(newLetters);
         }
-        board.setLetters(newLetters);
         board.toggleActive();
         opposingBoard.toggleActive();
         update(board);
