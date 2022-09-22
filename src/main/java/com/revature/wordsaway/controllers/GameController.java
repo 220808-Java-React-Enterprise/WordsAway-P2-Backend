@@ -39,10 +39,8 @@ public class GameController {
             User user = TokenService.extractRequesterDetails(req);
             User opponent = UserService.getByUsername(request.getUsername());
             for(OpponentResponse o : UserService.getAllOpponents(user.getUsername())){
-                System.out.println(o);
-                if(o.getUsername().equals(opponent.getUsername()))
-                    if(o.getBoard_id() != null)
-                        throw new InvalidRequestException("Can not start another match with "+ opponent.getUsername() + ". Finish existing game first.");
+                if(o.getUsername().equals(opponent.getUsername()) && o.getBoard_id() != null)
+                    throw new InvalidRequestException("Can not start another match with "+ opponent.getUsername() + ". Finish existing game first.");
             }
             UUID uuid = UUID.randomUUID();
             BoardService.register(opponent, uuid, !opponent.isCPU());

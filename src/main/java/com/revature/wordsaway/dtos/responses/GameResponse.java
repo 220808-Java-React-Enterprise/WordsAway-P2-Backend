@@ -9,14 +9,16 @@ public class GameResponse {
     private int fireballs;
     private boolean isActive;
     private String opponent;
+    private String winner;
 
-    public GameResponse(char[] letters, char[] worms, char[] tray, int fireballs, boolean isActive, String opponent) {
+    public GameResponse(char[] letters, char[] worms, char[] tray, int fireballs, boolean isActive, String opponent, String winner) {
         this.letters = letters;
         this.worms = worms;
         this.tray = tray;
         this.fireballs = fireballs;
         this.isActive = isActive;
         this.opponent = opponent;
+        this.winner = winner;
     }
 
     public char[] getLetters() {
@@ -43,6 +45,10 @@ public class GameResponse {
         return isActive;
     }
 
+    public String getWinner(){
+        return winner;
+    }
+
     @Override
     public String toString() {
         return "GameResponse{" +
@@ -51,7 +57,8 @@ public class GameResponse {
                 ", tray=" + Arrays.toString(tray) +
                 ", fireballs=" + fireballs +
                 ", isActive=" + isActive +
-                ", opponent='" + opponent + '\'' +
+                ", opponent='" + opponent +
+                ", winner='" + winner + '\'' +
                 '}';
     }
 }
