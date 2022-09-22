@@ -144,6 +144,7 @@ public class GameController {
             return "Move made.";
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
+            System.out.println(e.getMessage());
             return e.getMessage();
         }
     }

@@ -29,6 +29,7 @@ public class AccessController {
             return UserService.register(request).toString();
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
+            System.out.println(e.getMessage());
             return e.getMessage();
         }
     }
@@ -43,6 +44,7 @@ public class AccessController {
             return "Logged In";
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
+            System.out.println(e.getMessage());
             return e.getMessage();
         }
     }
@@ -69,6 +71,7 @@ public class AccessController {
             return TokenService.extractRequesterDetails(httpServletRequest).toString();
         } catch (NetworkException e) {
             resp.setStatus(e.getStatusCode());
+            System.out.println(e.getMessage());
             return e.getMessage();
         }
     }

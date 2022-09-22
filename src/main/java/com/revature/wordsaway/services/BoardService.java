@@ -183,7 +183,6 @@ public class BoardService {
             if(request.getLayout()[i] != '.') newLetters[i] = request.getLayout()[i];
             else newLetters[i] = oldLetters[i];
         }
-
         List<ChangeSpot> changeSpots = new ArrayList<>();
         boolean checkRow = false, checkColumn = false, asterisk = false;
         loop: for(int i = 0; i < oldLetters.length; i++){
@@ -387,4 +386,8 @@ public class BoardService {
         if (i - BOARD_SIZE >= 0) hits[i - BOARD_SIZE] = true;
         if (i + BOARD_SIZE < BOARD_SIZE * BOARD_SIZE) hits[i + BOARD_SIZE] = true;
     }
+
+//    public static float calculateELO(float myELO, float oppELO){
+//
+//    }
 }
