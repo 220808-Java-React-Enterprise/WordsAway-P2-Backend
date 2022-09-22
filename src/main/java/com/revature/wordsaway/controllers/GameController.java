@@ -11,6 +11,7 @@ import com.revature.wordsaway.services.BoardService;
 import com.revature.wordsaway.services.TokenService;
 import com.revature.wordsaway.services.UserService;
 import com.revature.wordsaway.utils.customExceptions.ForbiddenException;
+import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import com.revature.wordsaway.utils.customExceptions.NetworkException;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -35,10 +36,13 @@ public class GameController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public @ResponseBody String makeGame(@RequestBody GameRequest request, HttpServletResponse resp, HttpServletRequest req) {
         try {
-            //TODO check for existing game with opponent
             User user = TokenService.extractRequesterDetails(req);
-            UUID uuid = UUID.randomUUID();
             User opponent = UserService.getByUsername(request.getUsername());
+            for(OpponentResponse o : UserService.getAllOpponents(user.getUsername())){
+                if(o.getUsername().equals(opponent.getUsername()))
+                    throw new InvalidRequestException("Can not start another match with "+ opponent.getUsername() + ". Finish existing game first.");
+            }
+            UUID uuid = UUID.randomUUID();
             BoardService.register(opponent, uuid, !opponent.isCPU());
             Board board = BoardService.register(user, uuid, opponent.isCPU());
             return board.getId().toString();
@@ -90,7 +94,6 @@ public class GameController {
     @CrossOrigin
     @GetMapping(value = "/checkMove", consumes = "application/json")
     public boolean checkMove(@RequestBody BoardRequest request, HttpServletRequest req, HttpServletResponse resp) {
-        //TODO possibly change to use params
         try {
             TokenService.extractRequesterDetails(req);
             BoardService.validateMove(request);
@@ -110,7 +113,10 @@ public class GameController {
             Board board = BoardService.getByID(request.getBoardID());
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
             BoardService.makeMove(request, board);
-            if (BoardService.gameOver(request.getBoardID())) return "Winner!";
+            if (BoardService.gameOver(request.getBoardID())){
+
+                return "Winner!";
+            }
             Board opposingBoard = BoardService.getOpposingBoard(board);
             if (opposingBoard.getUser().isCPU()){
                 Board bot = AIService.start(System.currentTimeMillis(), opposingBoard);
@@ -125,7 +131,6 @@ public class GameController {
                 emitter.complete();
                 subscribedBoards.remove(opposingBoard.getId());
             }
-            //TODO maybe post to opponent that it's their turn if not checking continuously
             return "Move made.";
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());

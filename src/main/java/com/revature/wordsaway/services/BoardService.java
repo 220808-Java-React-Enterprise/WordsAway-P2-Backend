@@ -113,8 +113,9 @@ public class BoardService {
     }
 
     public static void setWorms(char[] worms) {
+        //TODO convert worm symbols into heads:→←↑↓ middles:-| tails:↦↤↥↧
         Random rand = new Random(System.currentTimeMillis());
-        char[] wormLetter = new char[] { 'A', 'B', 'C', 'S', 'D' };
+        char[] wormLetter = new char[] { '1', '2', '3', '4', '5' };
         int[] wormArr = new int[] { 5, 4, 3, 3, 2 };
         boolean col, flag;
         int start, curr, end, increment;
