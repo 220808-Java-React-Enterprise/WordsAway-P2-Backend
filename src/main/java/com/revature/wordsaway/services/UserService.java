@@ -33,12 +33,20 @@ public class UserService {
         if(request.getEmail() != null) validateEmail(request.getEmail());
         checkAvailableUsername(request.getUsername());
         checkAvailableEmail(request.getEmail());
+        float sum = 0;
+        int total = 0;
+        for(User user: getAll()){
+            if(!user.isCPU()){
+                sum += user.getELO();
+                total++;
+            }
+        }
         User user = new User(
                 request.getUsername(),
                 request.getPassword(),
                 request.getSalt(),
                 request.getEmail(),
-                1000, //TODO set this to be the average ELO
+                sum / total,
                 0,
                 0,
                 false
