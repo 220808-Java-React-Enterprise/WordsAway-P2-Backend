@@ -39,8 +39,10 @@ public class GameController {
             User user = TokenService.extractRequesterDetails(req);
             User opponent = UserService.getByUsername(request.getUsername());
             for(OpponentResponse o : UserService.getAllOpponents(user.getUsername())){
+                System.out.println(o);
                 if(o.getUsername().equals(opponent.getUsername()))
-                    throw new InvalidRequestException("Can not start another match with "+ opponent.getUsername() + ". Finish existing game first.");
+                    if(o.getBoard_id() != null)
+                        throw new InvalidRequestException("Can not start another match with "+ opponent.getUsername() + ". Finish existing game first.");
             }
             UUID uuid = UUID.randomUUID();
             BoardService.register(opponent, uuid, !opponent.isCPU());
@@ -115,17 +117,10 @@ public class GameController {
             BoardService.makeMove(request, board);
             Board opposingBoard = BoardService.getOpposingBoard(board);
             if (BoardService.gameOver(request.getBoardID())){
-                /* ELO Calculation
-                double myELO = Math.pow(10, (user.getELO())/400);
-                double oppELO = Math.pow(10, (opposingBoard.getUser().getELO())/400);
-                myELO /= myELO + oppELO;
-                oppELO /= myELO + oppELO;
-                int k = 32; //TODO do better K-Factor calculation
-                user.setELO(myELO + k * (1 - myELO));
+                user.setELO(BoardService.calculateELO(user.getELO(), opposingBoard.getUser().getELO(), true));
                 user.setGamesPlayed(user.getGamesPlayed() + 1);
                 user.setGamesWon(user.getGamesWon() + 1);
                 UserService.update(user);
-                */
                 return "Winner!";
             }
             if (opposingBoard.getUser().isCPU()){

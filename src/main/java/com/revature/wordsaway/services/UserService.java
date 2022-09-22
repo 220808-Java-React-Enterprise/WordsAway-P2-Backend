@@ -55,6 +55,10 @@ public class UserService {
         return user;
     }
 
+    public static void update(User user){
+        userRepository.updateUser(user.getUsername(), user.getPassword(), user.getEmail(), user.getELO(), user.getGamesPlayed(), user.getGamesWon());
+    }
+
     public static String login(LoginRequest request) throws AuthenticationException {
         User user = userRepository.findUserByUsername(request.getUsername());
         if (user != null && user.getPassword().equals(request.getPassword()))
