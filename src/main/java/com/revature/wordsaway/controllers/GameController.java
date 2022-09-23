@@ -11,6 +11,7 @@ import com.revature.wordsaway.services.BoardService;
 import com.revature.wordsaway.services.TokenService;
 import com.revature.wordsaway.services.UserService;
 import com.revature.wordsaway.utils.customExceptions.ForbiddenException;
+import com.revature.wordsaway.utils.customExceptions.InvalidRequestException;
 import com.revature.wordsaway.utils.customExceptions.NetworkException;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -35,10 +37,13 @@ public class GameController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public @ResponseBody String makeGame(@RequestBody GameRequest request, HttpServletResponse resp, HttpServletRequest req) {
         try {
-            //TODO check for existing game with opponent
             User user = TokenService.extractRequesterDetails(req);
-            UUID uuid = UUID.randomUUID();
             User opponent = UserService.getByUsername(request.getUsername());
+            for(OpponentResponse o : UserService.getAllOpponents(user.getUsername())){
+                if(o.getUsername().equals(opponent.getUsername()) && o.getBoard_id() != null)
+                    throw new InvalidRequestException("Can not start another match with "+ opponent.getUsername() + ". Finish existing game first.");
+            }
+            UUID uuid = UUID.randomUUID();
             BoardService.register(opponent, uuid, !opponent.isCPU());
             Board board = BoardService.register(user, uuid, opponent.isCPU());
             return board.getId().toString();
@@ -88,9 +93,8 @@ public class GameController {
      */
 
     @CrossOrigin
-    @GetMapping(value = "/checkMove", consumes = "application/json")
+    @PostMapping(value = "/checkMove", consumes = "application/json")
     public boolean checkMove(@RequestBody BoardRequest request, HttpServletRequest req, HttpServletResponse resp) {
-        //TODO possibly change to use params
         try {
             TokenService.extractRequesterDetails(req);
             BoardService.validateMove(request);
@@ -106,29 +110,50 @@ public class GameController {
     @PostMapping(value = "/makeMove", consumes = "application/json")
     public String makeMove(@RequestBody BoardRequest request, HttpServletRequest req, HttpServletResponse resp) {
         try {
-            TokenService.extractRequesterDetails(req);
+            User user = TokenService.extractRequesterDetails(req);
             Board board = BoardService.getByID(request.getBoardID());
             if(!board.isActive()) throw new ForbiddenException("Can not make move on board when it is not your turn.");
             BoardService.makeMove(request, board);
-            if (BoardService.gameOver(request.getBoardID())) return "Winner!";
             Board opposingBoard = BoardService.getOpposingBoard(board);
-            if (opposingBoard.getUser().isCPU()){
+            User opponent = opposingBoard.getUser();
+            if (BoardService.gameOver(request.getBoardID())){
+                user.setELO(BoardService.calculateELO(user.getELO(), opponent.getELO(), true));
+                user.setGamesPlayed(user.getGamesPlayed() + 1);
+                user.setGamesWon(user.getGamesWon() + 1);
+                UserService.update(user);
+                if(!opponent.isCPU()) opponent.setELO(BoardService.calculateELO(opponent.getELO(), user.getELO(), false));
+                opponent.setGamesPlayed(opponent.getGamesPlayed() + 1);
+                UserService.update(opponent);
+                return "Winner!";
+            }
+            if (opponent.isCPU()){
                 Board bot = AIService.start(System.currentTimeMillis(), opposingBoard);
                 request.setBoardID(opposingBoard.getId());
                 request.setReplacedTray(Arrays.equals(opposingBoard.getLetters(), bot.getLetters()));
                 request.setLayout(bot.getLetters());
                 BoardService.makeMove(request, opposingBoard);
-                opposingBoard = board;
+                if (BoardService.gameOver(opposingBoard.getId())){
+                    user.setELO(BoardService.calculateELO(user.getELO(), opponent.getELO(), false));
+                    user.setGamesPlayed(user.getGamesPlayed() + 1);
+                    UserService.update(user);
+                    opponent.setGamesPlayed(opponent.getGamesPlayed() + 1);
+                    opponent.setGamesWon(opponent.getGamesWon() + 1);
+                    UserService.update(opponent);
+                }
             }
             SseEmitter emitter = subscribedBoards.get(opposingBoard.getId());
             if (emitter != null) {
+                emitter.send(SseEmitter.event().name("active"));
                 emitter.complete();
                 subscribedBoards.remove(opposingBoard.getId());
             }
-            //TODO maybe post to opponent that it's their turn if not checking continuously
             return "Move made.";
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
             return e.getMessage();
         }
     }
@@ -147,10 +172,10 @@ public class GameController {
     }
     
     @CrossOrigin
-    @PostMapping(value = "/active", consumes = "application/json")
-    public SseEmitter isActive(@RequestBody BoardRequest request) {
+    @GetMapping(value = "/active")
+    public SseEmitter isActive(@RequestParam("board_id") String board_id) {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        subscribedBoards.put(request.getBoardID(), emitter);
+        subscribedBoards.put(UUID.fromString(board_id), emitter);
         return emitter;
     }
 }

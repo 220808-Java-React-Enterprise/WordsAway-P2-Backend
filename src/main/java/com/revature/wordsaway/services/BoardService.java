@@ -68,7 +68,7 @@ public class BoardService {
         return opposingBoard;
     }
 
-    public static GameResponse getGame(UUID boardID){
+    public static GameResponse getGame(UUID boardID) {
         Board myBoard = getByID(boardID);
         Board oppBoard = getOpposingBoard(myBoard);
         char[] letters = myBoard.getLetters();
@@ -77,44 +77,44 @@ public class BoardService {
         char[] oppWorms = oppBoard.getWorms();
         boolean[] checked = getChecked(letters);
         boolean[] oppChecked = getChecked(oppLetters);
-        for (int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++) {
+        for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
             if (checked[i] && letters[i] == '.') {
                 if (oppWorms[i] != '.') letters[i] = '@';
                 else letters[i] = '!';
             } else if (checked[i] && letters[i] == '*' && oppWorms[i] == '.') letters[i] = '&';
-            else if(checked[i] && oppWorms[i] == '.') letters[i] = Character.toLowerCase(letters[i]);
+            else if (checked[i] && oppWorms[i] == '.') letters[i] = Character.toLowerCase(letters[i]);
         }
-        for (int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++) {
-            if(oppChecked[i]) {
-                if(worms[i] != '.') {
-                    if(oppLetters[i] == '*') worms[i] = '*';
+        for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+            if (oppChecked[i]) {
+                if (worms[i] != '.') {
+                    if (oppLetters[i] == '*') worms[i] = '*';
                     else if (oppLetters[i] == '.') worms[i] = '@';
                     else worms[i] = oppLetters[i];
-                }else{
-                    if(oppLetters[i] == '*') worms[i] ='&';
+                } else {
+                    if (oppLetters[i] == '*') worms[i] = '&';
                     else if (oppLetters[i] == '.') worms[i] = '!';
                     else worms[i] = Character.toLowerCase(oppLetters[i]);
                 }
             }
         }
+        String winner = null;
+        if(gameOver(myBoard.getId())) winner = myBoard.getUser().getUsername();
+        if(gameOver(oppBoard.getId())) winner = oppBoard.getUser().getUsername();
         return new GameResponse(
                 letters,
                 worms,
                 myBoard.getTray(),
                 myBoard.getFireballs(),
                 myBoard.isActive(),
-                oppBoard.getUser().getUsername()
+                oppBoard.getUser().getUsername(),
+                winner
         );
     }
 
-    public static void getNewTray(char[] tray){
-        for (int i = 0; i < tray.length; i++)
-            tray[i] = getRandomChar();
-    }
-
     public static void setWorms(char[] worms) {
+        //TODO convert worm symbols into heads:→←↑↓ middles:-| tails:↦↤↥↧
         Random rand = new Random(System.currentTimeMillis());
-        char[] wormLetter = new char[] { 'A', 'B', 'C', 'S', 'D' };
+        char[] wormLetter = new char[] { '1', '2', '3', '4', '5' };
         int[] wormArr = new int[] { 5, 4, 3, 3, 2 };
         boolean col, flag;
         int start, curr, end, increment;
@@ -145,6 +145,11 @@ public class BoardService {
         }
     }
 
+    public static void getNewTray(char[] tray){
+        for (int i = 0; i < tray.length; i++)
+            tray[i] = getRandomChar();
+    }
+
     private static char getRandomChar() {
         double[] weights = new double[]{0.03d, 0.05d, 0.08d, 0.12d, 0.16d, 0.18d, 0.18d, 0.18d};
         String[] charSets = new String[]{"G", "JKQXZ", "O", "E", "DLSU", "AI", "NRT", "BCFHMPVWY"};
@@ -158,23 +163,32 @@ public class BoardService {
     }
 
     public static void makeMove(BoardRequest request, Board board){
-        if (request.isReplacedTray()) getNewTray(board.getTray());
-        else board = validateMove(request);
-
         Board opposingBoard = getOpposingBoard(board);
-        board.setLetters(request.getLayout());
+        if (request.isReplacedTray()) getNewTray(board.getTray());
+        else {
+            board = validateMove(request);
+            char[] newLetters = board.getLetters();
+            for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+                if (request.getLayout()[i] != '.') newLetters[i] = request.getLayout()[i];
+            }
+            board.setLetters(newLetters);
+        }
         board.toggleActive();
         opposingBoard.toggleActive();
         update(board);
         update(opposingBoard);
     }
 
-
     public static Board validateMove(BoardRequest request) throws InvalidRequestException {
+        //TODO rewrite this less dumn now that move only is being sent.
         int fireballs = 0;
         Board oldBoard = getByID(request.getBoardID());
         char[] oldLetters = oldBoard.getLetters();
-        char[] newLetters = request.getLayout();
+        char[] newLetters = new char[BOARD_SIZE*BOARD_SIZE];
+        for(int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++){
+            if(request.getLayout()[i] != '.') newLetters[i] = request.getLayout()[i];
+            else newLetters[i] = oldLetters[i];
+        }
         List<ChangeSpot> changeSpots = new ArrayList<>();
         boolean checkRow = false, checkColumn = false, asterisk = false;
         loop: for(int i = 0; i < oldLetters.length; i++){
@@ -365,7 +379,7 @@ public class BoardService {
         boolean[] checked = getChecked(board.getLetters());
 
         for (int i = 0; i < worms.length; i++)
-            if (checked[i] && worms[i] != '.' && String.valueOf(worms[i]).matches("[A-Z]"))
+            if (checked[i] && worms[i] != '.')
                 hitCounter++;
 
         return hitCounter == TOTAL_WORM_LENGTHS;
@@ -377,5 +391,14 @@ public class BoardService {
         if (i + 1 < BOARD_SIZE * BOARD_SIZE) hits[i + 1] = true;
         if (i - BOARD_SIZE >= 0) hits[i - BOARD_SIZE] = true;
         if (i + BOARD_SIZE < BOARD_SIZE * BOARD_SIZE) hits[i + BOARD_SIZE] = true;
+    }
+
+    public static float calculateELO(float myELO, float oppELO, boolean isWinner){
+        //From https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
+        double myMod = Math.pow(10, (myELO/400));
+        double oppMod = Math.pow(10, (oppELO/400));
+        myMod /= myMod + oppMod;
+        int k = 32; //TODO do better K-Factor calculation
+        return (float) (myELO + k * ((isWinner ? 1 : 0) - myMod));
     }
 }

@@ -33,18 +33,30 @@ public class UserService {
         if(request.getEmail() != null) validateEmail(request.getEmail());
         checkAvailableUsername(request.getUsername());
         checkAvailableEmail(request.getEmail());
+        float sum = 0;
+        int total = 0;
+        for (User user : userRepository.findAll()) {
+            if (!user.isCPU()) {
+                sum += user.getELO();
+                total++;
+            }
+        }
         User user = new User(
                 request.getUsername(),
                 request.getPassword(),
                 request.getSalt(),
                 request.getEmail(),
-                1000, //TODO set this to be the average ELO
+                total != 0 ? sum / total : 1000,
                 0,
                 0,
                 false
         );
         userRepository.save(user);
         return user;
+    }
+
+    public static void update(User user){
+        userRepository.updateUser(user.getUsername(), user.getPassword(), user.getEmail(), user.getELO(), user.getGamesPlayed(), user.getGamesWon());
     }
 
     public static String login(LoginRequest request) throws AuthenticationException {

@@ -18,6 +18,7 @@ public class AnagramController {
             return AnagramService.getBest(letters);
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
+            System.out.println(e.getMessage());
             return e.getMessage();
         }
     }
@@ -30,6 +31,7 @@ public class AnagramController {
             return AnagramService.getAll(letters);
         } catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
+            System.out.println(e.getMessage());
             return e.getMessage();
         }
     }
@@ -41,6 +43,7 @@ public class AnagramController {
             return AnagramService.isWord(letters);
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
+            System.out.println(e.getMessage());
             return false;
         }
     }

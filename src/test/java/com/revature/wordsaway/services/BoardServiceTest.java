@@ -1,6 +1,7 @@
 package com.revature.wordsaway.services;
 
 import com.revature.wordsaway.dtos.requests.BoardRequest;
+import com.revature.wordsaway.dtos.responses.GameResponse;
 import com.revature.wordsaway.models.Board;
 import com.revature.wordsaway.models.User;
 import com.revature.wordsaway.repositories.BoardRepository;
@@ -273,7 +274,17 @@ public class BoardServiceTest {
         Assertions.assertEquals("No boards opposing 00000000-0000-0000-0000-000000000000 found.", thrown.getMessage());
     }
 
-    //TODO getGame testing
+    @Test
+    public void test_getGame_success(){
+        when(mockRepo.findBoardByID(any())).thenReturn(mockBoard);
+        when(mockRepo.findOpposingBoardByIDAndGameID(any(), any())).thenReturn(mockBoard);
+        when(mockBoard.getLetters()).thenReturn(BLANK_BOARD);
+        when(mockBoard.getWorms()).thenReturn(BLANK_BOARD);
+        when(mockBoard.getUser()).thenReturn(mock(User.class));
+        GameResponse game = BoardService.getGame(request.getBoardID());
+        //TODO maybe check more
+        assertNotNull(game);
+    }
 
     @RepeatedTest(100)
     public void test_setWorms(){
@@ -288,7 +299,7 @@ public class BoardServiceTest {
         // total - 17
         int countShipLength = 0, counter = 0;
         for (char letter : move){
-            if (String.valueOf(letter).matches("[A-DS]"))
+            if (String.valueOf(letter).matches("[0-5]"))
                 countShipLength++;
 
 //            if (counter % BOARD_SIZE < BOARD_SIZE - 1) System.out.print(letter + ", ");
@@ -308,16 +319,21 @@ public class BoardServiceTest {
         assertTrue(String.valueOf(tray).matches("[A-Z]+"));
     }
 
-    //TODO test makeMove
-//    @Test
-//    public void test_makeMove_user(){
-//        anagramServiceMockedStatic.close();
-//        MockedStatic<BoardService> boardServiceStatic = mockStatic(BoardService.class, CALLS_REAL_METHODS);
-//
-//        when(request.isReplacedTray()).thenReturn(false);
-//        boardServiceStatic.when(() -> BoardService.validateMove(request)).thenReturn(mockBoard);
-//        boardServiceStatic.when(() -> BoardService.makeMove(request, mockBoard)).thenCallRealMethod();
-//    }
+    @Test
+    public void test_makeMove_user(){
+        Board mockOpposingBoard = mock(Board.class);
+        try(MockedStatic<BoardService> mockedStatic = mockStatic(BoardService.class, CALLS_REAL_METHODS)){
+            when(request.isReplacedTray()).thenReturn(false);
+            mockedStatic.when(() -> BoardService.validateMove(any())).thenReturn(mockBoard);
+            mockedStatic.when(() -> BoardService.getOpposingBoard(any())).thenReturn(mockOpposingBoard);
+            doNothing().when(mockBoard).setLetters(any());
+            doNothing().when(mockBoard).toggleActive();
+            doNothing().when(mockOpposingBoard).toggleActive();
+            mockedStatic.when(() -> BoardService.update(any())).then(invocationOnMock -> null);
+
+            mockedStatic.when(() -> BoardService.makeMove(request, mockBoard)).thenCallRealMethod();
+        }
+    }
 
     @RepeatedTest(BOARD_SIZE * BOARD_SIZE)
     public void test_validateMove_LongHorizontalMoveOnBlankBoard_succeed(RepetitionInfo repetitionInfo){
@@ -421,7 +437,6 @@ public class BoardServiceTest {
         if(r % BOARD_SIZE == 7 && r / BOARD_SIZE >= 6 && r / BOARD_SIZE <= 8) return;
         if(r / BOARD_SIZE == 7 && r % BOARD_SIZE >= 6 && r % BOARD_SIZE <= 8) return;
         move[0] = 'A';
-        move[7 * BOARD_SIZE + 7] = 'T';
         when(request.getLayout()).thenReturn(move);
         boardService.validateMove(request);
         verify(mockRepo, times(1)).findBoardByID(any());
@@ -1125,15 +1140,45 @@ public class BoardServiceTest {
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
         };
-        char[] hits = new char[]{
+
+        boolean[] checked = new boolean[BOARD_SIZE*BOARD_SIZE];
+        Arrays.fill(checked, false);
+        checked[4 * BOARD_SIZE + 3] = true;
+        checked[4 * BOARD_SIZE + 4] = true;
+        checked[4 * BOARD_SIZE + 5] = true;
+        checked[4 * BOARD_SIZE + 6] = true;
+        checked[6 * BOARD_SIZE] = true;
+        checked[6 * BOARD_SIZE + 1] = true;
+        checked[6 * BOARD_SIZE + 2] = true;
+        checked[6 * BOARD_SIZE + 3] = true;
+        checked[6 * BOARD_SIZE + 4] = true;
+        checked[6 * BOARD_SIZE + 5] = true;
+        checked[7 * BOARD_SIZE + 7] = true;
+        checked[6 * BOARD_SIZE + 7] = true;
+        checked[5 * BOARD_SIZE + 7] = true;
+        checked[4 * BOARD_SIZE + 7] = true;
+
+        try(MockedStatic<BoardService> mockedStatic = mockStatic(BoardService.class, CALLS_REAL_METHODS)) {
+            mockedStatic.when(() -> BoardService.getByID(any())).thenReturn(mockBoard);
+            mockedStatic.when(() -> BoardService.getOpposingBoard(any())).thenReturn(mockBoard);
+            when(mockBoard.getWorms()).thenReturn(worms);
+            mockedStatic.when(() -> BoardService.getChecked(any())).thenReturn(checked);
+            mockedStatic.when(() -> BoardService.gameOver(any())).thenCallRealMethod();
+        }
+    }
+
+    @Test
+    public void test_gameOver_endOfGame(){
+
+        char[] worms = new char[]{
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.',
-                '.', '.', '-', '#', '-', '-', '.', '-', '.', '.', '.', '.', '.', 'S', '.', '.',
-                '.', '.', '.', 'B', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.',
-                '-', '-', '-', '#', '-', '-', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', 'B', '.', '.', '.', '#', 'A', 'A', 'A', 'A', '.', '.', '.', '.',
+                '.', '.', '.', 'B', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.',
+                '.', '.', '.', 'B', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', 'B', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', 'B', '.', '.', '.', 'A', 'A', 'A', 'A', 'A', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', 'D', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', 'D', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
@@ -1160,11 +1205,48 @@ public class BoardServiceTest {
         checked[5 * BOARD_SIZE + 7] = true;
         checked[4 * BOARD_SIZE + 7] = true;
 
-        BoardService test = mock(BoardService.class);
+        try(MockedStatic<BoardService> mockedStatic = mockStatic(BoardService.class, CALLS_REAL_METHODS)) {
+            mockedStatic.when(() -> BoardService.getByID(any())).thenReturn(mockBoard);
+            mockedStatic.when(() -> BoardService.getOpposingBoard(any())).thenReturn(mockBoard);
+            when(mockBoard.getWorms()).thenReturn(worms);
+            mockedStatic.when(() -> BoardService.getChecked(any())).thenReturn(checked);
+            mockedStatic.when(() -> BoardService.gameOver(any())).thenCallRealMethod();
+        }
     }
 
     @Test
-    public void test_gameOver_endOfGame(){
+    public void test_calculateELO_WinWithEqualELO_succeed(){
+        float elo = BoardService.calculateELO(1000, 1000, true);
+        assertEquals(elo, 1016, 0.01);
+    }
 
+    @Test
+    public void test_calculateELO_LossWithEqualELO_succeed(){
+        float elo = BoardService.calculateELO(1000, 1000, false);
+        assertEquals(elo, 984, 0.01);
+    }
+
+    @Test
+    public void test_calculateELO_WinWithLessELO_succeed(){
+        float elo = BoardService.calculateELO(1000, 1500, true);
+        assertEquals(elo, 1030.29F, 0.01);
+    }
+
+    @Test
+    public void test_calculateELO_LossWithLessELO_succeed(){
+        float elo = BoardService.calculateELO(1000, 1500, false);
+        assertEquals(elo, 998.30F, 0.01);
+    }
+
+    @Test
+    public void test_calculateELO_WinWithMoreELO_succeed(){
+        float elo = BoardService.calculateELO(1500, 1000, true);
+        assertEquals(elo, 1501.70F, 0.01);
+    }
+
+    @Test
+    public void test_calculateELO_LossWithMoreELO_succeed(){
+        float elo = BoardService.calculateELO(1500, 1000, false);
+        assertEquals(elo, 1469.70F, 0.01);
     }
 }
