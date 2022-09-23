@@ -372,6 +372,14 @@ public class BoardService {
         return hits;
     }
 
+    private static void makeAdjacentTrue(boolean[] hits, int i){
+        hits[i] = true;
+        if (i / BOARD_SIZE == (i - 1) /BOARD_SIZE) hits[i - 1] = true;
+        if (i / BOARD_SIZE == (i + 1) /BOARD_SIZE) hits[i + 1] = true;
+        if (i - BOARD_SIZE >= 0) hits[i - BOARD_SIZE] = true;
+        if (i + BOARD_SIZE < BOARD_SIZE * BOARD_SIZE) hits[i + BOARD_SIZE] = true;
+    }
+
     public static boolean gameOver(UUID id){
         int hitCounter = 0;
         Board board = getByID(id);
@@ -385,14 +393,6 @@ public class BoardService {
         return hitCounter == TOTAL_WORM_LENGTHS;
     }
 
-    private static void makeAdjacentTrue(boolean[] hits, int i){
-        hits[i] = true;
-        if (i - 1 >= 0) hits[i - 1] = true;
-        if (i + 1 < BOARD_SIZE * BOARD_SIZE) hits[i + 1] = true;
-        if (i - BOARD_SIZE >= 0) hits[i - BOARD_SIZE] = true;
-        if (i + BOARD_SIZE < BOARD_SIZE * BOARD_SIZE) hits[i + BOARD_SIZE] = true;
-    }
-
     public static float calculateELO(float myELO, float oppELO, boolean isWinner){
         //From https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
         double myMod = Math.pow(10, (myELO/400));
@@ -400,5 +400,10 @@ public class BoardService {
         myMod /= myMod + oppMod;
         int k = 32; //TODO do better K-Factor calculation
         return (float) (myELO + k * ((isWinner ? 1 : 0) - myMod));
+    }
+
+    public static void endGame(UUID gameID) {
+        List<Board> boards = boardRepository.findBoardByGameID(gameID);
+        boardRepository.deleteAll(boards);
     }
 }
