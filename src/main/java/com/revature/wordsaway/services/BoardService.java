@@ -68,7 +68,7 @@ public class BoardService {
         return opposingBoard;
     }
 
-    public static GameResponse getGame(UUID boardID){
+    public static GameResponse getGame(UUID boardID) {
         Board myBoard = getByID(boardID);
         Board oppBoard = getOpposingBoard(myBoard);
         char[] letters = myBoard.getLetters();
@@ -77,21 +77,21 @@ public class BoardService {
         char[] oppWorms = oppBoard.getWorms();
         boolean[] checked = getChecked(letters);
         boolean[] oppChecked = getChecked(oppLetters);
-        for (int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++) {
+        for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
             if (checked[i] && letters[i] == '.') {
                 if (oppWorms[i] != '.') letters[i] = '@';
                 else letters[i] = '!';
             } else if (checked[i] && letters[i] == '*' && oppWorms[i] == '.') letters[i] = '&';
-            else if(checked[i] && oppWorms[i] == '.') letters[i] = Character.toLowerCase(letters[i]);
+            else if (checked[i] && oppWorms[i] == '.') letters[i] = Character.toLowerCase(letters[i]);
         }
-        for (int i = 0; i < BOARD_SIZE*BOARD_SIZE; i++) {
-            if(oppChecked[i]) {
-                if(worms[i] != '.') {
-                    if(oppLetters[i] == '*') worms[i] = '*';
+        for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+            if (oppChecked[i]) {
+                if (worms[i] != '.') {
+                    if (oppLetters[i] == '*') worms[i] = '*';
                     else if (oppLetters[i] == '.') worms[i] = '@';
                     else worms[i] = oppLetters[i];
-                }else{
-                    if(oppLetters[i] == '*') worms[i] ='&';
+                } else {
+                    if (oppLetters[i] == '*') worms[i] = '&';
                     else if (oppLetters[i] == '.') worms[i] = '!';
                     else worms[i] = Character.toLowerCase(oppLetters[i]);
                 }
@@ -109,11 +109,6 @@ public class BoardService {
                 oppBoard.getUser().getUsername(),
                 winner
         );
-    }
-
-    public static void getNewTray(char[] tray){
-        for (int i = 0; i < tray.length; i++)
-            tray[i] = getRandomChar();
     }
 
     public static void setWorms(char[] worms) {
@@ -148,6 +143,11 @@ public class BoardService {
                 if (flag) i++;
             }
         }
+    }
+
+    public static void getNewTray(char[] tray){
+        for (int i = 0; i < tray.length; i++)
+            tray[i] = getRandomChar();
     }
 
     private static char getRandomChar() {
@@ -379,7 +379,7 @@ public class BoardService {
         boolean[] checked = getChecked(board.getLetters());
 
         for (int i = 0; i < worms.length; i++)
-            if (checked[i] && worms[i] != '.' && String.valueOf(worms[i]).matches("[A-Z]"))
+            if (checked[i] && worms[i] != '.')
                 hitCounter++;
 
         return hitCounter == TOTAL_WORM_LENGTHS;
@@ -394,10 +394,11 @@ public class BoardService {
     }
 
     public static float calculateELO(float myELO, float oppELO, boolean isWinner){
-        myELO = (float) Math.pow(10, (myELO/400));
-        oppELO = (float) Math.pow(10, (oppELO/400));
-        myELO /= myELO + oppELO;
+        //From https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
+        double myMod = Math.pow(10, (myELO/400));
+        double oppMod = Math.pow(10, (oppELO/400));
+        myMod /= myMod + oppMod;
         int k = 32; //TODO do better K-Factor calculation
-        return myELO + k * (1 - myELO);
+        return (float) (myELO + k * ((isWinner ? 1 : 0) - myMod));
     }
 }

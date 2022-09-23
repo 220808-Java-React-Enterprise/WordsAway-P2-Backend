@@ -35,8 +35,8 @@ public class UserService {
         checkAvailableEmail(request.getEmail());
         float sum = 0;
         int total = 0;
-        for(User user: getAll()){
-            if(!user.isCPU()){
+        for (User user : userRepository.findAll()) {
+            if (!user.isCPU()) {
                 sum += user.getELO();
                 total++;
             }

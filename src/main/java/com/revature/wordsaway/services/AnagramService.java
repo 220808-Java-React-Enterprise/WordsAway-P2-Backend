@@ -62,7 +62,7 @@ public class AnagramService {
 
                 if (word.matches(letters)) return true;
             }
-        } catch (IOException | FailingHttpStatusCodeException e){ // todo handle exceptions
+        } catch (IOException | FailingHttpStatusCodeException e){
             return false;
         }
         return false;
@@ -96,7 +96,7 @@ public class AnagramService {
                     if (word.length() <= wordLength)
                         words.add(word);
             }
-        } catch (IOException | FailingHttpStatusCodeException e){ // todo handle exceptions
+        } catch (IOException | FailingHttpStatusCodeException e){
             return null;
         }
         return words;
