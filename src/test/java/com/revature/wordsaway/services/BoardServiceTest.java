@@ -1249,4 +1249,11 @@ public class BoardServiceTest {
         float elo = BoardService.calculateELO(1500, 1000, false);
         assertEquals(elo, 1469.70F, 0.01);
     }
+
+    @Test
+    public void test_endGame_succeed(){
+        boardService.endGame(UUID.fromString("00000000-0000-0000-0000-000000000000"));
+        verify(mockRepo, times(1)).findBoardByGameID(any());
+        verify(mockRepo, times(1)).deleteAll(any());
+    }
 }

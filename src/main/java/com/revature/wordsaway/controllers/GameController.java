@@ -182,6 +182,7 @@ public class GameController {
             User user = TokenService.extractRequesterDetails(req);
             Board board = BoardService.getByID(request.getBoardID());
             if(!user.equals(board.getUser())) throw new InvalidRequestException("You can not end someone else's game.");
+            if(!board.isActive()) throw new InvalidRequestException("Only the losing player can end the game.");
             if(!BoardService.gameOver(board.getId())) throw new InvalidRequestException("You can not end a game that is still in progress.");
             //TODO possibly allow for surrendering.
             BoardService.endGame(board.getGameID());
@@ -189,7 +190,7 @@ public class GameController {
         }catch(NetworkException e){
             resp.setStatus(e.getStatusCode());
             System.out.println(e.getMessage());
-            return null;
+            return e.getMessage();
         }
     }
 }
