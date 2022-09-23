@@ -32,7 +32,7 @@ public class UserService {
         //validatePassword(request.getPassword());
         if(request.getEmail() != null) validateEmail(request.getEmail());
         checkAvailableUsername(request.getUsername());
-        checkAvailableEmail(request.getEmail());
+        if(request.getEmail() != null) checkAvailableEmail(request.getEmail());
         float sum = 0;
         int total = 0;
         for (User user : userRepository.findAll()) {

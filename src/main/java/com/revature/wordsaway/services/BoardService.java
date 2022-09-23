@@ -340,31 +340,33 @@ public class BoardService {
                     break;
                 case 'F': case 'K': case 'V':
                 case 'Y': case 'W':
+                    hits[i] = true;
                     makeAdjacentTrue(hits, i);
                     break;
                 case 'J': case 'Q': case 'X':
                 case 'Z':
+                    hits[i] = true;
                     int startingRow = i / BOARD_SIZE;
                     for (int j = i; j >= 0 && j / BOARD_SIZE == startingRow; j--) {
                         if(letters[j] != '.' && letters[j] != '*'){
                             makeAdjacentTrue(hits, j);
-                        }
+                        }else break;
                     }
-                    for (int j = i + 1; j < BOARD_SIZE*BOARD_SIZE && j / BOARD_SIZE == startingRow; j++) {
+                    for (int j = i; j < BOARD_SIZE*BOARD_SIZE && j / BOARD_SIZE == startingRow; j++) {
                         if(letters[j] != '.' && letters[j] != '*'){
                             makeAdjacentTrue(hits, j);
-                        }
+                        }else break;
                     }
-                    int startingColumn = i / BOARD_SIZE;
+                    int startingColumn = i % BOARD_SIZE;
                     for (int j = i; j >= 0 && j % BOARD_SIZE == startingColumn; j-= BOARD_SIZE) {
                         if(letters[j] != '.' && letters[j] != '*'){
                             makeAdjacentTrue(hits, j);
-                        }
+                        }else break;
                     }
                     for (int j = i + BOARD_SIZE; j < BOARD_SIZE*BOARD_SIZE && j % BOARD_SIZE == startingColumn; j += BOARD_SIZE) {
                         if(letters[j] != '.' && letters[j] != '*'){
                             makeAdjacentTrue(hits, j);
-                        }
+                        }else break;
                     }
                     break;
             }
@@ -373,7 +375,6 @@ public class BoardService {
     }
 
     private static void makeAdjacentTrue(boolean[] hits, int i){
-        hits[i] = true;
         if (i / BOARD_SIZE == (i - 1) /BOARD_SIZE) hits[i - 1] = true;
         if (i / BOARD_SIZE == (i + 1) /BOARD_SIZE) hits[i + 1] = true;
         if (i - BOARD_SIZE >= 0) hits[i - BOARD_SIZE] = true;
