@@ -38,6 +38,7 @@ public class GameController {
         try {
             User user = TokenService.extractRequesterDetails(req);
             User opponent = UserService.getByUsername(request.getUsername());
+            if(user.getUsername().equals(opponent.getUsername())) throw new InvalidRequestException("You can not challenge yourself to a game. Nice try though.");
             for(OpponentResponse o : UserService.getAllOpponents(user.getUsername())){
                 if(o.getUsername().equals(opponent.getUsername()) && o.getBoard_id() != null)
                     throw new InvalidRequestException("Can not start another match with "+ opponent.getUsername() + ". Finish existing game first.");
@@ -172,5 +173,23 @@ public class GameController {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         subscribedBoards.put(request.getBoardID(), emitter);
         return emitter;
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/endGame", consumes = "application/json")
+    public String endGame(@RequestBody BoardRequest request, HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            User user = TokenService.extractRequesterDetails(req);
+            Board board = BoardService.getByID(request.getBoardID());
+            if(!user.equals(board.getUser())) throw new InvalidRequestException("You can not end someone else's game.");
+            if(!BoardService.gameOver(board.getId())) throw new InvalidRequestException("You can not end a game that is still in progress.");
+            //TODO possibly allow for surrendering.
+            BoardService.endGame(board.getGameID());
+            return "Game Ended";
+        }catch(NetworkException e){
+            resp.setStatus(e.getStatusCode());
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 }
