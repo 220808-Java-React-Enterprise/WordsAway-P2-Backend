@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -143,12 +144,16 @@ public class GameController {
             }
             SseEmitter emitter = subscribedBoards.get(opposingBoard.getId());
             if (emitter != null) {
+                emitter.send(SseEmitter.event().name("active"));
                 emitter.complete();
                 subscribedBoards.remove(opposingBoard.getId());
             }
             return "Move made.";
         }catch (NetworkException e){
             resp.setStatus(e.getStatusCode());
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        } catch (IOException e) {
             System.out.println(e.getMessage());
             return e.getMessage();
         }
@@ -168,10 +173,10 @@ public class GameController {
     }
     
     @CrossOrigin
-    @PostMapping(value = "/active", consumes = "application/json")
-    public SseEmitter isActive(@RequestBody BoardRequest request) {
+    @GetMapping(value = "/active")
+    public SseEmitter isActive(@RequestParam("board_id") String board_id) {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        subscribedBoards.put(request.getBoardID(), emitter);
+        subscribedBoards.put(UUID.fromString(board_id), emitter);
         return emitter;
     }
 
