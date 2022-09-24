@@ -144,7 +144,7 @@ public class GameController {
             }
             SseEmitter emitter = subscribedBoards.get(opposingBoard.getId());
             if (emitter != null) {
-                emitter.send(SseEmitter.event().name("active"));
+                emitter.send(SseEmitter.event().name("active").data("active"));
                 emitter.complete();
                 subscribedBoards.remove(opposingBoard.getId());
             }
