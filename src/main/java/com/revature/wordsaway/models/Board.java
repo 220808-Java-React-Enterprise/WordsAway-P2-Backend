@@ -11,7 +11,7 @@ import static com.revature.wordsaway.utils.Constants.BOARD_SIZE;
 @Component
 @Entity
 @Table(name = "boards")
-public class Board {
+public class Board implements Cloneable{
     @Id
     private UUID id;
     @OneToOne
@@ -35,8 +35,7 @@ public class Board {
     @Transient
     private char[][] lettersColumns;
 
-    protected Board() {
-    }
+    protected Board(){}
 
     public Board(UUID id, User user, char[] tray, int fireballs, char[] worms, char[] letters, UUID gameID, boolean isActive) {
         this.id = id;
@@ -49,15 +48,29 @@ public class Board {
         this.isActive = isActive;
     }
 
-    public Board(Board board){
-        this.id = board.getId();
-        this.user = board.getUser();
-        this.tray = board.getTray();
-        this.fireballs = board.getFireballs();
-        this.worms = board.getWorms();
-        this.letters = board.getLetters();
-        this.gameID = board.getGameID();
-        this.isActive = board.isActive();
+    @Override
+    public Board clone() {
+        try {
+            Board clone = (Board) super.clone();
+            clone.letters = new char[letters.length];
+            System.arraycopy(letters, 0, clone.letters, 0, letters.length);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+    public Board(Board board) {
+        this.id = board.id;
+        this.user = board.user;
+        this.tray = board.tray;
+        this.fireballs = board.fireballs;
+        this.worms = board.worms;
+        this.letters = board.letters;
+        this.gameID = board.gameID;
+        this.isActive = board.isActive;
+        this.lettersRows = board.lettersRows;
+        this.lettersColumns = board.lettersColumns;
     }
 
     public UUID getId() {
@@ -78,10 +91,6 @@ public class Board {
 
     public int getFireballs() {
         return fireballs;
-    }
-
-    public void setFireballs(int fireballs) {
-        this.fireballs = fireballs;
     }
 
     public void addFireballs(int fireballs) {

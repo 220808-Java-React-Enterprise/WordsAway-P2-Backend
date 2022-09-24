@@ -199,7 +199,6 @@ public class AIService {
         while (isLetter(target) || letters[target] == '*')
             target = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
         letters[target] = '*';
-        board.setFireballs(board.getFireballs() - 1);
     }
 
     private static boolean isLoop(boolean col, int start, int curr){
