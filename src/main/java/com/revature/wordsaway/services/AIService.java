@@ -40,7 +40,7 @@ public class AIService {
         if ((increment = easyBot()) != -1) {
             // Check if list is empty
             if (finalList.isEmpty()) {
-                Board newBoard = start(startTime, board);
+                Board newBoard = start(startTime, board.clone());
 
                 if (Arrays.equals(newBoard.getLetters(), board.getLetters()) && board.getFireballs() > 0) {
                     shootFireBall();
@@ -62,6 +62,11 @@ public class AIService {
         boolean col = (start = rand.nextInt(BOARD_SIZE + BOARD_SIZE)) % 2 == 0;
         start /= 2;
 
+        if (board.getFireballs() > 0 && rand.nextInt(100) % 20 == 0) {
+            shootFireBall();
+            return -1;
+        }
+
         // Establish increment variable
         int increment;
         if (col) increment = BOARD_SIZE;
@@ -81,11 +86,6 @@ public class AIService {
             }
             curr += increment;
             counter++;
-        }
-
-        if (board.getFireballs() > 0 && rand.nextInt(100) % 20 == 0) {
-            shootFireBall();
-            return -1;
         }
         return increment;
     }
@@ -199,6 +199,7 @@ public class AIService {
         while (isLetter(target) || letters[target] == '*')
             target = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
         letters[target] = '*';
+        board.setLetters(letters);
     }
 
     private static boolean isLoop(boolean col, int start, int curr){
