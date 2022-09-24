@@ -85,7 +85,7 @@ public class Board implements Cloneable{
     }
 
     public char[] getWorms() {
-        return worms;
+        return worms.clone();
     }
 
     public void setWorms(char[] worms) {
@@ -93,7 +93,7 @@ public class Board implements Cloneable{
     }
 
     public char[] getLetters() {
-        return letters;
+        return letters.clone();
     }
 
     public void setLetters(char[] letters) {
