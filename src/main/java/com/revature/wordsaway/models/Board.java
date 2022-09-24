@@ -60,19 +60,6 @@ public class Board implements Cloneable{
         }
     }
 
-    public Board(Board board) {
-        this.id = board.id;
-        this.user = board.user;
-        this.tray = board.tray;
-        this.fireballs = board.fireballs;
-        this.worms = board.worms;
-        this.letters = board.letters;
-        this.gameID = board.gameID;
-        this.isActive = board.isActive;
-        this.lettersRows = board.lettersRows;
-        this.lettersColumns = board.lettersColumns;
-    }
-
     public UUID getId() {
         return id;
     }
