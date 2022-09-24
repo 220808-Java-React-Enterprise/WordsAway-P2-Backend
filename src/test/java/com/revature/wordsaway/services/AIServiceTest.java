@@ -155,7 +155,7 @@ public class AIServiceTest {
         tray = "TESTING".toCharArray();
         newBoard.setTray(tray);
         newBoard.setLetters(setupBoardTwentyMovesIn());
-        newBoard.setFireballs(3);
+        newBoard.addFireballs(3);
         aiService.setRandomSeed(3);
 
         mockAnagram.when(() -> AnagramService.getAllList(anyString(), anyString(), anyInt())).thenReturn(Arrays.asList("TESTING"));

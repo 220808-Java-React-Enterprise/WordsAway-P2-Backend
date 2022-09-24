@@ -40,7 +40,7 @@ public class AIService {
         if ((increment = easyBot()) != -1) {
             // Check if list is empty
             if (finalList.isEmpty()) {
-                Board newBoard = start(startTime, board);
+                Board newBoard = start(startTime, board.clone());
 
                 if (Arrays.equals(newBoard.getLetters(), board.getLetters()) && board.getFireballs() > 0) {
                     shootFireBall();
@@ -56,11 +56,15 @@ public class AIService {
     }
 
     private static int easyBot(){
-        char[] letters = board.getLetters();
         // Get a random colum or row
         int start;
         boolean col = (start = rand.nextInt(BOARD_SIZE + BOARD_SIZE)) % 2 == 0;
         start /= 2;
+
+        if (board.getFireballs() > 0 && rand.nextInt(100) % 20 == 0) {
+            shootFireBall();
+            return -1;
+        }
 
         // Establish increment variable
         int increment;
@@ -82,11 +86,6 @@ public class AIService {
             curr += increment;
             counter++;
         }
-
-        if (board.getFireballs() > 0 && rand.nextInt(100) % 20 == 0) {
-            shootFireBall();
-            return -1;
-        }
         return increment;
     }
 
@@ -100,9 +99,11 @@ public class AIService {
         // Loop until end of colum or row
         for (int i = start; spacerCounter < tray.length && counter < BOARD_SIZE; i += increment){
             // Check if we are at a '.'
-            if (isLetter(i) && letters[i] != '*') {
-                sb.append(spacer.append(letters[i]));
-                spacer.delete(0, spacer.length());
+            if (isLetter(i)) {
+                if (letters[i] != '*') {
+                    sb.append(spacer.append(letters[i]));
+                    spacer.delete(0, spacer.length());
+                }
             }
             // If there is a value in sb then add a spacer to spacer
             else {
@@ -186,8 +187,7 @@ public class AIService {
         // Word being played
         char[] c = wl.word.toCharArray();
         for (int i = wl.location; counter < c.length; i += increment) {
-            if (!isLetter(i) || letters[i] == '*')
-                letters[i] = c[counter];
+            letters[i] = c[counter];
             counter++;
         }
         board.setLetters(letters);
@@ -199,6 +199,7 @@ public class AIService {
         while (isLetter(target) || letters[target] == '*')
             target = rand.nextInt(BOARD_SIZE * BOARD_SIZE);
         letters[target] = '*';
+        board.setLetters(letters);
     }
 
     private static boolean isLoop(boolean col, int start, int curr){

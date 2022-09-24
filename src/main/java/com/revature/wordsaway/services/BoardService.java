@@ -387,11 +387,11 @@ public class BoardService {
         char[] worms = getOpposingBoard(board).getWorms();
         boolean[] checked = getChecked(board.getLetters());
 
-        for (int i = 0; i < worms.length; i++)
+        for (int i = 0; i < worms.length; i++) {
             if (checked[i] && worms[i] != '.')
                 hitCounter++;
-
-        return hitCounter == TOTAL_WORM_LENGTHS;
+        }
+        return hitCounter >= TOTAL_WORM_LENGTHS;
     }
 
     public static float calculateELO(float myELO, float oppELO, boolean isWinner){

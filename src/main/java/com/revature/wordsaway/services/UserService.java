@@ -30,9 +30,11 @@ public class UserService {
     public static User register(NewUserRequest request){
         validateUsername(request.getUsername());
         //validatePassword(request.getPassword());
-        if(request.getEmail() != null) validateEmail(request.getEmail());
         checkAvailableUsername(request.getUsername());
-        if(request.getEmail() != null) checkAvailableEmail(request.getEmail());
+        if(request.getEmail() != null && !request.getEmail().equals("")){
+            validateEmail(request.getEmail());
+            checkAvailableEmail(request.getEmail());
+        }
         float sum = 0;
         int total = 0;
         for (User user : userRepository.findAll()) {
