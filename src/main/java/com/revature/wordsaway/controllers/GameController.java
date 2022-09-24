@@ -128,19 +128,7 @@ public class GameController {
                 return "Winner!";
             }
             if (opponent.isCPU()) {
-                Board botBoard = AIService.start(System.currentTimeMillis(), opposingBoard.clone());
-                request.setBoardID(opposingBoard.getId());
-                request.setReplacedTray(Arrays.equals(opposingBoard.getLetters(), botBoard.getLetters()));
-                request.setLayout(botBoard.getLetters());
-                BoardService.makeMove(request, opposingBoard);
-                if (BoardService.gameOver(opposingBoard.getId())){
-                    user.setELO(BoardService.calculateELO(user.getELO(), opponent.getELO(), false));
-                    user.setGamesPlayed(user.getGamesPlayed() + 1);
-                    UserService.update(user);
-                    opponent.setGamesPlayed(opponent.getGamesPlayed() + 1);
-                    opponent.setGamesWon(opponent.getGamesWon() + 1);
-                    UserService.update(opponent);
-                }
+                cpuMakeMove(request, user, opponent, opposingBoard);
             }
             SseEmitter emitter = subscribedBoards.get(opposingBoard.getId());
             if (emitter != null) {
@@ -156,6 +144,22 @@ public class GameController {
         } catch (IOException e) {
             System.out.println(e.getMessage());
             return e.getMessage();
+        }
+    }
+
+    private static void cpuMakeMove(BoardRequest request, User user, User opponent, Board opposingBoard){
+        Board botBoard = AIService.start(System.currentTimeMillis(), opposingBoard.clone());
+        request.setBoardID(opposingBoard.getId());
+        request.setReplacedTray(Arrays.equals(opposingBoard.getLetters(), botBoard.getLetters()));
+        request.setLayout(botBoard.getLetters());
+        BoardService.makeMove(request, opposingBoard);
+        if (BoardService.gameOver(opposingBoard.getId())){
+            user.setELO(BoardService.calculateELO(user.getELO(), opponent.getELO(), false));
+            user.setGamesPlayed(user.getGamesPlayed() + 1);
+            UserService.update(user);
+            opponent.setGamesPlayed(opponent.getGamesPlayed() + 1);
+            opponent.setGamesWon(opponent.getGamesWon() + 1);
+            UserService.update(opponent);
         }
     }
 
