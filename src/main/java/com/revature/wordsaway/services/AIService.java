@@ -56,7 +56,6 @@ public class AIService {
     }
 
     private static int easyBot(){
-        char[] letters = board.getLetters();
         // Get a random colum or row
         int start;
         boolean col = (start = rand.nextInt(BOARD_SIZE + BOARD_SIZE)) % 2 == 0;
@@ -100,9 +99,11 @@ public class AIService {
         // Loop until end of colum or row
         for (int i = start; spacerCounter < tray.length && counter < BOARD_SIZE; i += increment){
             // Check if we are at a '.'
-            if (isLetter(i) && letters[i] != '*') {
-                sb.append(spacer.append(letters[i]));
-                spacer.delete(0, spacer.length());
+            if (isLetter(i)) {
+                if (letters[i] != '*') {
+                    sb.append(spacer.append(letters[i]));
+                    spacer.delete(0, spacer.length());
+                }
             }
             // If there is a value in sb then add a spacer to spacer
             else {
@@ -186,7 +187,7 @@ public class AIService {
         // Word being played
         char[] c = wl.word.toCharArray();
         for (int i = wl.location; counter < c.length; i += increment) {
-            if (!isLetter(i) || letters[i] == '*')
+            if (!isLetter(i) || letters[i] != '*')
                 letters[i] = c[counter];
             counter++;
         }
