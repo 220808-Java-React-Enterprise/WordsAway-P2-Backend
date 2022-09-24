@@ -58,8 +58,12 @@ public class GameController {
     @GetMapping(value = "/getGame", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody GameResponse getGame(@Param("id") String id, HttpServletResponse resp, HttpServletRequest req) {
         try {
-            TokenService.extractRequesterDetails(req);
-            return BoardService.getGame(UUID.fromString(id));
+            User user = TokenService.extractRequesterDetails(req);
+            UUID uuid = UUID.fromString(id);
+            Board board = BoardService.getByID(uuid);
+            Board opposingBoard = BoardService.getOpposingBoard(board);
+            if(opposingBoard.getUser().isCPU() && opposingBoard.isActive()) cpuMakeMove(board, opposingBoard);
+            return BoardService.getGame(uuid);
         }catch (NetworkException e) {
             resp.setStatus(e.getStatusCode());
             System.out.println(e.getMessage());
@@ -127,21 +131,7 @@ public class GameController {
                 UserService.update(opponent);
                 return "Winner!";
             }
-            if (opponent.isCPU()) {
-                Board botBoard = AIService.start(System.currentTimeMillis(), opposingBoard.clone());
-                request.setBoardID(opposingBoard.getId());
-                request.setReplacedTray(Arrays.equals(opposingBoard.getLetters(), botBoard.getLetters()));
-                request.setLayout(botBoard.getLetters());
-                BoardService.makeMove(request, opposingBoard);
-                if (BoardService.gameOver(opposingBoard.getId())){
-                    user.setELO(BoardService.calculateELO(user.getELO(), opponent.getELO(), false));
-                    user.setGamesPlayed(user.getGamesPlayed() + 1);
-                    UserService.update(user);
-                    opponent.setGamesPlayed(opponent.getGamesPlayed() + 1);
-                    opponent.setGamesWon(opponent.getGamesWon() + 1);
-                    UserService.update(opponent);
-                }
-            }
+            if (opponent.isCPU()) cpuMakeMove(board, opposingBoard);
             SseEmitter emitter = subscribedBoards.get(opposingBoard.getId());
             if (emitter != null) {
                 emitter.send(SseEmitter.event().name("active").data("active"));
@@ -156,6 +146,32 @@ public class GameController {
         } catch (IOException e) {
             System.out.println(e.getMessage());
             return e.getMessage();
+        }
+    }
+
+    private static void cpuMakeMove(Board board, Board opposingBoard){
+        try {
+            User user = board.getUser();
+            User opponent = opposingBoard.getUser();
+            Board botBoard = AIService.start(System.currentTimeMillis(), opposingBoard.clone());
+            BoardRequest request = new BoardRequest();
+            request.setBoardID(opposingBoard.getId());
+            request.setReplacedTray(Arrays.equals(opposingBoard.getLetters(), botBoard.getLetters()));
+            request.setLayout(botBoard.getLetters());
+            BoardService.makeMove(request, opposingBoard);
+            if (BoardService.gameOver(opposingBoard.getId())) {
+                user.setELO(BoardService.calculateELO(user.getELO(), opponent.getELO(), false));
+                user.setGamesPlayed(user.getGamesPlayed() + 1);
+                UserService.update(user);
+                opponent.setGamesPlayed(opponent.getGamesPlayed() + 1);
+                opponent.setGamesWon(opponent.getGamesWon() + 1);
+                UserService.update(opponent);
+            }
+        }catch (NetworkException e){
+            board.toggleActive();
+            opposingBoard.toggleActive();
+            BoardService.update(board);
+            BoardService.update(opposingBoard);
         }
     }
 
@@ -186,9 +202,12 @@ public class GameController {
         try {
             User user = TokenService.extractRequesterDetails(req);
             Board board = BoardService.getByID(request.getBoardID());
+            Board opposingBoard = BoardService.getOpposingBoard(board);
             if(!user.equals(board.getUser())) throw new InvalidRequestException("You can not end someone else's game.");
-            if(!board.isActive()) throw new InvalidRequestException("Only the losing player can end the game.");
-            if(!BoardService.gameOver(board.getId())) throw new InvalidRequestException("You can not end a game that is still in progress.");
+            if(!board.isActive() && !opposingBoard.getUser().isCPU())
+                throw new InvalidRequestException("Only the losing player can end the game.");
+            if(!BoardService.gameOver(opposingBoard.getId()) && !BoardService.gameOver(board.getId()))
+                throw new InvalidRequestException("You can not end a game that is still in progress.");
             //TODO possibly allow for surrendering.
             BoardService.endGame(board.getGameID());
             return "Game Ended";
