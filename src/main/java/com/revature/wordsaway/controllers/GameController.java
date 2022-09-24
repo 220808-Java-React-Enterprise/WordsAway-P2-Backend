@@ -127,11 +127,11 @@ public class GameController {
                 UserService.update(opponent);
                 return "Winner!";
             }
-            if (opponent.isCPU()){
-                Board bot = AIService.start(System.currentTimeMillis(), opposingBoard);
+            if (opponent.isCPU()) {
+                Board botBoard = AIService.start(System.currentTimeMillis(), opposingBoard.clone());
                 request.setBoardID(opposingBoard.getId());
-                request.setReplacedTray(Arrays.equals(opposingBoard.getLetters(), bot.getLetters()));
-                request.setLayout(bot.getLetters());
+                request.setReplacedTray(Arrays.equals(opposingBoard.getLetters(), botBoard.getLetters()));
+                request.setLayout(botBoard.getLetters());
                 BoardService.makeMove(request, opposingBoard);
                 if (BoardService.gameOver(opposingBoard.getId())){
                     user.setELO(BoardService.calculateELO(user.getELO(), opponent.getELO(), false));
