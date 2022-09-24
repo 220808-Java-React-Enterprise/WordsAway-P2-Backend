@@ -151,15 +151,16 @@ public class BoardService {
     }
 
     private static char getRandomChar() {
-        double[] weights = new double[]{0.03d, 0.05d, 0.08d, 0.12d, 0.16d, 0.18d, 0.18d, 0.18d};
-        String[] charSets = new String[]{"G", "JKQXZ", "O", "E", "DLSU", "AI", "NRT", "BCFHMPVWY"};
+        double[] weights = new double[]{0.01d, 0.01d, 0.01d, 0.01d, 0.01d, 0.02d, 0.02d, 0.02d, 0.02d, 0.02d, 0.02d, 0.02d, 0.02d, 0.02d, 0.03d, 0.04d, 0.04d, 0.04d, 0.04d, 0.06d, 0.06d, 0.06d, 0.08d, 0.09d, 0.09d, 0.12d};
+        char[] charSet = new char[]{'J', 'K', 'Q', 'X', 'Z', 'B', 'C', 'F', 'H', 'M', 'P', 'V', 'W', 'Y', 'G', 'D', 'L', 'S', 'U', 'O', 'N', 'R', 'T', 'A', 'I', 'E',};
+//        double[] weights = new double[]{0.03d, 0.05d, 0.08d, 0.12d, 0.16d, 0.18d, 0.18d, 0.18d};
+//        String[] charSets = new String[]{"G", "JKQXZ", "O", "E", "DLSU", "AI", "NRT", "BCFHMPVWY"};
         int counter = 0;
         for (double r = Math.random(); counter < weights.length - 1; counter++) {
             r -= weights[counter];
             if (r <= 0.0) break;
         }
-        Random rand = new Random();
-        return charSets[counter].charAt(rand.nextInt(100) % charSets[counter].length());
+        return charSet[counter];
     }
 
     public static void makeMove(BoardRequest request, Board board){
