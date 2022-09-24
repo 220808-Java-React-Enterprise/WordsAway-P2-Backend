@@ -187,8 +187,7 @@ public class AIService {
         // Word being played
         char[] c = wl.word.toCharArray();
         for (int i = wl.location; counter < c.length; i += increment) {
-            if (!isLetter(i) || letters[i] != '*')
-                letters[i] = c[counter];
+            letters[i] = c[counter];
             counter++;
         }
         board.setLetters(letters);
