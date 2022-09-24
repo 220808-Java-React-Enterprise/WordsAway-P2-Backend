@@ -202,9 +202,12 @@ public class GameController {
         try {
             User user = TokenService.extractRequesterDetails(req);
             Board board = BoardService.getByID(request.getBoardID());
+            Board opposingBoard = BoardService.getOpposingBoard(board);
             if(!user.equals(board.getUser())) throw new InvalidRequestException("You can not end someone else's game.");
-            if(!board.isActive()) throw new InvalidRequestException("Only the losing player can end the game.");
-            if(!BoardService.gameOver(BoardService.getOpposingBoard(board).getId())) throw new InvalidRequestException("You can not end a game that is still in progress.");
+            if(!board.isActive() && !opposingBoard.getUser().isCPU())
+                throw new InvalidRequestException("Only the losing player can end the game.");
+            if(!BoardService.gameOver(opposingBoard.getId()) && !BoardService.gameOver(board.getId()))
+                throw new InvalidRequestException("You can not end a game that is still in progress.");
             //TODO possibly allow for surrendering.
             BoardService.endGame(board.getGameID());
             return "Game Ended";
