@@ -48,18 +48,18 @@ grid wins.
 
 ### Tech Stack
 - Java 8
-- HTML/Typescript
-- React
+- Spring Boot
 - PostgreSQL
-- JDBC
 - JWT
+- Anagramica
 - Maven
 - JUnit
 - Mockito
-- Spring
+- HTML/Typescript
+- React
 - AWS Elastic Beanstalk
 - AWS S3 Bucket
-- Anagramica
+
 
 
 ### MVP
