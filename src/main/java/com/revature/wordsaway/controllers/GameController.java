@@ -129,9 +129,10 @@ public class GameController {
                 if(!opponent.isCPU()) opponent.setELO(BoardService.calculateELO(opponent.getELO(), user.getELO(), false));
                 opponent.setGamesPlayed(opponent.getGamesPlayed() + 1);
                 UserService.update(opponent);
-                return "Winner!";
+            }else if (opponent.isCPU()) {
+                cpuMakeMove(board, opposingBoard);
+                opposingBoard = board;
             }
-            if (opponent.isCPU()) cpuMakeMove(board, opposingBoard);
             SseEmitter emitter = subscribedBoards.get(opposingBoard.getId());
             if (emitter != null) {
                 emitter.send(SseEmitter.event().name("active").data("active"));
