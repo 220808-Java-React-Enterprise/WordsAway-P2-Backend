@@ -16,6 +16,8 @@
 - MVP
 - Stretch Goals
 - API
+- ERD
+- Contributors
 
 ### Proposal
 Words Away is a web based game combining the mechanics of Battleship and Scrabble. 
