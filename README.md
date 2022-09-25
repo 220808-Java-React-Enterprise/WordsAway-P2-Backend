@@ -58,6 +58,7 @@ grid wins.
 - Mockito
 - Spring
 - AWS Elastic Beanstalk
+- AWS S3 Bucket
 - Anagramica
 
 
