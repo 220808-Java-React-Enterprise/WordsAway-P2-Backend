@@ -47,16 +47,21 @@ grid wins.
 
 
 ### Tech Stack
+#### Backend
 - Java 8
 - Spring Boot
-- PostgreSQL
 - JWT
-- Anagramica
 - Maven
 - JUnit
 - Mockito
+
+#### Frontend
 - HTML/Typescript
 - React
+
+#### Hosting
+- Anagramica
+- PostgreSQL
 - AWS Elastic Beanstalk
 - AWS S3 Bucket
 
