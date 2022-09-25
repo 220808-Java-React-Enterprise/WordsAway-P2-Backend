@@ -99,11 +99,11 @@ public class AIService {
         // Loop until end of colum or row
         for (int i = start; spacerCounter < tray.length && counter < BOARD_SIZE; i += increment){
             // Check if we are at a '.'
-            if (isLetter(i)) {
+            if (isLetter(i) || letters[i] == '*') {
                 if (letters[i] != '*') {
                     sb.append(spacer.append(letters[i]));
                     spacer.delete(0, spacer.length());
-                }
+                } else break;
             }
             // If there is a value in sb then add a spacer to spacer
             else {
@@ -158,14 +158,14 @@ public class AIService {
                     // Clear sb
                     sb.delete(0, sb.length());
                     // Check if letter fits in current location
-                    if (isLetter(j) && letters[j] != c[index]) break exit;
+                    if (letters[j] == '*' || (isLetter(j) && letters[j] != c[index])) break exit;
 
                     // Letters in the neg direction
-                    for (int cw = j - newIncrement; cw >= 0 && isLoop(!col, j, cw) && isLetter(cw) && letters[cw] != '*'; cw -= newIncrement)
+                    for (int cw = j - newIncrement; cw >= 0 && isLoop(!col, j, cw) && isLetter(cw); cw -= newIncrement)
                         sb.insert(0, sb.length() != 0 ? letters[cw] : String.valueOf(letters[cw]) + c[index]);
 
                     // Letters in the pos direction
-                    for (int cw = j + newIncrement; cw < letters.length && isLoop(!col, j, cw) && isLetter(cw) && letters[cw] != '*'; cw += newIncrement)
+                    for (int cw = j + newIncrement; cw < letters.length && isLoop(!col, j, cw) && isLetter(cw); cw += newIncrement)
                         sb.append(sb.length() != 0 ? letters[cw] : String.valueOf(c[index]) + letters[cw]);
 
                     // Validate word
