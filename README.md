@@ -108,6 +108,7 @@ grid wins.
  ####
  - Nicholas Fielder
    - Frontend user interaction with game
+   - Frontend challenger screen
    - Frontend Styling
  ####
  - Robert James
