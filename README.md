@@ -79,7 +79,7 @@ grid wins.
  - Allow user to place worms
  - Notify user of destroyed worm
  - Update appearance of webpage
- - Player/Emote communication 😀😠😅😭💀🤷💅
+ - Player Communication
  - Notify user of turn
  - Profile Viewing
  - Tutorial
