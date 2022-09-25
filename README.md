@@ -88,7 +88,6 @@ grid wins.
 
 ### API Functionality
  - API will reference external API to check player move validity.
- - Anagramica
 
 
 ### ERD
