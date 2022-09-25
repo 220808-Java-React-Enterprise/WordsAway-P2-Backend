@@ -375,8 +375,8 @@ public class BoardService {
     }
 
     private static void makeAdjacentTrue(boolean[] hits, int i){
-        if (i / BOARD_SIZE == (i - 1) /BOARD_SIZE) hits[i - 1] = true;
-        if (i / BOARD_SIZE == (i + 1) /BOARD_SIZE) hits[i + 1] = true;
+        if (i - 1 >= 0 && i / BOARD_SIZE == (i - 1) /BOARD_SIZE) hits[i - 1] = true;
+        if (i + 1 < BOARD_SIZE*BOARD_SIZE && i / BOARD_SIZE == (i + 1) /BOARD_SIZE) hits[i + 1] = true;
         if (i - BOARD_SIZE >= 0) hits[i - BOARD_SIZE] = true;
         if (i + BOARD_SIZE < BOARD_SIZE * BOARD_SIZE) hits[i + BOARD_SIZE] = true;
     }
